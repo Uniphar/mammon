@@ -1,2 +1,2 @@
-# mammon
+# Mammon
 Cost Management Solution
