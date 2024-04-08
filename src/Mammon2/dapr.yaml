@@ -1,0 +1,7 @@
+version: 1
+common:
+  resourcesPath: ./LocalComponents
+apps:
+  - appID: Mammon
+    appDirPath: ./Mammon
+    command: ["dotnet", "run"]
