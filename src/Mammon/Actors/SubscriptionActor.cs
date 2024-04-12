@@ -28,6 +28,7 @@ namespace MammonActors.Actors
                     details.Add(topResourceId, actorIdGuid);
                 }
 
+                //TODO: investigate why guids do not seem to be accepted
                 var resourceActor = ProxyFactory.CreateActorProxy<IResourceActor>(new Dapr.Actors.ActorId($"ResourceActor1"), "ResourceActor");
 
                 await resourceActor.AddCostAsync(cost.ResourceId, cost.Cost, []);
