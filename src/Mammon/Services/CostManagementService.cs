@@ -45,8 +45,7 @@ namespace MammonActors.Services
             if (string.IsNullOrWhiteSpace(subId))
                 throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
-            //TODO: derive time frame from actual report request (explicit or implied?)
-            var costApirequest = "{\"type\":\"ActualCost\",\"dataSet\":{\"granularity\":\"None\",\"aggregation\":{\"totalCost\":{\"name\":\"Cost\",\"function\":\"Sum\"}},\"grouping\":[{\"type\":\"Dimension\",\"name\":\"ResourceId\"}],\"include\":[\"Tags\"]},\"timeframe\":\"Custom\",\"timePeriod\":{\"from\":\"2024-03-01T00:00:00+00:00\",\"to\":\"2024-03-31T23:59:59+00:00\"}}";
+            var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.costFrom:yyyy-MM-dd}T00:00:00+00:00\",\"to\":\"{request.costTo:yyyy-MM-dd}T00:00:00+00:00\"}}}}";
        
             var content = new StringContent(costApirequest, Encoding.UTF8, "application/json");
 

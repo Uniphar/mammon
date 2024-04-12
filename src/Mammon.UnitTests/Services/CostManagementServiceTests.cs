@@ -9,7 +9,7 @@ using RichardSzalay.MockHttp;
 namespace Mammon.UnitTests.Services
 {
     [TestClass()]
-    [TestCategory("unitTest")]
+    [TestCategory("UnitTest")]
     public class CostManagementServiceTests
     {
         [TestMethod]

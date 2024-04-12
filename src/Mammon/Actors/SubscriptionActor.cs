@@ -1,5 +1,6 @@
 ﻿using Dapr.Actors.Runtime;
 using Mammon.Actors;
+using Mammon.Extensions;
 using Mammon.Models.Actors;
 using MammonActors.Services;
 
@@ -12,12 +13,24 @@ namespace MammonActors.Actors
         public async Task RunWorkload(CostReportRequest request)
         {
             var costs = await costManagementService.QueryForSubAsync(request);
-            int x = 0;
-            foreach (var cost in costs) {
-                //TODO: implement suitable resource id based actor naming
-                var resourceActor = ProxyFactory.CreateActorProxy<IResourceActor>(new Dapr.Actors.ActorId($"ResourceActor{x++}"), "ResourceActor");
 
-                await resourceActor.AddCostAsync(cost.Cost, []);
+            Dictionary<string, Guid> details = [];
+
+            foreach (var cost in costs) {
+
+                //derive resource actor id from the full resource id - can contain sub-providers and the string is generally not acceptable to be actor id
+                //TODO: consider converting this string into UUID (MD5 based?) - removing need for dictionary later
+                var topResourceId = cost.ResourceId.ToResourceActorId();
+
+                if (!details.TryGetValue(topResourceId, out Guid actorIdGuid))
+                {
+                    actorIdGuid = Guid.NewGuid();
+                    details.Add(topResourceId, actorIdGuid);
+                }
+
+                var resourceActor = ProxyFactory.CreateActorProxy<IResourceActor>(new Dapr.Actors.ActorId($"ResourceActor1"), "ResourceActor");
+
+                await resourceActor.AddCostAsync(cost.ResourceId, cost.Cost, []);
             }
         }
     }

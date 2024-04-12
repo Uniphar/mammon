@@ -64,7 +64,10 @@ app.Lifetime.ApplicationStarted.Register(async () =>
         , new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan }
 #endif
         );
-    await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", costFrom = DateTime.UtcNow.AddDays(-30), costTo = DateTime.UtcNow });
+#if (DEBUG)
+    await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", costFrom = DateTime.UtcNow.AddDays(-31), costTo = DateTime.UtcNow.AddDays(-1) });
+    app.StopAsync().Wait();
+#endif
 });
 
 app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());

@@ -4,6 +4,6 @@ namespace Mammon.Actors
 {
     public interface IResourceActor : IActor
     {
-        Task AddCostAsync(double cost, string[]? tags);
+        Task AddCostAsync(string costId, double cost, string[]? tags);
     }
 }
