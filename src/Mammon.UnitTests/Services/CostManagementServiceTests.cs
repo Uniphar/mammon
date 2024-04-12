@@ -1,5 +1,6 @@
 ﻿using Azure.ResourceManager;
 using FluentAssertions;
+using Mammon.Models.Actors;
 using MammonActors.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -28,14 +29,14 @@ namespace Mammon.UnitTests.Services
             var service = new TestCostManagementService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostManagementService>>());
 
             //test
-            var result = await service.QueryForSubAsync("blah");
+            var result = await service.QueryForSubAsync(new CostReportRequest { SubscriptionName="blah"});
 
             //assert
             result.Should().NotBeNull();
             result.Should().HaveCount(2);
             result.Should().Contain((r) => r.Cost == 73.96 && r.ResourceId == "resource1");
             result.Should().Contain((r) => r.Cost == 12.34 && r.ResourceId == "resource2");
-        }
+        }        
 
         class TestCostManagementService(ArmClient armClient, HttpClient httpClient, ILogger<CostManagementService> logger) : CostManagementService(armClient, httpClient, logger)
         {

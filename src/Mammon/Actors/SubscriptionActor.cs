@@ -1,5 +1,6 @@
 ﻿using Dapr.Actors.Runtime;
 using Mammon.Actors;
+using Mammon.Models.Actors;
 using MammonActors.Services;
 
 namespace MammonActors.Actors
@@ -8,9 +9,9 @@ namespace MammonActors.Actors
     {
         private readonly CostManagementService costManagementService = costManagementService;
 
-        public async Task RunWorkload(string payload)
+        public async Task RunWorkload(CostReportRequest request)
         {
-            var costs = await costManagementService.QueryForSubAsync("uniphar-dev");
+            var costs = await costManagementService.QueryForSubAsync(request);
             int x = 0;
             foreach (var cost in costs) {
                 //TODO: implement suitable resource id based actor naming

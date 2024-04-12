@@ -1,4 +1,6 @@
 ﻿using Azure.ResourceManager;
+using FluentValidation;
+using Mammon.Models.Actors;
 using MammonActors.Models.CostManagement;
 using MammonActors.Utils;
 using System.Text;
@@ -11,7 +13,7 @@ namespace MammonActors.Services
         private readonly ArmClient armClient;
         private readonly HttpClient httpClient;
         private readonly ILogger<CostManagementService> logger;
-        private readonly JsonSerializerOptions jsonSerializerOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
+        private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
         private const string costAPIVersion = "2023-11-01";
 
@@ -35,17 +37,18 @@ namespace MammonActors.Services
             return subByName?.Id ?? string.Empty;
         }
 
-        public async Task<AzureCostResponse> QueryForSubAsync(string subName)
+        public async Task<AzureCostResponse> QueryForSubAsync(CostReportRequest request)
         {
-            var subId = GetSubscriptionId(subName);
+            new CostReportRequestValidator().ValidateAndThrow(request);
+
+            var subId = GetSubscriptionId(request.SubscriptionName);
             if (string.IsNullOrWhiteSpace(subId))
-                throw new InvalidOperationException($"Unable to find subscription {subName}");
+                throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
             //TODO: derive time frame from actual report request (explicit or implied?)
-            var request = "{\"type\":\"ActualCost\",\"dataSet\":{\"granularity\":\"None\",\"aggregation\":{\"totalCost\":{\"name\":\"Cost\",\"function\":\"Sum\"}},\"grouping\":[{\"type\":\"Dimension\",\"name\":\"ResourceId\"}],\"include\":[\"Tags\"]},\"timeframe\":\"Custom\",\"timePeriod\":{\"from\":\"2024-03-01T00:00:00+00:00\",\"to\":\"2024-03-31T23:59:59+00:00\"}}";
-
+            var costApirequest = "{\"type\":\"ActualCost\",\"dataSet\":{\"granularity\":\"None\",\"aggregation\":{\"totalCost\":{\"name\":\"Cost\",\"function\":\"Sum\"}},\"grouping\":[{\"type\":\"Dimension\",\"name\":\"ResourceId\"}],\"include\":[\"Tags\"]},\"timeframe\":\"Custom\",\"timePeriod\":{\"from\":\"2024-03-01T00:00:00+00:00\",\"to\":\"2024-03-31T23:59:59+00:00\"}}";
        
-            var content = new StringContent(request, Encoding.UTF8, "application/json");
+            var content = new StringContent(costApirequest, Encoding.UTF8, "application/json");
 
             //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
 
