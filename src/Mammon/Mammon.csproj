@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>47ece60e-f306-4e4b-9245-0480438b730f</UserSecretsId>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.*" />
+    <PackageReference Include="Azure.Identity" Version="1.*" />    
+    <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="1.*" />
+    <PackageReference Include="Azure.ResourceManager.CostManagement" Version="1.*" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.*" />
+    <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="8.*" />
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
+    <PackageReference Include="Dapr.Actors" Version="1.*" />
+    <PackageReference Include="Dapr.Actors.AspNetCore" Version="1.*" />
+  </ItemGroup>
+
+</Project>

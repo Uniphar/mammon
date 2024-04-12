@@ -3,5 +3,5 @@ common:
   resourcesPath: ./LocalComponents
 apps:
   - appID: Mammon
-    appDirPath: ./Mammon
+    appDirPath: ./MammonActors
     command: ["dotnet", "run"]

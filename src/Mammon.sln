@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34723.18
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{482D50CD-26A1-45C4-B0F7-157C7E1265AB}"
+	ProjectSection(SolutionItems) = preProject
+		LocalComponents\actorStateStore.yaml = LocalComponents\actorStateStore.yaml
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mammon", "Mammon\Mammon.csproj", "{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mammon.UnitTests", "Mammon.UnitTests\Mammon.UnitTests.csproj", "{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {931BFCEC-ABA6-477E-9012-B5FF64DF7DD1}
+	EndGlobalSection
+EndGlobal
