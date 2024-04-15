@@ -1,8 +1,7 @@
-﻿namespace MammonActors.Models.Actors
+﻿namespace Mammon.Models.Actors;
+
+public class ResourceActorState
 {
-    public class ResourceActorState
-    {
-        public double Cost { get; set; }
-        public Dictionary<string, double> CostItems { get; set; } = [];
-    }
+    public double Cost { get; set; }
+    public Dictionary<string, double> CostItems { get; set; } = [];
 }

@@ -1,10 +1,6 @@
-﻿using Dapr.Actors;
-using Mammon.Models.Actors;
+﻿namespace Mammon.Actors;
 
-namespace MammonActors.Actors
+public interface ISubscriptionActor : IActor
 {
-    public interface ISubscriptionActor : IActor
-    {
-        Task RunWorkload(CostReportRequest request);
-    }
+    Task RunWorkload(CostReportRequest request);
 }

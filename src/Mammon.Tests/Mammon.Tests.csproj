@@ -10,13 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.*" />
-    <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.3" />
+    <PackageReference Include="coverlet.collector" Version="*" />
+    <PackageReference Include="FluentAssertions" Version="*-*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
-    <PackageReference Include="Moq" Version="4.*" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.*" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.*" />
-    <PackageReference Include="RichardSzalay.MockHttp" Version="7.*" />
+    <PackageReference Include="Moq" Version="*" />
+    <PackageReference Include="MSTest.TestAdapter" Version="*" />
+    <PackageReference Include="MSTest.TestFramework" Version="*" />
+    <PackageReference Include="RichardSzalay.MockHttp" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mammon", "Mammon\Mammon.csproj", "{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mammon.UnitTests", "Mammon.UnitTests\Mammon.UnitTests.csproj", "{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mammon.Tests", "Mammon.Tests\Mammon.Tests.csproj", "{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

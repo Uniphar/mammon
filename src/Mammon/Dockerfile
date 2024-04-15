@@ -1,25 +1,15 @@
-#See https://aka.ms/customizecontainer to learn how to customize your debug container and how Visual Studio uses this Dockerfile to build your images for faster debugging.
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER app
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS sdk
 WORKDIR /src
 COPY ["Mammon/Mammon.csproj", "Mammon/"]
 RUN dotnet restore "./Mammon/Mammon.csproj"
 COPY . .
 WORKDIR "/src/Mammon"
-RUN dotnet build "./Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet publish "./Mammon.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+USER app
 WORKDIR /app
-COPY --from=publish /app/publish .
+EXPOSE 8080
+EXPOSE 8081
+COPY --from=sdk /app/publish .
 ENTRYPOINT ["dotnet", "Mammon.dll"]

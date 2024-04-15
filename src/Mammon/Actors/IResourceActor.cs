@@ -1,9 +1,6 @@
-﻿using Dapr.Actors;
+﻿namespace Mammon.Actors;
 
-namespace Mammon.Actors
+public interface IResourceActor : IActor
 {
-    public interface IResourceActor : IActor
-    {
-        Task AddCostAsync(string costId, double cost, string[]? tags);
-    }
+    Task AddCostAsync(string costId, double cost, string[]? tags);
 }
