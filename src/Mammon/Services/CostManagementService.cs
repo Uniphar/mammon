@@ -1,5 +1,4 @@
-﻿using Azure.Identity;
-using Azure.ResourceManager;
+﻿using Azure.ResourceManager;
 using FluentValidation;
 using Mammon.Models.Actors;
 using MammonActors.Models.CostManagement;
