@@ -28,14 +28,13 @@ Debugger.Launch();
 
 var builder = WebApplication.CreateBuilder(args);
 
-var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? throw new NoNullAllowedException("ASPNETCORE_ENVIRONMENT environment variable is not set.");
+var configKVURL = builder.Configuration["CONFIG_KEYVAULT_URL"]?.ToString();
+if (string.IsNullOrWhiteSpace(configKVURL))
+    throw new InvalidOperationException("CONFIG_KEYVAULT_URL environment variable is not set");
 
-if (environment != "local")
-{
-    builder.Configuration.AddAzureKeyVault(
-        new Uri($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
-        new DefaultAzureCredential());
-}
+builder.Configuration.AddAzureKeyVault(
+    new Uri(configKVURL),
+    new DefaultAzureCredential());
 
 builder.Services.AddApplicationInsightsTelemetry();
 
