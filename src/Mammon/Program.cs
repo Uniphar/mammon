@@ -66,7 +66,7 @@ app.Lifetime.ApplicationStarted.Register(async () =>
         );
 #if (DEBUG)
     await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", costFrom = DateTime.UtcNow.AddDays(-31), costTo = DateTime.UtcNow.AddDays(-1) });
-    app.StopAsync().Wait();
+    //app.StopAsync().Wait();
 #endif
 });
 

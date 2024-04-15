@@ -14,7 +14,7 @@ namespace MammonActors.Actors
         {
             var costs = await costManagementService.QueryForSubAsync(request);
 
-            Dictionary<string, Guid> details = [];
+            Dictionary<string, Guid> actorIds = [];
 
             foreach (var cost in costs) {
 
@@ -22,14 +22,14 @@ namespace MammonActors.Actors
                 //TODO: consider converting this string into UUID (MD5 based?) - removing need for dictionary later
                 var topResourceId = cost.ResourceId.ToResourceActorId();
 
-                if (!details.TryGetValue(topResourceId, out Guid actorIdGuid))
+                if (!actorIds.TryGetValue(topResourceId, out Guid actorIdGuid))
                 {
                     actorIdGuid = Guid.NewGuid();
-                    details.Add(topResourceId, actorIdGuid);
+                    actorIds.Add(topResourceId, actorIdGuid);
                 }
 
                 //TODO: investigate why guids do not seem to be accepted
-                var resourceActor = ProxyFactory.CreateActorProxy<IResourceActor>(new Dapr.Actors.ActorId($"ResourceActor1"), "ResourceActor");
+                var resourceActor = ProxyFactory.CreateActorProxy<IResourceActor>(new Dapr.Actors.ActorId($"ResourceActor{actorIdGuid:N}"), "ResourceActor");
 
                 await resourceActor.AddCostAsync(cost.ResourceId, cost.Cost, []);
             }

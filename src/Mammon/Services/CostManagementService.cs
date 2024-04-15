@@ -52,7 +52,7 @@ namespace MammonActors.Services
             //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
 
             var response = await httpClient.PostAsync(
-                $"https://management.azure.com/{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}",
+                $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}",
             content);
 
             response.EnsureSuccessStatusCode();
