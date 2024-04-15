@@ -11,7 +11,9 @@ using Polly.Extensions.Http;
 using System.Data;
 using System.Diagnostics;
 
+#if (DEBUG)
 Debugger.Launch();
+#endif
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +42,6 @@ builder.Services.AddActors(options =>
 
 builder.Services
     .AddTransient((sp) => new ArmClient(new DefaultAzureCredential()))
-    .AddTransient<DefaultAzureCredential>()
     .AddTransient<AzureAuthHandler>();
 
 var policy = HttpPolicyExtensions
@@ -59,13 +60,11 @@ app.MapActorsHandlers();
 
 app.Lifetime.ApplicationStarted.Register(async () =>
 {
-    var subActor = ActorProxy.Create<ISubscriptionActor>(new Dapr.Actors.ActorId("uniphar-dev"), "SubscriptionActor"
 #if (DEBUG)
-        , new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan }
-#endif
-        );
-#if (DEBUG)
-    await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", costFrom = DateTime.UtcNow.AddDays(-31), costTo = DateTime.UtcNow.AddDays(-1) });
+    var subActor = ActorProxy.Create<ISubscriptionActor>(new Dapr.Actors.ActorId("uniphar-dev"), "SubscriptionActor",
+        new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan });
+
+    await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", CostFrom = DateTime.UtcNow.AddDays(-31), CostTo = DateTime.UtcNow.AddDays(-1) });
     //app.StopAsync().Wait();
 #endif
 });

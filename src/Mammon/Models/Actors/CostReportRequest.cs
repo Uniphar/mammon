@@ -4,9 +4,10 @@ namespace Mammon.Models.Actors
 {
     public sealed class CostReportRequest
     {
+        public string ReportId { get; set; } = string.Empty;
         public string SubscriptionName { get; set; } = string.Empty;
-        public DateTime costFrom { get; set; }
-        public DateTime costTo { get; set; }
+        public DateTime CostFrom { get; set; }
+        public DateTime CostTo { get; set; }
     }
 
     public class CostReportRequestValidator : AbstractValidator<CostReportRequest>
@@ -14,9 +15,9 @@ namespace Mammon.Models.Actors
         public CostReportRequestValidator()
         {
             RuleFor(x => x.SubscriptionName).NotEmpty();
-            RuleFor(x => x.costFrom).NotEmpty();
-            RuleFor(x => x.costFrom).NotEmpty();
-            RuleFor(x => x.costTo).GreaterThan(x => x.costFrom);
+            RuleFor(x => x.CostFrom).NotEmpty();
+            RuleFor(x => x.CostFrom).NotEmpty();
+            RuleFor(x => x.CostTo).GreaterThan(x => x.CostFrom);
         }
     }
 }

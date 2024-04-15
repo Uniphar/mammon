@@ -11,6 +11,7 @@ namespace Mammon.Actors
         {
             ArgumentNullException.ThrowIfNull(costId);
 
+            //TODO: look into setting state TTL
             var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(CostStateName);
             var state = (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;
 
