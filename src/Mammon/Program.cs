@@ -52,7 +52,7 @@ builder.Services.AddActors(options =>
     // Register actor types and configure actor settings
     options.Actors.RegisterActor<ResourceActor>();
     options.Actors.RegisterActor<SubscriptionActor>();
-    options.ReentrancyConfig = new Dapr.Actors.ActorReentrancyConfig()
+    options.ReentrancyConfig = new ActorReentrancyConfig()
     {
         Enabled = true, //TODO: do I really want to enable this?
         MaxStackDepth = 32,
