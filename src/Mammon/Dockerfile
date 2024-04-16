@@ -9,7 +9,7 @@ RUN dotnet publish "./Mammon.csproj" -c Release -o /app/publish /p:UseAppHost=fa
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 USER app
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+ENV ASPNETCORE_URLS=http://+:8082
+EXPOSE 8082
 COPY --from=sdk /app/publish .
 ENTRYPOINT ["dotnet", "Mammon.dll"]

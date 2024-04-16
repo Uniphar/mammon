@@ -13,6 +13,8 @@
     <PackageReference Include="Azure.Identity" Version="*" />
     <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
+    <PackageReference Include="CloudNative.CloudEvents" Version="2.7.1" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.13.0" />
     <PackageReference Include="FluentValidation" Version="*" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="*" />

@@ -1,6 +1,7 @@
 global using Azure.Core;
 global using Azure.Identity;
 global using Azure.ResourceManager;
+global using Dapr;
 global using Dapr.Actors;
 global using Dapr.Actors.Client;
 global using Dapr.Actors.Runtime;
@@ -12,6 +13,7 @@ global using Mammon.Models.CostManagement;
 global using Mammon.Services;
 global using Mammon.Utils;
 global using Microsoft.ApplicationInsights;
+global using Microsoft.AspNetCore.Mvc;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
@@ -28,6 +30,11 @@ Debugger.Launch();
 
 var builder = WebApplication.CreateBuilder(args);
 
+//builder.WebHost.ConfigureKestrel((context, serverOptions) =>
+//{
+//    serverOptions.ListenLocalhost(8082);
+//});
+
 var configKVURL = builder.Configuration["CONFIG_KEYVAULT_URL"]?.ToString();
 if (string.IsNullOrWhiteSpace(configKVURL))
     throw new InvalidOperationException("CONFIG_KEYVAULT_URL environment variable is not set");
@@ -37,6 +44,8 @@ builder.Configuration.AddAzureKeyVault(
     new DefaultAzureCredential());
 
 builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Services.AddControllers();
 
 builder.Services.AddActors(options =>
 {
@@ -66,15 +75,21 @@ builder.Services
 
 var app = builder.Build();
 
+app.UseRouting();
+
 app.MapActorsHandlers();
+
+app.MapControllers();
+
+app.MapSubscribeHandler();
 
 app.Lifetime.ApplicationStarted.Register(async () =>
 {
 #if (DEBUG)
-    var subActor = ActorProxy.Create<ISubscriptionActor>(new Dapr.Actors.ActorId("uniphar-dev"), "SubscriptionActor",
+    var subActor = ActorProxy.Create<ISubscriptionActor>(new ActorId("uniphar-dev"), "SubscriptionActor",
         new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan });
 
-    await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", CostFrom = DateTime.UtcNow.AddDays(-31), CostTo = DateTime.UtcNow.AddDays(-1) });
+//await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", CostFrom = DateTime.UtcNow.AddDays(-31), CostTo = DateTime.UtcNow.AddDays(-1) });
     //app.StopAsync().Wait();
 #endif
 });
