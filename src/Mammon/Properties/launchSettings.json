@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "dapr": {
+      "commandName": "Executable",
+      "executablePath": "dapr.exe",
+      "commandLineArgs": "run --app-id mammon --app-port 8082 --dapr-http-port 3500 --resources-path ../LocalComponents/ -- dotnet run --project .",
+      "workingDirectory": "$(ProjectDir)",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://+:8082"
+      },
+      "remoteDebugEnabled": false
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json"
+}
