@@ -25,7 +25,6 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 
 
-ResourceIdentifier rg = new ResourceIdentifier("/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourceGroups/devops-dev/providers/Microsoft.ServiceBus/namespaces/uni-devops-dev-service-bus");
 #if (DEBUG)
 Debugger.Launch();
 #endif
@@ -91,7 +90,7 @@ app.Lifetime.ApplicationStarted.Register(async () =>
     var subActor = ActorProxy.Create<ISubscriptionActor>(new ActorId("uniphar-dev"), "SubscriptionActor",
         new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan });
 
-await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", CostFrom = DateTime.UtcNow.AddDays(-31), CostTo = DateTime.UtcNow.AddDays(-1) });
+    await subActor.RunWorkload(new Mammon.Models.Actors.CostReportRequest { SubscriptionName = "uniphar-dev", CostFrom = DateTime.UtcNow.AddDays(-31), CostTo = DateTime.UtcNow.AddDays(-1) });
     //app.StopAsync().Wait();
 #endif
 });
