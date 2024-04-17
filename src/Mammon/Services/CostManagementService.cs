@@ -11,7 +11,6 @@ public class CostManagementService
 
     private const string costColumnName = "Cost";
     private const string resourceIdColumnName = "ResourceId";
-    private const string tagsColumnName = "Tags";
     private const string currencyColumnName = "Currency";
 
     public CostManagementService(ArmClient armClient, HttpClient httpClient, ILogger<CostManagementService> logger)
@@ -37,25 +36,40 @@ public class CostManagementService
         if (string.IsNullOrWhiteSpace(subId))
             throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
-        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-dd}T00:00:00+00:00\",\"to\":\"{request.CostTo:yyyy-MM-dd}T00:00:00+00:00\"}}}}";
+        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-dd}T00:00:00+00:00\",\"to\":\"{request.CostTo:yyyy-MM-dd}T00:00:00+00:00\"}}}}";
    
         var content = new StringContent(costApirequest, Encoding.UTF8, "application/json");
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
 
-        var response = await httpClient.PostAsync(
-            $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}",
-        content);
+        HttpResponseMessage response;
+        string? url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
+        bool nextPageAvailable;
 
-        response.EnsureSuccessStatusCode();
+        AzureCostResponse responseData = [];
 
-        return ParseRawJson(await response.Content.ReadAsStringAsync());
-       
-        //TODO: implement nextLink support
+        do
+        {
+            response = await httpClient.PostAsync(
+                url,
+            content);
+
+            response.EnsureSuccessStatusCode();
+
+            var (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync());
+
+            responseData.AddRange(costs);
+
+            nextPageAvailable = !string.IsNullOrWhiteSpace(nextLink);
+            url = nextLink;
 
         }
+        while (nextPageAvailable);
 
-    private AzureCostResponse ParseRawJson(string content)
+        return responseData;
+    }
+
+    private (string? nextLink, List<ResourceCost> costs) ParseRawJson(string content)
     {
         //ugly workaround to deal with invalid cost api response, alternatives are to write potentially some low level json.text code or scan resources for tags in a separate sub process
         content = content
@@ -66,14 +80,15 @@ public class CostManagementService
 
         var costIndex = intermediateData.Properties!.Columns!.FindIndex(x => x.Name == costColumnName);
         var resourceIdIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == resourceIdColumnName);
-        var tagsIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == tagsColumnName);
         var currencyIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == currencyColumnName);
 
-        var cost = new AzureCostResponse();
+        List<ResourceCost> costs = [];
 
         foreach (var row in intermediateData.Properties!.Rows!.Where((r) => !string.IsNullOrWhiteSpace((string)r[resourceIdIndex])))
         {
-            cost.Add(new ResourceCost
+            List<KeyValuePair<string, string>> tags = [];
+            
+            costs.Add(new ResourceCost
             {
                 Cost = (double)row[costIndex],
                 ResourceId = (string)row[resourceIdIndex],
@@ -81,7 +96,7 @@ public class CostManagementService
             });
         }
 
-        return cost;
+        return (intermediateData.Properties?.NextLink,  costs);
     }
 
     public class IntermediateUsageQueryResult
@@ -95,9 +110,10 @@ public class CostManagementService
     }
 
     public class PropertiesContext
-    {
+    {     
         public List<Column>? Columns { get; set; }
         public List<Row>? Rows { get; set; }
+        public string NextLink { get; set; } = string.Empty;
 
     }
 
