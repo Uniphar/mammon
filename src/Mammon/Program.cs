@@ -31,11 +31,6 @@ Debugger.Launch();
 
 var builder = WebApplication.CreateBuilder(args);
 
-//builder.WebHost.ConfigureKestrel((context, serverOptions) =>
-//{
-//    serverOptions.ListenLocalhost(8082);
-//});
-
 var configKVURL = builder.Configuration["CONFIG_KEYVAULT_URL"]?.ToString();
 if (string.IsNullOrWhiteSpace(configKVURL))
     throw new InvalidOperationException("CONFIG_KEYVAULT_URL environment variable is not set");
@@ -83,17 +78,6 @@ app.MapActorsHandlers();
 app.MapControllers();
 
 app.MapSubscribeHandler();
-
-app.Lifetime.ApplicationStarted.Register(async () =>
-{
-#if (DEBUG)
-    var subActor = ActorProxy.Create<ISubscriptionActor>(new ActorId("uniphar-dev"), "SubscriptionActor",
-        new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan });
-
-    await subActor.RunWorkload(new CostReportRequest { SubscriptionName = "uniphar-dev", CostFrom = DateTime.UtcNow.AddDays(-31), CostTo = DateTime.UtcNow.AddDays(-1) });
-    //app.StopAsync().Wait();
-#endif
-});
 
 app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());
 
