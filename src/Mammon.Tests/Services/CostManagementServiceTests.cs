@@ -14,7 +14,7 @@ public class CostManagementServiceTests
         string sampleResponseNextLink = File.ReadAllText("./Services/costApiResponse-nextLink.txt");
 
         mockHttp
-            .When("https://management.azure.com/subscriptions/subId/providers/Microsoft.CostManagement/query?api-version=2023-11-01")
+            .When("https://management.azure.com/subscriptions/subId/providers/Microsoft.CostManagement/query?api-version=2024-01-01")
             .Respond("application/json", sampleResponse);
 
         mockHttp
@@ -32,10 +32,21 @@ public class CostManagementServiceTests
         result.Should().NotBeNull();
         result.Should().HaveCount(4);
 
-        result.Should().Contain((r) => r.Cost == 73.96 && r.ResourceId == "resource1" && r.Currency=="EUR");
-        result.Should().Contain((r) => r.Cost == 12.34 && r.ResourceId == "resource2" && r.Currency == "EUR");
-        result.Should().Contain((r) => r.Cost == 73.96 && r.ResourceId == "resource3" && r.Currency == "EUR");
-        result.Should().Contain((r) => r.Cost == 12.34 && r.ResourceId == "resource4" && r.Currency == "EUR");
+        result.Should().Contain((r) => r.Cost == 1d && r.ResourceId == "resource1" && r.Currency=="EUR"
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
+
+        result.Should().Contain((r) => r.Cost == 2d && r.ResourceId == "resource2" && r.Currency == "EUR"
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
+
+        result.Should().Contain((r) => r.Cost == 3d && r.ResourceId == "resource3" && r.Currency == "EUR"
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
+
+        result.Should().Contain((r) => r.Cost == 4d && r.ResourceId == "resource4" && r.Currency == "EUR"
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
         mockHttp.VerifyNoOutstandingExpectation();
     }

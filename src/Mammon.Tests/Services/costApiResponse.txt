@@ -17,8 +17,8 @@
         ],
       "rows":
         [
-          [73.96, "resource3", ['"tag1":"value1"','"tag2":"value2"'], "EUR"],
-          [12.34, "resource4", ['"tag1":"value1"','"tag2":"value2"'], "EUR"],
+          [1.0, "resource1", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
+          [2.0, "resource2", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
         ],
     },
 }
