@@ -10,6 +10,7 @@ global using Dapr.Actors.Runtime;
 global using Dapr.Client;
 global using Dapr.Workflow;
 global using FluentValidation;
+global using Grpc.Core;
 global using Mammon.Actors;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;
