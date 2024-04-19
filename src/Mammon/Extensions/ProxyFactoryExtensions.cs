@@ -7,7 +7,7 @@ public static class ProxyFactoryExtensions
         return actorProxyFactory.CreateActorProxy<TActorInterface>(new ActorId(actorId), actorType, new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan });
     }
 
-    public static async Task CallActoryWithNoTimeout<TActorInterface>(this IActorProxyFactory actorProxyFactory, string actorId, string actorType, Func<TActorInterface, Task> action ) where TActorInterface : IActor
+    public static async Task CallActorWithNoTimeout<TActorInterface>(this IActorProxyFactory actorProxyFactory, string actorId, string actorType, Func<TActorInterface, Task> action ) where TActorInterface : IActor
     {
         var proxy =  actorProxyFactory.CreateActorProxyNoTimeout<TActorInterface>(actorId, actorType);
         await action(proxy);

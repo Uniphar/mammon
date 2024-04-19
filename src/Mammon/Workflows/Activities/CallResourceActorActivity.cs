@@ -27,9 +27,9 @@ public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<Cal
 
         if (isNewActorInstance)
         {
-            await ActorProxy.DefaultProxyFactory.CallActoryWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.Initialize(parentResourceId, request.Cost.Tags));
+            await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.Initialize(parentResourceId, request.Cost.Tags));
         }
-        await ActorProxy.DefaultProxyFactory.CallActoryWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost));
+        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost));
 
         return actorId;
     }
