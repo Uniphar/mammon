@@ -59,8 +59,8 @@ public class CostManagementService
             if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePath]) 
                 && File.Exists(mockApiResponsePath))
             {
-                var dummyResponse = File.ReadAllText(mockApiResponsePath);
-                (nextLink, costs) = ParseRawJson(dummyResponse);
+                var mockResponse = File.ReadAllText(mockApiResponsePath);
+                (nextLink, costs) = ParseRawJson(mockResponse);
             }
             else
             {

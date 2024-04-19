@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class ResourceActor(ActorHost host, ArmClient armClient, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
+public class ResourceActor(ActorHost host, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
 {
     public const string CostStateName = "costState";
 
@@ -24,7 +24,7 @@ public class ResourceActor(ActorHost host, ArmClient armClient, ILogger<Resource
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Failure in ResourceActor.AddCostAsync (ActorId:{Id}");
+            logger.LogError(ex, $"Failure in ResourceActor.AddCostAsync (ActorId:{Id})");
             throw;
         }
     }
@@ -42,7 +42,7 @@ public class ResourceActor(ActorHost host, ArmClient armClient, ILogger<Resource
         }
         catch (Exception ex) 
         {
-            logger.LogError(ex, $"Failure in ResourceActor.Initialize (ActorId:{Id}");
+            logger.LogError(ex, $"Failure in ResourceActor.Initialize (ActorId:{Id})");
         }
     }
 
