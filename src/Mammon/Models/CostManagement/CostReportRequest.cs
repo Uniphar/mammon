@@ -1,4 +1,4 @@
-﻿namespace Mammon.Models.Actors;
+﻿namespace Mammon.Models.CostManagement;
 
 public sealed class CostReportRequest
 {

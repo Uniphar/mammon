@@ -1,8 +1,10 @@
-﻿namespace Mammon;
+﻿using Mammon.Workflows;
+
+namespace Mammon;
 
 [Route("api/[controller]")]
 [ApiController]
-public class MammonController : Controller
+public class MammonController(DaprWorkflowClient workflowClient) : Controller
 {
     [HttpGet()]
     [HttpPost()]
@@ -11,12 +13,7 @@ public class MammonController : Controller
     {
         ArgumentNullException.ThrowIfNull(@event, nameof(@event));
 
-        CostReportRequest report = @event.Data;
-
-        var subActor = ActorProxy.Create<ISubscriptionActor>(new ActorId(report.SubscriptionName), "SubscriptionActor",
-            new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan });
-
-        await subActor.RunWorkload(report);
+        await workflowClient.ScheduleNewWorkflowAsync("SubscriptionWorkflow", @event.Data.ReportId, @event.Data);
         
         return Ok();
     }

@@ -13,13 +13,14 @@
     <PackageReference Include="Azure.Identity" Version="*" />
     <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
-    <PackageReference Include="Dapr.AspNetCore" Version="*" />
+    <PackageReference Include="Dapr.AspNetCore" Version="*-*" />
     <PackageReference Include="FluentValidation" Version="*" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="*" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
-    <PackageReference Include="Dapr.Actors" Version="*" />
-    <PackageReference Include="Dapr.Actors.AspNetCore" Version="*" />
+    <PackageReference Include="Dapr.Actors" Version="*-*" />
+    <PackageReference Include="Dapr.Workflow" Version="*-*" />
+    <PackageReference Include="Dapr.Actors.AspNetCore" Version="*-*" />
   </ItemGroup>
 
 </Project>

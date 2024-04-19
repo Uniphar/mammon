@@ -1,20 +1,59 @@
 ﻿namespace Mammon.Actors;
 
-public class ResourceActor(ActorHost host) : Actor(host), IResourceActor
+public class ResourceActor(ActorHost host, ArmClient armClient, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
 {
     public const string CostStateName = "costState";
 
-    public async Task AddCostAsync(string costId, double cost, string[]? tags)
+    public async Task AddCostAsync(string fullCostId, double cost)
     {
-        ArgumentNullException.ThrowIfNull(costId);
+        try
+        {
+            ArgumentNullException.ThrowIfNull(fullCostId);
 
-        //TODO: look into setting state TTL
-        var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(CostStateName);
-        var state = (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;
+        var state = await GetStateAsync(CostStateName);
 
-        if (state.CostItems.TryAdd(costId, cost))
+        if (state.CostItems == null)
+        {
+            state.CostItems = new Dictionary<string, double>();
+        }
+
+        if (state.CostItems.TryAdd(fullCostId, cost))
             state.Cost += cost;
 
-        await StateManager.SetStateAsync(CostStateName, state);
+        await SaveStateAsync(CostStateName, state);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Failure in ResourceActor.AddCostAsync (ActorId:{Id}");
+            throw;
+        }
+    }
+
+    public async Task Initialize(string resourceId, Dictionary<string, string> tags)
+    {
+        try
+        {
+            var state = await GetStateAsync(CostStateName);
+
+            state.ResourceId = resourceId;
+            state.Tags = tags;
+
+            await SaveStateAsync(CostStateName, state);
+        }
+        catch (Exception ex) 
+        {
+            logger.LogError(ex, $"Failure in ResourceActor.Initialize (ActorId:{Id}");
+        }
+    }
+
+    private async Task<ResourceActorState> GetStateAsync(string stateName)
+    {
+        var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(stateName);
+        return (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;
+    }
+
+    private async Task SaveStateAsync(string stateName, ResourceActorState state)
+    {
+        await StateManager.SetStateAsync(stateName, state);
     }
 }
