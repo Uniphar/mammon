@@ -10,17 +10,14 @@ public class ResourceActor(ActorHost host, ILogger<ResourceActor> logger) : Acto
         {
             ArgumentNullException.ThrowIfNull(fullCostId);
 
-        var state = await GetStateAsync(CostStateName);
+            var state = await GetStateAsync(CostStateName);
 
-        if (state.CostItems == null)
-        {
-            state.CostItems = new Dictionary<string, double>();
-        }
+            state.CostItems ??= new Dictionary<string, double>();
 
-        if (state.CostItems.TryAdd(fullCostId, cost))
-            state.Cost += cost;
+            if (state.CostItems.TryAdd(fullCostId, cost))
+                state.Cost += cost;
 
-        await SaveStateAsync(CostStateName, state);
+            await SaveStateAsync(CostStateName, state);
         }
         catch (Exception ex)
         {

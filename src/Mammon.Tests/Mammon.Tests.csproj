@@ -38,10 +38,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Services\costApiResponse-nextLink.txt">
+    <None Update="Services\costApiResponse-nextLink.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Services\costApiResponse.txt">
+    <None Update="Services\costApiResponse.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

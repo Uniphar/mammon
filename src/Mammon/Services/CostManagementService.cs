@@ -56,6 +56,7 @@ public class CostManagementService
             string? nextLink;
             List<ResourceCost> costs;
 
+#if (DEBUG)
             if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePath]) 
                 && File.Exists(mockApiResponsePath))
             {
@@ -64,6 +65,7 @@ public class CostManagementService
             }
             else
             {
+#endif
                 var requestContent = new StringContent(costApirequest, Encoding.UTF8, "application/json");
 
                 response = await httpClient.PostAsync(url, requestContent);
@@ -71,7 +73,9 @@ public class CostManagementService
                 response.EnsureSuccessStatusCode();
 
                 (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync());
+#if (DEBUG)
             }
+#endif
 
             responseData.AddRange(costs);
 
@@ -107,7 +111,6 @@ public class CostManagementService
             foreach (var item in ((JsonElement) row[tagsId]).EnumerateArray())
             {
                 string value = item.ToString();
-                //parse out key-value pair
                 var tag = ParseOutTag(value);
                 if (tag != null)
                 {

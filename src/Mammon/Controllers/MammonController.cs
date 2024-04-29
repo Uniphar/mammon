@@ -25,8 +25,7 @@ public class MammonController(DaprWorkflowClient workflowClient) : Controller
             workflowInstance = null;
         }
     
-        if (workflowInstance != null 
-            && (workflowInstance.RuntimeStatus==WorkflowRuntimeStatus.Failed || workflowInstance.RuntimeStatus== WorkflowRuntimeStatus.Terminated))
+        if (workflowInstance?.RuntimeStatus==WorkflowRuntimeStatus.Failed || workflowInstance?.RuntimeStatus== WorkflowRuntimeStatus.Terminated)
         {
             await workflowClient.PurgeInstanceAsync(@event.Data.ReportId);
             workflowInstance= null;
