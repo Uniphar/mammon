@@ -15,11 +15,11 @@ public class CostCentreRule
     /// evaluate match level of available rules to a given resource id and tags
     /// 
     /// this uses the following hierarchy in ascending weight
-    ///  - resource name - 16
-    ///  - resource group - 8
-    ///  - subscription - 4
-    ///  - resource type -2
     ///  - tags - 1
+    ///  - resource type -2
+    ///  - subscription - 4
+    ///  - resource group - 8
+    ///  - resource name - 16
     ///  
     /// the more specific match, the higher the score
     /// certain rule definitions are probably only theoretical - e.g. subscription level - but special use cases may apply
