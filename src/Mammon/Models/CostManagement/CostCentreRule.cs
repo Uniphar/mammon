@@ -1,5 +1,10 @@
 ﻿namespace Mammon.Models.CostManagement;
 
+/// <summary>
+/// this class defines properties and logic of cost centre rule
+/// this is what logically maps resources to cost centres
+/// includes support for resource cost splitting - cost split to multiple cost centres based on inner logic and metadata/config
+/// </summary>
 public class CostCentreRule
 {
     public string[] CostCentres { get; set; } = [];
@@ -30,7 +35,7 @@ public class CostCentreRule
     /// </summary>
     /// <param name="resourceId">azure resource id of the target resource</param>
     /// <param name="tags">list of tag names and values associated with the resource instance</param>
-    /// <returns>tupple of rule and its evaluated score</returns>
+    /// <returns>tupple of rule and its evaluated score - 0 - default rule, mismatch - negative, match - positive with higher value indicating more specific match</returns>
     public (int matchScore, CostCentreRule matchedRule) Matches(string resourceId, IDictionary<string, string> tags)
     {
         if (IsDefault) return (0, this);
@@ -38,11 +43,11 @@ public class CostCentreRule
         ArgumentException.ThrowIfNullOrEmpty(resourceId);
 
         var parsedResourceId = new ResourceIdentifier(resourceId);
-        
+
         //if rule for specific field not specified, consider it match
         var resourceNameMatch = string.IsNullOrWhiteSpace(ResourceName) || (parsedResourceId.Name.Equals(ResourceName, StringComparison.OrdinalIgnoreCase));
-        var resourceGroupNameMatch = string.IsNullOrWhiteSpace(ResourceGroupName) || (parsedResourceId.ResourceGroupName!=null && parsedResourceId.ResourceGroupName.Equals(ResourceGroupName, StringComparison.OrdinalIgnoreCase));
-        var subscriptionIdMatch = string.IsNullOrWhiteSpace(SubscriptionId) || (parsedResourceId.SubscriptionId!=null && parsedResourceId.SubscriptionId.Equals(SubscriptionId, StringComparison.OrdinalIgnoreCase));
+        var resourceGroupNameMatch = string.IsNullOrWhiteSpace(ResourceGroupName) || (parsedResourceId.ResourceGroupName != null && parsedResourceId.ResourceGroupName.Equals(ResourceGroupName, StringComparison.OrdinalIgnoreCase));
+        var subscriptionIdMatch = string.IsNullOrWhiteSpace(SubscriptionId) || (parsedResourceId.SubscriptionId != null && parsedResourceId.SubscriptionId.Equals(SubscriptionId, StringComparison.OrdinalIgnoreCase));
         var resourceTypeMatch = string.IsNullOrWhiteSpace(ResourceType) || (parsedResourceId.ResourceType.ToString().Equals(ResourceType, StringComparison.OrdinalIgnoreCase));
         var tagMatch = MatchTags(tags);
 
@@ -59,7 +64,7 @@ public class CostCentreRule
                 scoreMatch += 4;
             if (resourceTypeMatch && !string.IsNullOrWhiteSpace(ResourceType))
                 scoreMatch += 2;
-            if (tagMatch && Tags!=null && Tags.Count>0)
+            if (tagMatch && Tags != null && Tags.Count > 0)
                 scoreMatch += 1;
         }
         else

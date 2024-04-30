@@ -1,9 +1,16 @@
 ﻿namespace Mammon.Services;
 
+/// <summary>
+/// cost centre rule evaluation engine/service
+/// 
+/// the rule file - will be replaced by database - is expected to be a local file with path configured in
+/// </summary>
 public class CostCentreRuleEngine
 {
     private readonly IConfiguration configuration;
     private IEnumerable<CostCentreRule> CostCentreRules { get; set; } = [];
+    private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
+
 
     public CostCentreRuleEngine(IConfiguration configuration)
     {
@@ -18,7 +25,7 @@ public class CostCentreRuleEngine
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             throw new InvalidOperationException($"Unable to locate file: {filePath}");
 
-        var definition = JsonSerializer.Deserialize<CostCentreDefinition>(new FileStream(filePath, FileMode.Open, FileAccess.Read));
+        var definition = JsonSerializer.Deserialize<CostCentreDefinition>(new FileStream(filePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions);
         
         if (definition == null || definition.Rules==null || definition.Rules.Count==0)
             throw new InvalidOperationException("Unable to load cost centre rules definitions");
