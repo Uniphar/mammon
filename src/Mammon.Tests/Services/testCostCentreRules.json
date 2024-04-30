@@ -1,0 +1,69 @@
+﻿{
+  "Rules": [
+    {
+      "CostCentres": [
+        "FullMatchMultiTag"
+      ],
+      "ResourceName": "sampleSA",
+      "Tags": {
+        "tagAName": "tagAValue",
+        "tagBName": "tagBValue"
+      },
+      "ResourceGroupName": "rgName",
+      "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695",
+      "ResourceType": "microsoft.storage/storageaccounts"
+    },
+    {
+      "CostCentres": [
+        "FullMatchSingleTag"
+      ],
+      "ResourceName": "sampleSA",
+      "Tags": {
+        "tagAName": "tagAValue"
+      },
+      "ResourceGroupName": "rgName",
+      "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695",
+      "ResourceType": "microsoft.storage/storageaccounts"
+    },
+    {
+      "CostCentres": [
+        "RGLevelMatch"
+      ],
+      "Tags": {
+        "tagAName": "tagAValue"
+      },
+      "ResourceGroupName": "rgName",
+      "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695"
+    },
+    {
+      "CostCentres": [
+        "SubLevelMatch"
+      ],
+      "Tags": {
+        "tagAName": "tagAValue"
+      },
+      "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695"
+    },
+    {
+      "CostCentres": [
+        "ResourceTypeMatch1",
+        "ResourceTypeMatch2"
+      ],
+      "ResourceType": "microsoft.containerservice/managedclusters"
+    },
+    {
+      "CostCentres": [
+        "TagsMatch"
+      ],
+      "Tags": {
+        "tagAName": "tagAValue"
+      }
+    },
+    {
+      "CostCentres": [
+        "DefaultRuleMatch"
+      ],
+      "IsDefault": true
+    }
+  ]
+}
