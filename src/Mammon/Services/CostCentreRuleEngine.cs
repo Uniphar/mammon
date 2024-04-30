@@ -51,11 +51,13 @@ public class CostCentreRuleEngine
     }
 
     /// <summary>
-    /// find the best matchong 
+    /// find the best matching rule
+    /// 
+    /// the internal logic is to run through all the rules and highest positive score is returned
     /// </summary>
-    /// <param name="resourceId"></param>
-    /// <param name="tags"></param>
-    /// <returns></returns>
+    /// <param name="resourceId">target resource azure resource id</param>
+    /// <param name="tags">target resource tags</param>
+    /// <returns>highest matching rule instance</returns>
     public CostCentreRule FindCostCentreRule(string resourceId, IDictionary<string, string> tags)
     {
         var matches = CostCentreRules!
