@@ -2,7 +2,7 @@
 
 [Route("api/[controller]")]
 [ApiController]
-public class MammonController : Controller
+public class MammonController(DaprWorkflowClient workflowClient) : Controller
 {
     [HttpGet()]
     [HttpPost()]
@@ -11,12 +11,30 @@ public class MammonController : Controller
     {
         ArgumentNullException.ThrowIfNull(@event, nameof(@event));
 
-        CostReportRequest report = @event.Data;
+        //check if workflow exists but in failed state, so we can reset it
+        //or start new fresh instance
+        //do nothing for currently running instances
 
-        var subActor = ActorProxy.Create<ISubscriptionActor>(new ActorId(report.SubscriptionName), "SubscriptionActor",
-            new ActorProxyOptions { RequestTimeout = Timeout.InfiniteTimeSpan });
+        WorkflowState? workflowInstance;
+        try
+        {
+            workflowInstance = await workflowClient.GetWorkflowStateAsync(@event.Data.ReportId);
+        }
+        catch(RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Unknown)
+        {
+            workflowInstance = null;
+        }
+    
+        if (workflowInstance?.RuntimeStatus==WorkflowRuntimeStatus.Failed || workflowInstance?.RuntimeStatus== WorkflowRuntimeStatus.Terminated)
+        {
+            await workflowClient.PurgeInstanceAsync(@event.Data.ReportId);
+            workflowInstance= null;
+        }
 
-        await subActor.RunWorkload(report);
+        if (workflowInstance == null)
+        {
+            await workflowClient.ScheduleNewWorkflowAsync("SubscriptionWorkflow", @event.Data.ReportId, @event.Data);
+        }
         
         return Ok();
     }

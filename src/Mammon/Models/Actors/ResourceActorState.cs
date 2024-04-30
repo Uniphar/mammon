@@ -2,6 +2,8 @@
 
 public class ResourceActorState
 {
+    public string ResourceId { get; set; } = string.Empty;
     public double Cost { get; set; }
-    public Dictionary<string, double> CostItems { get; set; } = [];
+    public IDictionary<string, double>? CostItems { get; set; }
+    public IDictionary<string, string>? Tags { get; set;  }
 }

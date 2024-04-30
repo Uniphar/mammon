@@ -2,5 +2,6 @@
 
 public interface IResourceActor : IActor
 {
-    Task AddCostAsync(string costId, double cost, string[]? tags);
+    Task Initialize(string resourceId, Dictionary<string, string> tags);
+    Task AddCostAsync(string costId, double cost);
 }

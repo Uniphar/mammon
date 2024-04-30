@@ -1,17 +1,26 @@
+global using Azure;
 global using Azure.Core;
 global using Azure.Identity;
 global using Azure.ResourceManager;
+global using Azure.ResourceManager.Resources;
 global using Dapr;
 global using Dapr.Actors;
 global using Dapr.Actors.Client;
 global using Dapr.Actors.Runtime;
+global using Dapr.Client;
+global using Dapr.Workflow;
 global using FluentValidation;
+global using Grpc.Core;
 global using Mammon.Actors;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;
 global using Mammon.Models.CostManagement;
+global using Mammon.Models.Workflows;
+global using Mammon.Models.Workflows.Activities;
 global using Mammon.Services;
 global using Mammon.Utils;
+global using Mammon.Workflows;
+global using Mammon.Workflows.Activities;
 global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Polly;
@@ -23,7 +32,6 @@ global using System.Net;
 global using System.Text;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
-
 
 #if (DEBUG)
 Debugger.Launch();
@@ -43,17 +51,21 @@ builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddControllers();
 
-builder.Services.AddActors(options =>
-{
-    // Register actor types and configure actor settings
-    options.Actors.RegisterActor<ResourceActor>();
-    options.Actors.RegisterActor<SubscriptionActor>();
-    options.ReentrancyConfig = new ActorReentrancyConfig()
-    {
-        Enabled = true, //TODO: do I really want to enable this?
-        MaxStackDepth = 32,
-    };
-});
+builder.Services
+    .AddDaprWorkflow((config) => { 
+        config.RegisterWorkflow<SubscriptionWorkflow>();
+        config.RegisterActivity<ObtainCostsActivity>();
+        config.RegisterActivity<CallResourceActorActivity>();
+    })
+    .AddActors(options => {
+        // Register actor types and configure actor settings
+        options.Actors.RegisterActor<ResourceActor>();   
+        options.ReentrancyConfig = new ActorReentrancyConfig()
+        {
+            Enabled = true, //TODO: do I really want to enable this?
+            MaxStackDepth = 32,
+        };
+    });
 
 builder.Services
     .AddTransient((sp) => new ArmClient(new DefaultAzureCredential()))

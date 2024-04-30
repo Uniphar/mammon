@@ -1,0 +1,44 @@
+﻿{
+  "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+  "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+  "type": "Microsoft.CostManagement/query",
+  "location": null,
+  "sku": null,
+  "eTag": null,
+  "properties": {
+    "nextLink": null,
+    "columns": [
+      {
+        "name": "Cost",
+        "type": "Number"
+      },
+      {
+        "name": "CostUSD",
+        "type": "Number"
+      },
+      {
+        "name": "ResourceId",
+        "type": "String"
+      },
+      {
+        "name": "Tags",
+        "type": "Array"
+      },
+      {
+        "name": "Currency",
+        "type": "String"
+      }
+    ],
+    "rows": [
+      [
+        14.2276520988,
+        15.4341569967782,
+        "/subscriptions/subid/resourcegroups/rgName/providers/microsoft.storage/storageaccounts/sampleSA",
+        [
+          "\"ms-resource-usage\":\"azure-cloud-shell\""
+        ],
+        "EUR"
+      ]
+    ]
+  }
+}

@@ -2,7 +2,7 @@
 
 public static class StringExtensions
 {
-    public static string ToResourceActorId(this string value) 
+    public static string ToParentResourceId(this string value) 
     {
         const string providers = "/providers";
 

@@ -6,7 +6,8 @@
       "commandLineArgs": "run --app-id mammon --app-port 8082 --dapr-http-port 3500 --resources-path ../LocalComponents/ -- dotnet run --project .",
       "workingDirectory": "$(ProjectDir)",
       "environmentVariables": {
-        "ASPNETCORE_URLS": "http://+:8082"
+        "ASPNETCORE_URLS": "http://+:8082",
+        "Mammon__MockCostAPIResponseFilePath": "./Services/dummyCostAPIResponse.json"
       },
       "remoteDebugEnabled": false
     }
