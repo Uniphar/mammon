@@ -84,3 +84,15 @@ public class CostCentreRule
         return Tags.All(item => tags.ContainsKey(item.Key) && tags[item.Key] == item.Value);
     }
 }
+
+public class CostCentreRuleValidator : AbstractValidator<CostCentreRule>
+{
+    public CostCentreRuleValidator()
+    {
+        RuleFor(x => x.CostCentres).NotEmpty();
+        RuleFor(x => x).Must(i => i.IsDefault || (!i.IsDefault && (!string.IsNullOrWhiteSpace(i.SubscriptionId) || !string.IsNullOrWhiteSpace(i.ResourceName) || !string.IsNullOrWhiteSpace(i.ResourceGroupName)
+            || !string.IsNullOrWhiteSpace(i.ResourceType) || (i.Tags != null && i.Tags.Count > 0))));
+    }
+
+    
+}

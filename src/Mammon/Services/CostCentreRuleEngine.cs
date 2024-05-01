@@ -26,28 +26,13 @@ public class CostCentreRuleEngine
             throw new InvalidOperationException($"Unable to locate file: {filePath}");
 
         var definition = JsonSerializer.Deserialize<CostCentreDefinition>(new FileStream(filePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions);
-        
-        if (definition == null || definition.Rules==null || definition.Rules.Count==0)
-            throw new InvalidOperationException("Unable to load cost centre rules definitions");
+
+        if (definition == null)
+            throw new InvalidOperationException("Unable to deserialize Cost centre definition");
+
+        new CostCentreDefinitionValidator().ValidateAndThrow(definition);
 
         CostCentreRules = definition.Rules;
-        Validate();
-    }
-
-    private void Validate()
-    {
-        if (CostCentreRules == null || CostCentreRules.Count() == 0)
-            throw new InvalidOperationException("Invalid rule specification");
-
-        //single default must exist
-        var defaults = CostCentreRules.Where(x => x.IsDefault);
-
-        if (defaults != null && defaults.Count() != 1)
-            throw new InvalidOperationException("Single default rule is expected");
-
-        if (CostCentreRules.Any(x => !x.IsDefault && string.IsNullOrWhiteSpace(x.SubscriptionId) && string.IsNullOrWhiteSpace(x.ResourceName) && string.IsNullOrWhiteSpace(x.ResourceGroupName)
-            && string.IsNullOrWhiteSpace(x.ResourceType) && (x.Tags==null || x.Tags.Count==0) ))
-            throw new InvalidOperationException("No empty rule may be present");
     }
 
     /// <summary>
@@ -67,7 +52,7 @@ public class CostCentreRuleEngine
         var (_, costCentreRule) = matches
             .Where(x=> x.matchScore>=0)
             .OrderByDescending(x=>x.matchScore)
-            .FirstOrDefault();
+            .FirstOrDefault(); //default rule is always a fallback
 
         return costCentreRule;
     }
