@@ -34,9 +34,9 @@ public class CostCentreRule
     /// 
     /// </summary>
     /// <param name="resourceId">azure resource id of the target resource</param>
-    /// <param name="tags">list of tag names and values associated with the resource instance</param>
+    /// <param name="resourceTags">list of tag names and values associated with the resource instance</param>
     /// <returns>tupple of rule and its evaluated score - 0 - default rule, mismatch - negative, match - positive with higher value indicating more specific match</returns>
-    public (int matchScore, CostCentreRule matchedRule) Matches(string resourceId, IDictionary<string, string> tags)
+    public (int matchScore, CostCentreRule matchedRule) Matches(string resourceId, IDictionary<string, string> resourceTags)
     {
         if (IsDefault) return (0, this);
 
@@ -49,7 +49,7 @@ public class CostCentreRule
         var resourceGroupNameMatch = string.IsNullOrWhiteSpace(ResourceGroupName) || (parsedResourceId.ResourceGroupName != null && parsedResourceId.ResourceGroupName.Equals(ResourceGroupName, StringComparison.OrdinalIgnoreCase));
         var subscriptionIdMatch = string.IsNullOrWhiteSpace(SubscriptionId) || (parsedResourceId.SubscriptionId != null && parsedResourceId.SubscriptionId.Equals(SubscriptionId, StringComparison.OrdinalIgnoreCase));
         var resourceTypeMatch = string.IsNullOrWhiteSpace(ResourceType) || (parsedResourceId.ResourceType.ToString().Equals(ResourceType, StringComparison.OrdinalIgnoreCase));
-        var tagMatch = MatchTags(tags);
+        var tagMatch = MatchTags(resourceTags);
 
         int scoreMatch = 0;
 
@@ -73,15 +73,15 @@ public class CostCentreRule
         return (scoreMatch, this);
     }
 
-    private bool MatchTags(IDictionary<string, string> tags)
+    private bool MatchTags(IDictionary<string, string> resourceTags)
     {
         if (Tags == null || Tags.Count == 0)
             return true;
 
-        if (tags == null || tags.Count == 0)
+        if (resourceTags == null || resourceTags.Count == 0)
             return false;
 
-        return Tags.All(item => tags.ContainsKey(item.Key) && tags[item.Key] == item.Value);
+        return Tags.All(item => resourceTags.ContainsKey(item.Key) && resourceTags[item.Key] == item.Value);
     }
 }
 
