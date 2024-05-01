@@ -16,5 +16,14 @@ jobs:
   Mammon_CI:
     runs-on: ubuntu-latest
     steps:
-      - run:
-          echo "Hello World"
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8'
+
+      - name: run unit tests
+        working-directory: ./src/Mammon.Tests
+        run: |
+            dotnet test --filter TestCategory=UnitTest
