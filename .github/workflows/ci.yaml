@@ -1,0 +1,20 @@
+name: CI for Mammon
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - .github/workflows/ci.yaml
+      - src/**
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Mammon_CI:
+    runs-on: ubuntu-latest
+    steps:
+      - run:
+          echo "Hello World"
