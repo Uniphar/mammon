@@ -1,6 +1,7 @@
 ﻿namespace Mammon.Tests.Services;
 
 [TestClass]
+[TestCategory("UnitTest")]
 public class CostCentreRuleEngineTests
 {
     [TestMethod]
