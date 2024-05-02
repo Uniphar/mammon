@@ -1,0 +1,29 @@
+name: CI for Mammon
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - .github/workflows/ci.yaml
+      - src/**
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Mammon_CI:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8'
+
+      - name: run unit tests
+        working-directory: ./src/Mammon.Tests
+        run: |
+            dotnet test --filter TestCategory=UnitTest
