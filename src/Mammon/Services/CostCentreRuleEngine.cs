@@ -3,14 +3,13 @@
 /// <summary>
 /// cost centre rule evaluation engine/service
 /// 
-/// the rule file - will be replaced by database - is expected to be a local file with path configured in
+/// the rule file is expected to be a local file with path configured in
 /// </summary>
 public class CostCentreRuleEngine
 {
     private readonly IConfiguration configuration;
     private IEnumerable<CostCentreRule> CostCentreRules { get; set; } = [];
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
-
 
     public CostCentreRuleEngine(IConfiguration configuration)
     {
