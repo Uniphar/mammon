@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/ci.yaml
-      - src/**
+      - src/*.cs
 
 permissions:
   id-token: write
