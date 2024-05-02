@@ -13,12 +13,12 @@
           { "name": "Cost", "type": "Number" },
           { "name": "ResourceId", "type": "String" },
           { "name": "Tags", "type": "Array" },
-          { "name": "Currency", "type": "String" },
+          { "name": "Currency", "type": "String" }
         ],
       "rows":
         [
           [1.0, "resource1", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
-          [2.0, "resource2", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
-        ],
-    },
+          [2.0, "resource2", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"]
+        ]
+    }
 }
