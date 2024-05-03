@@ -5,7 +5,7 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
     private const string CostStateName = "costCentreState";
 
     /// <inheritdoc/>
-    public async Task AddCost(string resourceId, double cost)
+    public async Task AddCostAsync(string resourceId, double cost)
     {
         try
         {

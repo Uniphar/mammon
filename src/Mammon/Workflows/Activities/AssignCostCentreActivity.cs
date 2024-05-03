@@ -13,7 +13,7 @@ public class AssignCostCentreActivity : WorkflowActivity<AssignCostCentreActivit
         foreach (var (costCentre, costCentreCost) in costCentreCosts)
         {            
             //send them to cost centre actors
-            await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>($"{input.ReportId}_{costCentre}", "CostCentreActor", async (p) => await p.AddCost(input.ResourceId, costCentreCost));
+            await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>($"{input.ReportId}_{costCentre}", "CostCentreActor", async (p) => await p.AddCostAsync(input.ResourceId, costCentreCost));
         }
 
         return true;

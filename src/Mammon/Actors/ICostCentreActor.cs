@@ -8,5 +8,5 @@ public interface ICostCentreActor : IActor
     /// <param name="resourceId">resource id of the resource that the cost is associated with</param>
     /// <param name="cost">monetary value</param>
     /// <returns></returns>
-    Task AddCost(string resourceId, double cost);
+    Task AddCostAsync(string resourceId, double cost);
 }
