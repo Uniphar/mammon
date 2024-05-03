@@ -38,8 +38,18 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 
             var rule = costCentreRuleEngine.FindCostCentreRule(state.ResourceId, state.Tags!);
 
-            //no splitting yet            
-            return new Dictionary<string, double> { { rule.CostCentres.First(), state.TotalCost} };
+            //pro-rata split if multi cost centre
+            if (rule.CostCentres.Length > 1)
+            {
+                var proRataValue = state.TotalCost/ rule.CostCentres.Length;
+                var response = new Dictionary<string, double>();
+                foreach (var costCentre in rule.CostCentres)
+                    response.Add(costCentre, proRataValue);
+
+                return response;
+            }
+            else
+                return new Dictionary<string, double> { { rule.CostCentres.First(), state.TotalCost} };
         }
         catch (Exception ex)
         {
