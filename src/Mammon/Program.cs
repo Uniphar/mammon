@@ -11,6 +11,7 @@ global using Dapr.Client;
 global using Dapr.Workflow;
 global using FluentValidation;
 global using Grpc.Core;
+global using Mammon;
 global using Mammon.Actors;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;
@@ -39,9 +40,9 @@ Debugger.Launch();
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configKVURL = builder.Configuration["CONFIG_KEYVAULT_URL"]?.ToString();
+var configKVURL = builder.Configuration[Consts.ConfigKeyVaultConfigEnvironmentVariable]?.ToString();
 if (string.IsNullOrWhiteSpace(configKVURL))
-    throw new InvalidOperationException("CONFIG_KEYVAULT_URL environment variable is not set");
+    throw new InvalidOperationException($"{Consts.ConfigKeyVaultConfigEnvironmentVariable} environment variable is not set");
 
 builder.Configuration.AddAzureKeyVault(
     new Uri(configKVURL),
@@ -56,10 +57,12 @@ builder.Services
         config.RegisterWorkflow<SubscriptionWorkflow>();
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
+        config.RegisterActivity<AssignCostCentreActivity>();
     })
     .AddActors(options => {
         // Register actor types and configure actor settings
-        options.Actors.RegisterActor<ResourceActor>();   
+        options.Actors.RegisterActor<ResourceActor>();
+        options.Actors.RegisterActor<CostCentreActor>();
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {
             Enabled = true, //TODO: do I really want to enable this?
@@ -69,7 +72,8 @@ builder.Services
 
 builder.Services
     .AddTransient((sp) => new ArmClient(new DefaultAzureCredential()))
-    .AddTransient<AzureAuthHandler>();
+    .AddTransient<AzureAuthHandler>()
+    .AddSingleton<CostCentreRuleEngine>();
 
 var policy = HttpPolicyExtensions
     .HandleTransientHttpError() // HttpRequestException, 5XX and 408

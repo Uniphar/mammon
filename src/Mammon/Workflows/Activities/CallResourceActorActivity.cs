@@ -1,22 +1,22 @@
 ﻿namespace Mammon.Workflows.Activities;
 
-public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<CallResourceActorActivityRequest, string>
+public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<CallResourceActorActivityRequest, CallResourceActorActivityResponse>
 {
-    public override async Task<string> RunAsync(WorkflowActivityContext context, CallResourceActorActivityRequest request)
+    public override async Task<CallResourceActorActivityResponse> RunAsync(WorkflowActivityContext context, CallResourceActorActivityRequest request)
     {
         var parentResourceId = request.Cost!.ResourceId.ToParentResourceId();
-        var stateKey =  new string(parentResourceId.Where(char.IsLetterOrDigit).ToArray());
+        var stateKey = $"ResourceActorIdMap_{request.ReportId}_{new string(parentResourceId.Where(char.IsLetterOrDigit).ToArray())}";
 
         var actorIdStateEntry = await client.GetStateAsync<string>(Consts.StateStoreName, stateKey);
         
         var actorGuid = string.Empty;
-        bool isNewActorInstance = false;
+        //bool isNewActorInstance = false;
 
         if (string.IsNullOrWhiteSpace(actorIdStateEntry))
         {
             actorGuid = Guid.NewGuid().ToString("N");
             await client.SaveStateAsync(Consts.StateStoreName, stateKey, actorGuid);
-            isNewActorInstance = true;
+            //isNewActorInstance = true;
         }
         else
         {
@@ -25,12 +25,12 @@ public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<Cal
 
         var actorId = $"ResourceActor{actorGuid}";
 
-        if (isNewActorInstance)
-        {
-            await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.Initialize(parentResourceId, request.Cost.Tags));
-        }
-        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost));
+        //if (isNewActorInstance)
+        //{
+        //    await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.Initialize(parentResourceId, request.Cost.Tags));
+        //}
+        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
 
-        return actorId;
+        return new CallResourceActorActivityResponse { ResourceActorId = actorId, ResourceId = parentResourceId };
     }
 }

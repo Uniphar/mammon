@@ -1,23 +1,26 @@
 ﻿namespace Mammon.Actors;
 
-public class ResourceActor(ActorHost host, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
+public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
 {
-    public const string CostStateName = "costState";
+    public const string CostStateName = "resourceCostState";
 
-    public async Task AddCostAsync(string fullCostId, double cost)
+    public async Task AddCostAsync(string fullCostId, double cost, string parentResourceId, Dictionary<string, string> tags)
     {
         try
         {
             ArgumentNullException.ThrowIfNull(fullCostId);
 
-            var state = await GetStateAsync(CostStateName);
+            var state = await GetStateAsync();
 
-            state.CostItems ??= new Dictionary<string, double>();
+            state.ResourceId = parentResourceId;
+            state.Tags = tags;            
+
+            state.CostItems ??= [];
 
             if (state.CostItems.TryAdd(fullCostId, cost))
-                state.Cost += cost;
+                state.TotalCost += cost;
 
-            await SaveStateAsync(CostStateName, state);
+            await SaveStateAsync(state);
         }
         catch (Exception ex)
         {
@@ -26,31 +29,33 @@ public class ResourceActor(ActorHost host, ILogger<ResourceActor> logger) : Acto
         }
     }
 
-    public async Task Initialize(string resourceId, Dictionary<string, string> tags)
+    /// <inheritdoc/>    
+    public async Task<IDictionary<string, double>> AssignCostCentreCosts()
     {
         try
-        {
-            var state = await GetStateAsync(CostStateName);
+        {           
+            var state = await GetStateAsync();
 
-            state.ResourceId = resourceId;
-            state.Tags = tags;
+            var rule = costCentreRuleEngine.FindCostCentreRule(state.ResourceId, state.Tags!);
 
-            await SaveStateAsync(CostStateName, state);
+            //no splitting yet            
+            return new Dictionary<string, double> { { rule.CostCentres.First(), state.TotalCost} };
         }
-        catch (Exception ex) 
+        catch (Exception ex)
         {
-            logger.LogError(ex, $"Failure in ResourceActor.Initialize (ActorId:{Id})");
+            logger.LogError(ex, $"Failure in ResourceActor.AssignCostCentreCosts (ActorId:{Id})");
+            throw;
         }
     }
 
-    private async Task<ResourceActorState> GetStateAsync(string stateName)
+    private async Task<ResourceActorState> GetStateAsync()
     {
-        var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(stateName);
+        var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(CostStateName);
         return (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;
     }
-
-    private async Task SaveStateAsync(string stateName, ResourceActorState state)
+    
+    private async Task SaveStateAsync(ResourceActorState state)
     {
-        await StateManager.SetStateAsync(stateName, state);
+        await StateManager.SetStateAsync(CostStateName, state);
     }
 }
