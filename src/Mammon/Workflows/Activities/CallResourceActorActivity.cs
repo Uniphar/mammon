@@ -10,13 +10,11 @@ public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<Cal
         var actorIdStateEntry = await client.GetStateAsync<string>(Consts.StateStoreName, stateKey);
         
         var actorGuid = string.Empty;
-        //bool isNewActorInstance = false;
 
         if (string.IsNullOrWhiteSpace(actorIdStateEntry))
         {
             actorGuid = Guid.NewGuid().ToString("N");
             await client.SaveStateAsync(Consts.StateStoreName, stateKey, actorGuid);
-            //isNewActorInstance = true;
         }
         else
         {
@@ -25,10 +23,6 @@ public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<Cal
 
         var actorId = $"ResourceActor{actorGuid}";
 
-        //if (isNewActorInstance)
-        //{
-        //    await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.Initialize(parentResourceId, request.Cost.Tags));
-        //}
         await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
 
         return new CallResourceActorActivityResponse { ResourceActorId = actorId, ResourceId = parentResourceId };
