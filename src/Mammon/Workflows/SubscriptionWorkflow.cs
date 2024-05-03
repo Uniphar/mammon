@@ -1,9 +1,9 @@
 ﻿namespace Mammon.Workflows;
 
-public class SubscriptionWorkflow : Workflow<CostReportRequest, SubscriptionWorkflowResult>
+public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, SubscriptionWorkflowResult>
 {
 
-    public async override Task<SubscriptionWorkflowResult> RunAsync(WorkflowContext context, CostReportRequest input)
+    public async override Task<SubscriptionWorkflowResult> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
     {
         //obtain cost items from Cost API
         var costs = await context.CallActivityAsync<AzureCostResponse>("ObtainCostsActivity", input);

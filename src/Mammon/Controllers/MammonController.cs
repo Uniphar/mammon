@@ -2,7 +2,7 @@
 
 [Route("api/[controller]")]
 [ApiController]
-public class MammonController(DaprWorkflowClient workflowClient) : Controller
+public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine) : Controller
 {
     [HttpGet()]
     [HttpPost()]
@@ -11,29 +11,44 @@ public class MammonController(DaprWorkflowClient workflowClient) : Controller
     {
         ArgumentNullException.ThrowIfNull(@event, nameof(@event));
 
-        //check if workflow exists but in failed state, so we can reset it
-        //or start new fresh instance
-        //do nothing for currently running instances
+        var subscriptions = costCentreRuleEngine.Subscriptions;
 
-        WorkflowState? workflowInstance;
-        try
+        foreach (var subscription in subscriptions)
         {
-            workflowInstance = await workflowClient.GetWorkflowStateAsync(@event.Data.ReportId);
-        }
-        catch(RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Unknown)
-        {
-            workflowInstance = null;
-        }
-    
-        if (workflowInstance?.RuntimeStatus==WorkflowRuntimeStatus.Failed || workflowInstance?.RuntimeStatus== WorkflowRuntimeStatus.Terminated)
-        {
-            await workflowClient.PurgeInstanceAsync(@event.Data.ReportId);
-            workflowInstance= null;
-        }
+            //check if workflow exists but in failed state, so we can reset it
+            //or start new fresh instance
+            //do nothing for currently running instances
 
-        if (workflowInstance == null)
-        {
-            await workflowClient.ScheduleNewWorkflowAsync("SubscriptionWorkflow", @event.Data.ReportId, @event.Data);
+            var workflowName = $"SubscriptionWorkflow_{subscription}_{@event.Data.ReportId}";
+
+            WorkflowState? workflowInstance;
+            try
+            {
+                workflowInstance = await workflowClient.GetWorkflowStateAsync(workflowName);
+            }
+            catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Unknown)
+            {
+                workflowInstance = null;
+            }
+
+            if (workflowInstance?.RuntimeStatus == WorkflowRuntimeStatus.Failed || workflowInstance?.RuntimeStatus == WorkflowRuntimeStatus.Terminated)
+            {
+                await workflowClient.PurgeInstanceAsync(workflowName);
+                workflowInstance = null;
+            }
+
+            if (workflowInstance == null)
+            {
+                var subRequest = new CostReportSubscriptionRequest
+                {
+                    ReportId = @event.Data.ReportId,
+                    CostFrom = @event.Data.CostFrom,
+                    CostTo = @event.Data.CostTo,
+                    SubscriptionName = subscription
+                };
+
+                await workflowClient.ScheduleNewWorkflowAsync("SubscriptionWorkflow", workflowName, subRequest);
+            }
         }
         
         return Ok();

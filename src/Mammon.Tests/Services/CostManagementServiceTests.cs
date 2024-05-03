@@ -26,7 +26,7 @@ public class CostManagementServiceTests
         var service = new TestCostManagementService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostManagementService>>(), Mock.Of<IConfiguration>());
 
         //test
-        var result = await service.QueryForSubAsync(new CostReportRequest { SubscriptionName="blah", CostFrom = DateTime.UtcNow.AddDays(-1), CostTo = DateTime.UtcNow});
+        var result = await service.QueryForSubAsync(new CostReportSubscriptionRequest { SubscriptionName="blah", CostFrom = DateTime.UtcNow.AddDays(-1), CostTo = DateTime.UtcNow});
 
         //assert
         result.Should().NotBeNull();
