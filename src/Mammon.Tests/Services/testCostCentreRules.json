@@ -1,4 +1,7 @@
 ﻿{
+  "Subscriptions": [
+    "sample"
+  ],
   "Rules": [
     {
       "CostCentres": [
