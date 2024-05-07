@@ -55,6 +55,7 @@ builder.Services.AddControllers();
 builder.Services
     .AddDaprWorkflow((config) => { 
         config.RegisterWorkflow<SubscriptionWorkflow>();
+        config.RegisterWorkflow<ResourceGroupSubWorkflow>();
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
         config.RegisterActivity<AssignCostCentreActivity>();
