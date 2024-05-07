@@ -9,6 +9,8 @@ public class CostCentreRuleEngine
 {
     private readonly IConfiguration configuration;
     private IEnumerable<CostCentreRule> CostCentreRules { get; set; } = [];
+    public IEnumerable<string> Subscriptions { get; internal set; } = [];
+
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
     public CostCentreRuleEngine(IConfiguration configuration)
@@ -32,6 +34,7 @@ public class CostCentreRuleEngine
         new CostCentreDefinitionValidator().ValidateAndThrow(definition);
 
         CostCentreRules = definition.Rules;
+        Subscriptions = definition.Subscriptions;
     }
 
     /// <summary>

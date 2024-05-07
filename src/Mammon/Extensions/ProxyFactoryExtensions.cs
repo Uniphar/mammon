@@ -12,4 +12,10 @@ public static class ProxyFactoryExtensions
         var proxy =  actorProxyFactory.CreateActorProxyNoTimeout<TActorInterface>(actorId, actorType);
         await action(proxy);
     }
+
+    public static async Task<TResponse> CallActorWithNoTimeout<TActorInterface, TResponse>(this IActorProxyFactory actorProxyFactory, string actorId, string actorType, Func<TActorInterface, Task<TResponse>> action) where TActorInterface : IActor
+    {
+        var proxy = actorProxyFactory.CreateActorProxyNoTimeout<TActorInterface>(actorId, actorType);
+        return await action(proxy);
+    }
 }

@@ -31,9 +31,9 @@ public class CostManagementService
         return subByName?.Id ?? string.Empty;
     }
 
-    public async Task<AzureCostResponse> QueryForSubAsync(CostReportRequest request)
+    public async Task<AzureCostResponse> QueryForSubAsync(CostReportSubscriptionRequest request)
     {
-        new CostReportRequestValidator().ValidateAndThrow(request);
+        new CostReportSubscriptionRequestValidator().ValidateAndThrow(request);
 
         var subId = GetSubscriptionId(request.SubscriptionName);
         if (string.IsNullOrWhiteSpace(subId))
