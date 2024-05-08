@@ -68,8 +68,7 @@ builder.Services
         options.Actors.RegisterActor<CostCentreActor>();
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {
-            Enabled = true, //TODO: do I really want to enable this?
-            MaxStackDepth = 32,
+            Enabled = false
         };
     });
 

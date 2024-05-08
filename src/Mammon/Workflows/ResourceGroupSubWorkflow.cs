@@ -1,5 +1,4 @@
-﻿
-namespace Mammon.Workflows;
+﻿namespace Mammon.Workflows;
 
 public class ResourceGroupSubWorkflow : Workflow<ResourceGroupSubWorkflowRequest, bool>
 {

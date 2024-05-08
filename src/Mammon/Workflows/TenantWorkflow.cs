@@ -6,11 +6,11 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        List<Task<SubscriptionWorkflowResult>> pendingWorkflows = [];
+        List<Task<bool>> pendingWorkflows = [];
 
         foreach (var subscription in input.Subscriptions)
         {
-            pendingWorkflows.Add(context.CallChildWorkflowAsync<SubscriptionWorkflowResult>(nameof(SubscriptionWorkflow),
+            pendingWorkflows.Add(context.CallChildWorkflowAsync<bool>(nameof(SubscriptionWorkflow),
                 new CostReportSubscriptionRequest
                 {
                     ReportId = input.ReportId,

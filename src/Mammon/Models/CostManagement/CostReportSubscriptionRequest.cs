@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Models.CostManagement;
 
-public sealed record CostReportSubscriptionRequest
+public record CostReportSubscriptionRequest
 {
     public required string ReportId { get; set; }
     public required string SubscriptionName { get; set; }
