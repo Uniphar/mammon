@@ -14,7 +14,9 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
         foreach ( var group in rgGroups )
         {
-            await context.CallChildWorkflowAsync<bool>(nameof(ResourceGroupSubWorkflow), new ResourceGroupSubWorkflowRequest { ReportId = input.ReportId, Resources = group }, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ResourceGroupSubWorkflow)}{input.SubscriptionName}{input.ReportId}{group.Key}"});
+            await context.CallChildWorkflowAsync<bool>(nameof(ResourceGroupSubWorkflow), 
+                new ResourceGroupSubWorkflowRequest { ReportId = input.ReportId, Resources = group }, 
+                new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ResourceGroupSubWorkflow)}{input.SubscriptionName}{input.ReportId}{group.Key}"});
         }
 
         return true;

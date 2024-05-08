@@ -19,7 +19,12 @@ public class ResourceGroupSubWorkflow : Workflow<ResourceGroupSubWorkflowRequest
         foreach (var resourceActor in resourceActors)
         {
             await context.CallActivityAsync<bool>(nameof(AssignCostCentreActivity),
-                new AssignCostCentreActivityRequest { ReportId = input.ReportId, ResourceActorId = resourceActor.ResourceActorId, ResourceId = resourceActor.ResourceId });
+                new AssignCostCentreActivityRequest 
+                { 
+                    ReportId = input.ReportId, 
+                    ResourceActorId = resourceActor.ResourceActorId, 
+                    ResourceId = resourceActor.ResourceId 
+                });
         }
 
         return true;

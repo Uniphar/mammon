@@ -17,7 +17,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
         //or start new fresh instance
         //do nothing for currently running instances
 
-        var workflowName = $"TenantnWorkflow_{@event.Data.ReportId}";
+        var workflowName = $"{nameof(TenantWorkflow)}_{@event.Data.ReportId}";
 
         WorkflowState? workflowInstance;
         try
