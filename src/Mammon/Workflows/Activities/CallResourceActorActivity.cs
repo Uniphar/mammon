@@ -4,6 +4,8 @@ public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<Cal
 {
     public override async Task<CallResourceActorActivityResponse> RunAsync(WorkflowActivityContext context, CallResourceActorActivityRequest request)
     {
+        ArgumentNullException.ThrowIfNull(request);
+
         var parentResourceId = request.Cost!.ResourceId.ToParentResourceId();
         var stateKey = $"ResourceActorIdMap_{request.ReportId}_{new string(parentResourceId.Where(char.IsLetterOrDigit).ToArray())}";
 

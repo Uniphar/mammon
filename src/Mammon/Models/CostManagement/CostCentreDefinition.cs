@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Models.CostManagement;
 
-public class CostCentreDefinition
+public record CostCentreDefinition
 {
     public required IList<string> Subscriptions { get; set; }
     public required IList<CostCentreRule> Rules { get; set; }

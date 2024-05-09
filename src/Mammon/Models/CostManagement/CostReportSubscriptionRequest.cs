@@ -1,11 +1,11 @@
 ﻿namespace Mammon.Models.CostManagement;
 
-public sealed class CostReportSubscriptionRequest
+public record CostReportSubscriptionRequest
 {
-    public string ReportId { get; set; } = string.Empty;
-    public string SubscriptionName { get; set; } = string.Empty;
-    public DateTime CostFrom { get; set; }
-    public DateTime CostTo { get; set; }
+    public required string ReportId { get; set; }
+    public required string SubscriptionName { get; set; }
+    public required DateTime CostFrom { get; set; }
+    public required DateTime CostTo { get; set; }
 }
 
 public class CostReportSubscriptionRequestValidator : AbstractValidator<CostReportSubscriptionRequest>

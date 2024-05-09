@@ -4,10 +4,10 @@ public class AzureCostResponse : List<ResourceCost>
 {
 }
 
-public class ResourceCost
+public record ResourceCost
 {
-    public string ResourceId { get; set; } = string.Empty;
-    public double Cost { get; set; }
-    public string Currency { get; set; } = string.Empty;
-    public Dictionary<string, string> Tags { get; set; } = [];
+    public required string ResourceId { get; set; }
+    public required double Cost { get; set; }
+    public required string Currency { get; set; }
+    public required Dictionary<string, string> Tags { get; set; }
 }

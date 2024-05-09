@@ -55,6 +55,9 @@ builder.Services.AddControllers();
 builder.Services
     .AddDaprWorkflow((config) => { 
         config.RegisterWorkflow<SubscriptionWorkflow>();
+        config.RegisterWorkflow<ResourceGroupSubWorkflow>();
+        config.RegisterWorkflow<TenantWorkflow>();
+
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
         config.RegisterActivity<AssignCostCentreActivity>();
@@ -65,8 +68,7 @@ builder.Services
         options.Actors.RegisterActor<CostCentreActor>();
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {
-            Enabled = true, //TODO: do I really want to enable this?
-            MaxStackDepth = 32,
+            Enabled = false
         };
     });
 

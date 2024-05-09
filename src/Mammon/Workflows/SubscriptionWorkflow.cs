@@ -1,31 +1,24 @@
 ﻿namespace Mammon.Workflows;
 
-public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, SubscriptionWorkflowResult>
+public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool>
 {
 
-    public async override Task<SubscriptionWorkflowResult> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
+    public async override Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
     {
         //obtain cost items from Cost API
-        var costs = await context.CallActivityAsync<AzureCostResponse>("ObtainCostsActivity", input);
+        var costs = await context.CallActivityAsync<AzureCostResponse>(nameof(ObtainCostsActivity), input);
 
-        Stack<CallResourceActorActivityResponse> resourceActors = new();
+        var rgGroups = costs.GroupBy(x =>
+            new ResourceIdentifier(x.ResourceId).ResourceGroupName
+        );
 
-        //assign them to target resource and aggregate costs for each given resource
-        foreach (var cost in costs)
+        foreach ( var group in rgGroups )
         {
-            resourceActors.Push(await context.CallActivityAsync<CallResourceActorActivityResponse>("CallResourceActorActivity", 
-                new CallResourceActorActivityRequest {ReportId = input.ReportId, Cost = cost }));
+            await context.CallChildWorkflowAsync<bool>(nameof(ResourceGroupSubWorkflow), 
+                new ResourceGroupSubWorkflowRequest { ReportId = input.ReportId, Resources = group }, 
+                new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ResourceGroupSubWorkflow)}{input.SubscriptionName}{input.ReportId}{group.Key}"});
         }
 
-        //with aggregated costs, assign cost centres
-        foreach (var resourceActor in resourceActors)
-        {
-            await context.CallActivityAsync<bool>("AssignCostCentreActivity",
-                new AssignCostCentreActivityRequest { ReportId = input.ReportId, ResourceActorId = resourceActor.ResourceActorId, ResourceId = resourceActor.ResourceId });
-        }
-
-
-        return new SubscriptionWorkflowResult();
-
+        return true;
     }
 }
