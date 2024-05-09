@@ -6,12 +6,12 @@ public class ResourceGroupSubWorkflow : Workflow<ResourceGroupSubWorkflowRequest
     {
         ArgumentNullException.ThrowIfNull(nameof(input));
 
-        Stack<CallResourceActorActivityResponse> resourceActors = new();
+        List<CallResourceActorActivityResponse> resourceActors = new();
 
         //assign them to target resource and aggregate costs for each given resource
         foreach (var cost in input.Resources)
         {
-            resourceActors.Push(await context.CallActivityAsync<CallResourceActorActivityResponse>(nameof(CallResourceActorActivity),
+            resourceActors.Add(await context.CallActivityAsync<CallResourceActorActivityResponse>(nameof(CallResourceActorActivity),
                 new CallResourceActorActivityRequest { ReportId = input.ReportId, Cost = cost }));
         }
 
