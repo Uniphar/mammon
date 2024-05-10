@@ -4,6 +4,8 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
 {
     private const string CostStateName = "costCentreState";
 
+    public static string GetActorId(string reportId, string costCentreName) => $"{reportId}_{costCentreName}";
+
     /// <inheritdoc/>
     public async Task AddCostAsync(string resourceId, double cost)
     {
@@ -28,7 +30,12 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
         }
     }
 
-    private async Task<CostCentreActorState> GetStateAsync()
+	public async Task<CostCentreActorState> GetCostsAsync()
+	{
+        return await GetStateAsync();
+	}
+
+	private async Task<CostCentreActorState> GetStateAsync()
     {
         var stateAttempt = await StateManager.TryGetStateAsync<CostCentreActorState>(CostStateName);
         return (!stateAttempt.HasValue) ? new CostCentreActorState() : stateAttempt.Value;

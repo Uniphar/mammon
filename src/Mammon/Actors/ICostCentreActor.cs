@@ -9,4 +9,10 @@ public interface ICostCentreActor : IActor
     /// <param name="cost">monetary value</param>
     /// <returns></returns>
     Task AddCostAsync(string resourceId, double cost);
+
+    /// <summary>
+    /// get cost centre state associated with this actor instance
+    /// </summary>
+    /// <returns>cost centre state</returns>
+    Task<CostCentreActorState> GetCostsAsync();
 }

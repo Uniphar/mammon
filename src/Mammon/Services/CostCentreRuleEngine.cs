@@ -10,6 +10,8 @@ public class CostCentreRuleEngine
     private readonly IConfiguration configuration;
     private IEnumerable<CostCentreRule> CostCentreRules { get; set; } = [];
     public IEnumerable<string> Subscriptions { get; internal set; } = [];
+    public IEnumerable<string> CostCentres { get; internal set; } = [];
+    public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
 
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -26,16 +28,16 @@ public class CostCentreRuleEngine
         if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             throw new InvalidOperationException($"Unable to locate file: {filePath}");
 
-        var definition = JsonSerializer.Deserialize<CostCentreDefinition>(new FileStream(filePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions);
+        var definition = JsonSerializer.Deserialize<CostCentreDefinition>(new FileStream(filePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions) 
+            ?? throw new InvalidOperationException("Unable to deserialize Cost centre definition");
 
-        if (definition == null)
-            throw new InvalidOperationException("Unable to deserialize Cost centre definition");
-
-        new CostCentreDefinitionValidator().ValidateAndThrow(definition);
+		new CostCentreDefinitionValidator().ValidateAndThrow(definition);
 
         CostCentreRules = definition.Rules;
         Subscriptions = definition.Subscriptions;
-    }
+        ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;
+        CostCentres = CostCentreRules.SelectMany(r => r.CostCentres).Distinct();
+	}
 
     /// <summary>
     /// find the best matching rule
