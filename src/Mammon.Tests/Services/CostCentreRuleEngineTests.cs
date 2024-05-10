@@ -112,22 +112,39 @@ public class CostCentreRuleEngineTests
         result.IsDefault.Should().BeTrue();
     }
 
-    private CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
+    [TestMethod]
+    [DataRow("BlahTokenA", "classA")]
+	[DataRow("Blah", null)]
+	public void ClassifyResourceGroupTest(string input, string? expected)
+    {
+        var ruleEngine = GetInstance();
+
+        //assert
+        expected.Should().Be(ruleEngine.ClassifyResourceGroup(input));
+    }
+
+
+	private CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
     {   
-        //arrange
-        var inMemorySettings = new List<KeyValuePair<string, string>> {
-            new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings!)
-            .Build();
-
-        var ruleEngine = new CostCentreRuleEngine(configuration);
+        //arrange       
+        var ruleEngine = GetInstance();
 
         //act
         return ruleEngine.FindCostCentreRule(
             resourceId,
             tags);
     }
+
+    private CostCentreRuleEngine GetInstance()
+    {
+		var inMemorySettings = new List<KeyValuePair<string, string>> {
+			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
+		};
+
+		IConfiguration configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(inMemorySettings!)
+			.Build();
+
+		return new CostCentreRuleEngine(configuration);
+	}
 }

@@ -12,7 +12,17 @@ public class CostReportService (IServiceProvider sp, CostCentreRuleEngine costCe
 
 		foreach (var costCentre in costCentres)
 		{
+			//TODO: handle actor not existing
 			var state = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor, CostCentreActorState>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.GetCostsAsync());
+			if (state?.ResourceCosts != null)
+			{
+				//group by resource group (with any configured in tokens removed)
+				var resourceGroupCosts = state.ResourceCosts.GroupBy(x => costCentreRuleEngine.ProcessResourceGroupName(x.Key));
+				foreach (var resourceGroupCost in resourceGroupCosts)
+				{					
+					emailReportModel.AddLeaf(resourceGroupCost.Key, resourceGroupCost.Sum(x=>x.Value), costCentreRuleEngine.ClassifyResourceGroup(resourceGroupCost.Key));					
+				}
+			}
 		}
 		
 		return await ViewRenderer.RenderViewToStringAsync("EmailReport", new EmailReportModel(), ControllerContext);

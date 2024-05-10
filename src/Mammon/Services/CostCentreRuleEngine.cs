@@ -12,8 +12,10 @@ public class CostCentreRuleEngine
     public IEnumerable<string> Subscriptions { get; internal set; } = [];
     public IEnumerable<string> CostCentres { get; internal set; } = [];
     public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
+    public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
 
-    private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
+
+	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
     public CostCentreRuleEngine(IConfiguration configuration)
     {
@@ -37,6 +39,7 @@ public class CostCentreRuleEngine
         Subscriptions = definition.Subscriptions;
         ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;
         CostCentres = CostCentreRules.SelectMany(r => r.CostCentres).Distinct();
+        ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
 	}
 
     /// <summary>
@@ -59,5 +62,32 @@ public class CostCentreRuleEngine
             .FirstOrDefault(); //default rule is always a fallback
 
         return costCentreRule;
+    }
+
+    public string ProcessResourceGroupName(string resourceId)
+    {
+        var rgName = new ResourceIdentifier(resourceId).ResourceGroupName ?? "N/A";
+
+		return rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList);
+    }
+
+    public string? ClassifyResourceGroup(string rgName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(rgName);
+
+        string? ret = null;
+
+		_ = ResourceGroupTokenClassMap.FirstOrDefault(x=>
+        {
+            if (rgName.Contains(x.Key, StringComparison.OrdinalIgnoreCase))
+            {
+                ret = x.Value;
+                return true;
+            }
+
+            return false;
+        });
+
+        return ret;
     }
 }

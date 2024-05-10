@@ -1,7 +1,15 @@
 ﻿{
   "Subscriptions": [
-    "sample"
+    "subA",
+    "subB"
   ],
+  "ResourceGroupSuffixRemoveList": [
+    "suffixA",
+    "suffixB"
+  ],
+  "ResourceGroupTokenClassMap": {
+    "tokenA": "classA"
+  },
   "Rules": [
     {
       "CostCentres": [
