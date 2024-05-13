@@ -109,10 +109,4 @@ app.MapSubscribeHandler();
 
 app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());
 
-app.Lifetime.ApplicationStarted.Register(async () =>
-{
-    //var service = app.Services.GetRequiredService<CostCentreReportService>();
-    //var report = await service.GenerateReportAsync("test14");
-});
-
 app.Run();
