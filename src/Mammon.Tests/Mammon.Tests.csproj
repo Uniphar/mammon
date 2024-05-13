@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <Folder Include="Actors\" />
+    <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
