@@ -36,7 +36,7 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 			{
 				var resourceGroupCosts = resources.GroupBy(x => costCentreRuleEngine.ProcessResourceGroupName(x.Key)).ToList();
 
-				resourceGroupCosts.Sort(new RGComparer());
+				resourceGroupCosts.Sort(new ResourceGroupComparer());
 				foreach (var resourceGroupCost in resourceGroupCosts)
 				{
 					var rgName = resourceGroupCost.Key.parsedOutName;
@@ -68,11 +68,18 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 		}
 	}
 
-	private class RGComparer : IComparer<IGrouping<(string rgName, string subId), KeyValuePair<string, double>>>
+	private class ResourceGroupComparer : IComparer<IGrouping<(string rgName, string subId), KeyValuePair<string, double>>>
 	{
 		public int Compare(IGrouping<(string rgName, string subId), KeyValuePair<string, double>>? x, IGrouping<(string rgName, string subId), KeyValuePair<string, double>>? y)
 		{
-			return string.CompareOrdinal(x.Key.rgName, y.Key.rgName);
+			if (x == null && y == null)
+				return 0;
+			else if (x == null)
+				return -1;
+			else if (y == null)
+				return 1;
+			else
+				return string.CompareOrdinal(x.Key.rgName, y.Key.rgName);
 		}
 	}
 }
