@@ -12,7 +12,6 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="*" />
     <PackageReference Include="FluentAssertions" Version="*-*" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="Moq" Version="*" />
     <PackageReference Include="MSTest.TestAdapter" Version="*" />
@@ -44,6 +43,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Services\costApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\testCostCentreReport.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Services\testCostCentreRules.json">
