@@ -26,7 +26,6 @@ global using Mammon.Workflows.Activities;
 global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
-global using Microsoft.AspNetCore.Mvc.RazorPages;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
@@ -83,7 +82,7 @@ builder.Services
     .AddTransient((sp) => new ArmClient(new DefaultAzureCredential()))
     .AddTransient<AzureAuthHandler>()
     .AddSingleton<CostCentreRuleEngine>()
-    .AddSingleton<CostReportService>();
+    .AddSingleton<CostCentreReportService>();
 
 var policy = HttpPolicyExtensions
     .HandleTransientHttpError() // HttpRequestException, 5XX and 408
@@ -112,8 +111,8 @@ app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<T
 
 app.Lifetime.ApplicationStarted.Register(async () =>
 {
-    var service = app.Services.GetRequiredService<CostReportService>();
-    await service.GenerateReport("test14");
+    //var service = app.Services.GetRequiredService<CostCentreReportService>();
+    //var report = await service.GenerateReportAsync("test14");
 });
 
 app.Run();

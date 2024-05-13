@@ -9,11 +9,11 @@ public class CostCentreRuleEngine
 {
     private readonly IConfiguration configuration;
     private IEnumerable<CostCentreRule> CostCentreRules { get; set; } = [];
-    public IEnumerable<string> Subscriptions { get; internal set; } = [];
+    public IList<SubscriptionDefinition> Subscriptions { get; internal set; } = [];
     public IEnumerable<string> CostCentres { get; internal set; } = [];
     public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
     public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
-
+    public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -39,7 +39,8 @@ public class CostCentreRuleEngine
         Subscriptions = definition.Subscriptions;
         ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;
         CostCentres = CostCentreRules.SelectMany(r => r.CostCentres).Distinct();
-        ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
+		SubscriptionNames = Subscriptions.Select(x => x.SubscriptionName);
+		ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
 	}
 
     /// <summary>
@@ -64,11 +65,14 @@ public class CostCentreRuleEngine
         return costCentreRule;
     }
 
-    public string ProcessResourceGroupName(string resourceId)
+    public (string parsedOutName, string subcriptionId) ProcessResourceGroupName(string resourceId)
     {
-        var rgName = new ResourceIdentifier(resourceId).ResourceGroupName ?? "N/A";
+        var rId = new ResourceIdentifier(resourceId);
 
-		return rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList);
+		var rgName = rId.ResourceGroupName ?? rId.ResourceType;
+        var subId = rId.SubscriptionId ?? "N/A";
+
+		return (rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList), subId);
     }
 
     public string? ClassifyResourceGroup(string rgName)
@@ -89,5 +93,12 @@ public class CostCentreRuleEngine
         });
 
         return ret;
+    }
+
+    public string LookupEnvironment(string  subId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(subId);
+
+        return Subscriptions.FirstOrDefault(x => x.SubscriptionId == subId)?.EnvironmentDesignation ?? "unspecified";
     }
 }

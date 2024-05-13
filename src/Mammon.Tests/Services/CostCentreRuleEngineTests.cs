@@ -117,12 +117,20 @@ public class CostCentreRuleEngineTests
 	[DataRow("Blah", null)]
 	public void ClassifyResourceGroupTest(string input, string? expected)
     {
-        var ruleEngine = GetInstance();
-
-        //assert
-        expected.Should().Be(ruleEngine.ClassifyResourceGroup(input));
+		//act+assert
+		GetInstance().ClassifyResourceGroup(input).Should().Be(expected);
     }
 
+    [TestMethod]
+    [DataRow("21a25c3f-776a-408f-b319-f43e54634695", "envA")]
+	[DataRow("6a46ea4f-c676-437a-9298-41a1aacd7a51", "envB")]
+	[DataRow("eeb60f0a-055b-489f-9966-561c357f5945", "unspecified")]
+	[DataRow("N/A", "unspecified")]
+	public void LookupEnvironmentTests(string resourceId, string expectedEnvironment)
+    {
+        //act+assert
+        GetInstance().LookupEnvironment(resourceId).Should().Be(expectedEnvironment);
+    }
 
 	private CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
     {   
