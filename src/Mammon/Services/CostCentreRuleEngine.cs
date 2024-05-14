@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography;
-
-namespace Mammon.Services;
+﻿namespace Mammon.Services;
 
 /// <summary>
 /// cost centre rule evaluation engine/service
