@@ -52,9 +52,11 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
         return Ok();
     }
 
+#if DEBUG
     [HttpGet]
-    public async Task<string> RunReport([FromQuery] string reportId)
+    public async Task<string> GetReport([FromQuery] string reportId)
     {
         return await costCentreReportService.GenerateReportAsync(reportId);
     }
+#endif
 }

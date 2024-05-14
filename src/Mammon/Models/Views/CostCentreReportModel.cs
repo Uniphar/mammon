@@ -69,9 +69,3 @@ public enum CostCentreReportNodeType
 	Group,
 	RG
 }
-
-public class CostCentreReportLeaf
-{
-	public string Name { get; set; } = string.Empty;
-	public double Cost { get; set; }
-}

@@ -78,7 +78,7 @@ public class CostCentreRuleEngine
 
         if (IsModeEnabled(DevBoxSpecialMode) && rId.IsDevBoxPool())
         {
-            return new CostReportPivotEntry() { PivotName = rId.GetDevBoxPoolName(), ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
+            return new CostReportPivotEntry() { PivotName = rId.GetDevBoxProjectName(), ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
         }
         else
 		    return new CostReportPivotEntry() { PivotName = rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList), ResourceId = resourceId, SubscriptionId = subId, Cost = cost };

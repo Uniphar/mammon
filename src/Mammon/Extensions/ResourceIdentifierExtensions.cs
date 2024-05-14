@@ -2,7 +2,7 @@
 
 public static class ResourceIdentifierExtensions
 {
-	public static string GetDevBoxPoolName(this ResourceIdentifier resourceIdentifier)
+	public static string GetDevBoxProjectName(this ResourceIdentifier resourceIdentifier)
 	{
 
 		if (!resourceIdentifier.IsDevBoxPool())
