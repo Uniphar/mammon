@@ -18,6 +18,9 @@
   "ResourceGroupTokenClassMap": {
     "tokenA": "classA"
   },
+  "SpecialModes": [
+    "DevBoxPoolNameGrouping"
+  ],
   "Rules": [
     {
       "CostCentres": [

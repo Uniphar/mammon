@@ -1,4 +1,5 @@
-﻿global using Azure.ResourceManager;
+﻿global using Azure.Core;
+global using Azure.ResourceManager;
 global using FluentAssertions;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;

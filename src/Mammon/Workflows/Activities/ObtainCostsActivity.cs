@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Workflows.Activities;
 
-public class ObtainCostsActivity(CostManagementService costManagementService) : WorkflowActivity<CostReportSubscriptionRequest, AzureCostResponse>
+public class ObtainCostsActivity(CostRetrievalService costManagementService) : WorkflowActivity<CostReportSubscriptionRequest, AzureCostResponse>
 {
     public override async Task<AzureCostResponse> RunAsync(WorkflowActivityContext context, CostReportSubscriptionRequest request)
     {

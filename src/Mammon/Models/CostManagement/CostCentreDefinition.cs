@@ -6,6 +6,7 @@ public record CostCentreDefinition
     public required IList<CostCentreRule> Rules { get; set; }
     public IList<string> ResourceGroupSuffixRemoveList { get; set; } = [];
     public IDictionary<string, string>? ResourceGroupTokenClassMap { get; set; } = new Dictionary<string, string>();
+    public IList<string> SpecialModes { get; set; } = [];
 }
 
 public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinition>
@@ -17,6 +18,7 @@ public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinit
         RuleFor(x => x.Rules).NotEmpty();
         RuleForEach(x => x.Rules).SetValidator(x => new CostCentreRuleValidator());
         RuleFor(x => x.Rules).Must(x => x.Where(x => x.IsDefault).Count() == 1);
+        RuleForEach(x => x.SpecialModes).NotEmpty();
     }
 }
 

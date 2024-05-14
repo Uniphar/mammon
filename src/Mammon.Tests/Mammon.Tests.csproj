@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Services\CostManagementServiceTests.cs">
+    <Compile Update="Services\CostRetrievalServiceTests.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

@@ -31,20 +31,20 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 
 		foreach (var costCentre in costCentreStates)
 		{
-			var resources = costCentre.Value.ResourceCosts;
-			if (resources != null)
+			var pivots = costCentre.Value.ResourceCosts?.Select(x => costCentreRuleEngine.ProjectCostReportPivotEntry(x.Key, x.Value));
+			if (pivots != null)
 			{
-				var resourceGroupCosts = resources.GroupBy(x => costCentreRuleEngine.ProcessResourceGroupName(x.Key)).ToList();
+				var pivotGroups = pivots.GroupBy(x => (x.PivotName, x.SubscriptionId)).ToList();
 
-				resourceGroupCosts.Sort(new ResourceGroupComparer());
-				foreach (var resourceGroupCost in resourceGroupCosts)
+				pivotGroups.Sort(new PivotDefinitionComparer());
+				foreach (var pivotGroup in pivotGroups)
 				{
-					var rgName = resourceGroupCost.Key.parsedOutName;
+					var pivotName = pivotGroup.Key.PivotName;
 
-					var nodeClass = costCentreRuleEngine.ClassifyResourceGroup(rgName);
-					var environment = costCentreRuleEngine.LookupEnvironment(resourceGroupCost.Key.subcriptionId);
+					var nodeClass = costCentreRuleEngine.ClassifyPivot(pivotGroup.First());
+					var environment = costCentreRuleEngine.LookupEnvironment(pivotGroup.Key.SubscriptionId);
 
-					emailReportModel.AddLeaf(costCentre.Key, rgName, environment, resourceGroupCost.Sum(x => x.Value), nodeClass);
+					emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, pivotGroup.Sum(x => x.Cost), nodeClass);
 				}
 			}
 		}
@@ -68,9 +68,9 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 		}
 	}
 
-	private class ResourceGroupComparer : IComparer<IGrouping<(string rgName, string subId), KeyValuePair<string, double>>>
+	private class PivotDefinitionComparer : IComparer<IGrouping<(string pivotName,string subId), CostReportPivotEntry>>
 	{
-		public int Compare(IGrouping<(string rgName, string subId), KeyValuePair<string, double>>? x, IGrouping<(string rgName, string subId), KeyValuePair<string, double>>? y)
+		public int Compare(IGrouping<(string pivotName, string subId), CostReportPivotEntry>? x, IGrouping<(string pivotName, string subId), CostReportPivotEntry>? y)
 		{
 			if (x == null && y == null)
 				return 0;
@@ -79,7 +79,7 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 			else if (y == null)
 				return 1;
 			else
-				return string.CompareOrdinal(x.Key.rgName, y.Key.rgName);
+				return string.CompareOrdinal(x.Key.pivotName, y.Key.pivotName);
 		}
 	}
 }

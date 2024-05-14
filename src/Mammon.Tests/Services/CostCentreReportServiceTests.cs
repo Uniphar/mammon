@@ -54,7 +54,6 @@ public class CostCentreReportServiceTests
 		costCentreANode.SubNodes["rgA"].Leaves.Should().HaveCount(2); //environments
 		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(new KeyValuePair<string, double>("envA", 12)); //environment
 		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(new KeyValuePair<string, double>("envB", 13)); //environment
-
 	}
 
 	private static CostCentreRuleEngine GetCostCentreRuleEngineInstance()

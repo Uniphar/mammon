@@ -90,7 +90,7 @@ var policy = HttpPolicyExtensions
     .AddCostManagementRetryPolicy();
 
 builder.Services
-    .AddHttpClient<CostManagementService>()
+    .AddHttpClient<CostRetrievalService>()
     .AddHttpMessageHandler<AzureAuthHandler>()
     .AddPolicyHandler(policy);
 

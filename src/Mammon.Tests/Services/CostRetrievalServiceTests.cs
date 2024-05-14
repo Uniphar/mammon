@@ -2,7 +2,7 @@
 
 [TestClass()]
 [TestCategory("UnitTest")]
-public class CostManagementServiceTests
+public class CostRetrievalServiceTests
 {
     [TestMethod]
     public async Task ReturnsExpectedResponse()
@@ -23,7 +23,7 @@ public class CostManagementServiceTests
 
         var client = mockHttp.ToHttpClient();
 
-        var service = new TestCostManagementService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostManagementService>>(), Mock.Of<IConfiguration>());
+        var service = new TestCostRetrievalService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostRetrievalService>>(), Mock.Of<IConfiguration>());
 
         //test
         var result = await service.QueryForSubAsync(new CostReportSubscriptionRequest { SubscriptionName="blah", CostFrom = DateTime.UtcNow.AddDays(-1), CostTo = DateTime.UtcNow, ReportId = Guid.NewGuid().ToString()});
@@ -58,7 +58,7 @@ public class CostManagementServiceTests
     public void TestTagParsing(string rawInput, string expectedKey, string expectedValue)
     {
         //act
-        var response = CostManagementService.ParseOutTag(rawInput);
+        var response = CostRetrievalService.ParseOutTag(rawInput);
 
         //assert
         response.Should().NotBeNull();
@@ -67,7 +67,7 @@ public class CostManagementServiceTests
 
     }
 
-    class TestCostManagementService(ArmClient armClient, HttpClient httpClient, ILogger<CostManagementService> logger, IConfiguration configuration) : CostManagementService(armClient, httpClient, logger, configuration)
+    class TestCostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger, IConfiguration configuration) : CostRetrievalService(armClient, httpClient, logger, configuration)
     {
         //we need this as the GetSubscriptions() of the ArmClient is not mockable
         public override string? GetSubscriptionId(string subscriptionName)

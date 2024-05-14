@@ -113,12 +113,12 @@ public class CostCentreRuleEngineTests
     }
 
     [TestMethod]
-    [DataRow("BlahTokenA", "classA")]
-	[DataRow("Blah", null)]
-	public void ClassifyResourceGroupTest(string input, string? expected)
+    [DataRow("BlahTokenA", "21a25c3f-776a-408f-b319-f43e54634695", "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox/providers/microsoft.devcenter/projects/customPool-dotnet/pools/custom-dotnet-vs2022ent",  "DevBox Pool")]
+	[DataRow("BlahTokenA", "21a25c3f-776a-408f-b319-f43e54634695", "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/BlahTokenA/providers/microsoft.storage/storageaccounts/otherSA", "classA")]
+	public void ClassifyResourceGroupTest(string pivotName, string subId, string resourceId, string? expected)
     {
 		//act+assert
-		GetInstance().ClassifyResourceGroup(input).Should().Be(expected);
+		GetInstance().ClassifyPivot(new CostReportPivotEntry() { PivotName = pivotName, SubscriptionId = subId, ResourceId = resourceId, Cost = 1 }).Should().Be(expected);
     }
 
     [TestMethod]

@@ -1,4 +1,6 @@
-﻿namespace Mammon.Services;
+﻿using System.Security.Cryptography;
+
+namespace Mammon.Services;
 
 /// <summary>
 /// cost centre rule evaluation engine/service
@@ -14,8 +16,11 @@ public class CostCentreRuleEngine
     public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
     public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
     public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
+	public IList<string> SpecialModes { get; set; } = [];
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
+
+    private const string DevBoxSpecialMode = "DevBoxPoolNameGrouping";
 
     public CostCentreRuleEngine(IConfiguration configuration)
     {
@@ -40,6 +45,7 @@ public class CostCentreRuleEngine
         ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;
         CostCentres = CostCentreRules.SelectMany(r => r.CostCentres).Distinct();
 		SubscriptionNames = Subscriptions.Select(x => x.SubscriptionName);
+        SpecialModes = definition.SpecialModes;
 		ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
 	}
 
@@ -65,34 +71,51 @@ public class CostCentreRuleEngine
         return costCentreRule;
     }
 
-    public (string parsedOutName, string subcriptionId) ProcessResourceGroupName(string resourceId)
+    public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, double cost)
     {
         var rId = new ResourceIdentifier(resourceId);
 
 		var rgName = rId.ResourceGroupName ?? rId.ResourceType;
         var subId = rId.SubscriptionId ?? "N/A";
 
-		return (rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList), subId);
-    }
-
-    public string? ClassifyResourceGroup(string rgName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(rgName);
-
-        string? ret = null;
-
-		_ = ResourceGroupTokenClassMap.FirstOrDefault(x=>
+        if (IsModeEnabled(DevBoxSpecialMode) && rId.IsDevBoxPool())
         {
-            if (rgName.Contains(x.Key, StringComparison.OrdinalIgnoreCase))
+            return new CostReportPivotEntry() { PivotName = rId.GetDevBoxPoolName(), ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
+        }
+        else
+		    return new CostReportPivotEntry() { PivotName = rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList), ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
+    }   
+
+    private bool IsModeEnabled(string modeName)
+    {
+        return SpecialModes.Contains(modeName, StringComparer.OrdinalIgnoreCase); 
+    }
+    public string? ClassifyPivot(CostReportPivotEntry pivotDefinition)
+    {
+        ArgumentNullException.ThrowIfNull(pivotDefinition);
+
+        ResourceIdentifier rId = new(pivotDefinition.ResourceId);
+        if (IsModeEnabled(DevBoxSpecialMode) && rId.IsDevBoxPool())
+        {
+            return "DevBox Pool";
+        }
+        else
+        {
+            string? ret = null;
+
+            _ = ResourceGroupTokenClassMap.FirstOrDefault(x =>
             {
-                ret = x.Value;
-                return true;
-            }
+                if (pivotDefinition.PivotName.Contains(x.Key, StringComparison.OrdinalIgnoreCase))
+                {
+                    ret = x.Value;
+                    return true;
+                }
 
-            return false;
-        });
+                return false;
+            });
 
-        return ret;
+            return ret;
+        }
     }
 
     public string LookupEnvironment(string  subId)
@@ -101,4 +124,12 @@ public class CostCentreRuleEngine
 
         return Subscriptions.FirstOrDefault(x => x.SubscriptionId == subId)?.EnvironmentDesignation ?? "unspecified";
     }
+}
+
+public record CostReportPivotEntry
+{   
+    public required string PivotName { get; set; } 
+    public required string ResourceId { get; set; }
+    public required string SubscriptionId { get; set; }
+    public required double Cost { get; set; }
 }
