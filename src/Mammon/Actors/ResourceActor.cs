@@ -3,8 +3,8 @@
 public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
 {
     public const string CostStateName = "resourceCostState";
-
-    public async Task AddCostAsync(string fullCostId, double cost, string parentResourceId, Dictionary<string, string> tags)
+  
+	public async Task AddCostAsync(string fullCostId, double cost, string parentResourceId, Dictionary<string, string> tags)
     {
         try
         {

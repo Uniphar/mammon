@@ -12,4 +12,22 @@ public static class StringExtensions
      
         return firstIndex!=lastIndex ? value[..lastIndex] : value;
     }
+
+    public static string RemoveSuffixes(this string value, IEnumerable<string> suffixes)
+    {
+        if (string.IsNullOrWhiteSpace(value) || suffixes==null || !suffixes.Any())
+        {
+            return value;
+        }
+        
+        foreach ( var suffix in suffixes )
+        {
+            if (!string.IsNullOrWhiteSpace(suffix) && value.EndsWith(suffix))
+            {
+                value = value.Remove(value.LastIndexOf(suffix));
+            }
+        }
+
+        return value;
+    }
 }

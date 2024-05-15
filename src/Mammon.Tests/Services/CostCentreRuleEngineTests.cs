@@ -112,22 +112,47 @@ public class CostCentreRuleEngineTests
         result.IsDefault.Should().BeTrue();
     }
 
-    private CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
+    [TestMethod]
+    [DataRow("BlahTokenA", "21a25c3f-776a-408f-b319-f43e54634695", "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox/providers/microsoft.devcenter/projects/customPool-dotnet/pools/custom-dotnet-vs2022ent",  "DevBox Pool")]
+	[DataRow("BlahTokenA", "21a25c3f-776a-408f-b319-f43e54634695", "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/BlahTokenA/providers/microsoft.storage/storageaccounts/otherSA", "classA")]
+	public void ClassifyResourceGroupTest(string pivotName, string subId, string resourceId, string? expected)
+    {
+		//act+assert
+		GetInstance().ClassifyPivot(new CostReportPivotEntry() { PivotName = pivotName, SubscriptionId = subId, ResourceId = resourceId, Cost = 1 }).Should().Be(expected);
+    }
+
+    [TestMethod]
+    [DataRow("21a25c3f-776a-408f-b319-f43e54634695", "envA")]
+	[DataRow("6a46ea4f-c676-437a-9298-41a1aacd7a51", "envB")]
+	[DataRow("eeb60f0a-055b-489f-9966-561c357f5945", "unspecified")]
+	[DataRow("N/A", "unspecified")]
+	public void LookupEnvironmentTests(string resourceId, string expectedEnvironment)
+    {
+        //act+assert
+        GetInstance().LookupEnvironment(resourceId).Should().Be(expectedEnvironment);
+    }
+
+	private CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
     {   
-        //arrange
-        var inMemorySettings = new List<KeyValuePair<string, string>> {
-            new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
-        };
-
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(inMemorySettings!)
-            .Build();
-
-        var ruleEngine = new CostCentreRuleEngine(configuration);
+        //arrange       
+        var ruleEngine = GetInstance();
 
         //act
         return ruleEngine.FindCostCentreRule(
             resourceId,
             tags);
     }
+
+    private CostCentreRuleEngine GetInstance()
+    {
+		var inMemorySettings = new List<KeyValuePair<string, string>> {
+			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
+		};
+
+		IConfiguration configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(inMemorySettings!)
+			.Build();
+
+		return new CostCentreRuleEngine(configuration);
+	}
 }

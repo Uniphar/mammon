@@ -1,0 +1,38 @@
+﻿{
+  "Subscriptions": [
+    {
+      "SubscriptionName": "SubA",
+      "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695",
+      "EnvironmentDesignation": "envA"
+    },
+    {
+      "SubscriptionName": "SubB",
+      "SubscriptionId": "6a46ea4f-c676-437a-9298-41a1aacd7a51",
+      "EnvironmentDesignation": "envB"
+    }
+  ],
+  "ResourceGroupSuffixRemoveList": [
+    "-envA",
+    "-envB"
+  ],
+  "ResourceGroupTokenClassMap": {
+    "tokenA": "classA"
+  },
+  "Rules": [
+    {
+      "CostCentres": [
+        "CostCentreA"
+      ],
+      "Tags": {
+        "tagAName": "tagAValue",
+        "tagBName": "tagBValue"
+      }
+    },    
+    {
+      "CostCentres": [
+        "CostCentreB"
+      ],
+      "IsDefault": true
+    }
+  ]
+}

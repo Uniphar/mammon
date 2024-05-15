@@ -1,10 +1,10 @@
 ﻿namespace Mammon.Services;
 
-public class CostManagementService
+public class CostRetrievalService
 {
     private readonly ArmClient armClient;
     private readonly HttpClient httpClient;
-    private readonly ILogger<CostManagementService> logger;
+    private readonly ILogger<CostRetrievalService> logger;
     private readonly IConfiguration configuration;
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -15,7 +15,7 @@ public class CostManagementService
     private const string currencyColumnName = "Currency";
     private const string tagsColumnName = "Tags";
 
-    public CostManagementService(ArmClient armClient, HttpClient httpClient, ILogger<CostManagementService> logger, IConfiguration configuration)
+    public CostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger, IConfiguration configuration)
     {
         this.armClient = armClient;
         this.httpClient = httpClient;

@@ -16,6 +16,7 @@ global using Mammon.Actors;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;
 global using Mammon.Models.CostManagement;
+global using Mammon.Models.Views;
 global using Mammon.Models.Workflows;
 global using Mammon.Models.Workflows.Activities;
 global using Mammon.Services;
@@ -24,6 +25,7 @@ global using Mammon.Workflows;
 global using Mammon.Workflows.Activities;
 global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
+global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
@@ -33,10 +35,12 @@ global using System.Net;
 global using System.Text;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
+global using Westwind.AspNetCore.Views;
 
 #if (DEBUG)
 Debugger.Launch();
 #endif
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +53,8 @@ builder.Configuration.AddAzureKeyVault(
     new DefaultAzureCredential());
 
 builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
 
@@ -75,7 +81,8 @@ builder.Services
 builder.Services
     .AddTransient((sp) => new ArmClient(new DefaultAzureCredential()))
     .AddTransient<AzureAuthHandler>()
-    .AddSingleton<CostCentreRuleEngine>();
+    .AddSingleton<CostCentreRuleEngine>()
+    .AddSingleton<CostCentreReportService>();
 
 var policy = HttpPolicyExtensions
     .HandleTransientHttpError() // HttpRequestException, 5XX and 408
@@ -83,7 +90,7 @@ var policy = HttpPolicyExtensions
     .AddCostManagementRetryPolicy();
 
 builder.Services
-    .AddHttpClient<CostManagementService>()
+    .AddHttpClient<CostRetrievalService>()
     .AddHttpMessageHandler<AzureAuthHandler>()
     .AddPolicyHandler(policy);
 
@@ -93,9 +100,12 @@ app.UseRouting();
 
 app.MapActorsHandlers();
 
+app.MapRazorPages();
+
 app.MapControllers();
 
 app.MapSubscribeHandler();
+
 
 app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());
 

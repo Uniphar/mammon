@@ -7,13 +7,13 @@ public class AssignCostCentreActivity : WorkflowActivity<AssignCostCentreActivit
         ArgumentNullException.ThrowIfNull(input);
 
         //get cost centre costs
-        var costCentreCosts = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor, IDictionary<string, double>>(input.ResourceActorId, "ResourceActor", async (p) => await p.AssignCostCentreCosts()) 
+        var costCentreCosts = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor, IDictionary<string, double>>(input.ResourceActorId, nameof(ResourceActor), async (p) => await p.AssignCostCentreCosts()) 
             ?? throw new InvalidOperationException($"Unexpected result returned for ${input.ResourceId} - AssignCostCentreCosts");
 
         foreach (var (costCentre, costCentreCost) in costCentreCosts)
         {            
             //send them to cost centre actors
-            await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>($"{input.ReportId}_{costCentre}", "CostCentreActor", async (p) => await p.AddCostAsync(input.ResourceId, costCentreCost));
+            await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(input.ReportId, costCentre), "CostCentreActor", async (p) => await p.AddCostAsync(input.ResourceId, costCentreCost));
         }
 
         return true;

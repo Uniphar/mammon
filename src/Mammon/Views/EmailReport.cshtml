@@ -1,0 +1,51 @@
+﻿@model Mammon.Models.Views.CostCentreReportModel
+
+<html>
+	<body>
+		<h1 style="color: red">Cost Breakdown</h1>
+	@{
+		RenderNode(null, Model.Root);
+	}
+</body>
+</html>
+
+@functions {
+	private string GetClassForReportNode(CostCentreReportNode node)
+	{
+		switch (node.Type)
+		{
+			case CostCentreReportNodeType.CostCentre:
+				return "font-size:22px;font-weight: bold";
+			case CostCentreReportNodeType.RG:
+				return "font-size:18px;background-color:#cfcccc; min-width: 100px";
+			case CostCentreReportNodeType.Group:
+				return "font-size:18px;font-weight: bold";
+			default:
+				return "";
+		}
+	}
+	private void RenderNode(string? nodeName, CostCentreReportNode node)
+	{		
+		@if(!string.IsNullOrWhiteSpace(nodeName))
+		{
+				@:<ul style="margin-left: 10px;">
+				<li style="border-width:5px"><b style="@GetClassForReportNode(node)">@nodeName</b> - @node.NodeTotal.ToString("F")</li>
+		}
+		
+		@foreach (var subNode in node.SubNodes)
+		{			
+			RenderNode(subNode.Key, subNode.Value);
+		}
+		@foreach (var leaf in node.Leaves)
+		{
+			<ul>
+			<li style="margin-left: 10px; border-width:5px"><span style="float:left;border-right-width:10px;min-width:100px">@leaf.Key</span><span>@leaf.Value.ToString("F")</span></li>
+			</ul>
+		}		
+
+		@if(!string.IsNullOrWhiteSpace(nodeName))
+		{
+			@:</ul>
+		}
+	}
+}

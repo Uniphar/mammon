@@ -9,4 +9,18 @@ public class StringExtensionsTests
     {
         input.ToParentResourceId().Should().Be(expected);
     }
+
+	[DataTestMethod]
+    [DataRow("CoreSuffix", "Core", "Suffix")]
+	[DataRow("CoreSuffix", "CoreSuffix", "blah")]
+	[DataRow("CoreSuffix-NE", "Core", "Suffix-NE", "Suffix")]
+	[DataRow("CoreSuffix", "Core", "Suffix-NE", "Suffix")]
+	[DataRow("CoreSuffix", "CoreSuffix", null)]
+	[DataRow(null, null, null)]
+	public void RemoveSuffixesTests(string input, string expected, params string[] suffixes)
+    {
+        var ret = input.RemoveSuffixes(suffixes);
+
+        ret.Should().Be(expected);
+    }
 }

@@ -28,11 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Actors\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Services\CostManagementServiceTests.cs">
+    <Compile Update="Services\CostRetrievalServiceTests.cs">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>
@@ -42,6 +38,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Services\costApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Services\testCostCentreReport.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Services\testCostCentreRules.json">

@@ -1,17 +1,17 @@
 ﻿namespace Mammon;
 
-[Route("api/[controller]")]
+[Route("api/[controller]/[Action]")]
 [ApiController]
-public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine) : Controller
-{
-    [HttpGet()]
+public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine, CostCentreReportService costCentreReportService ) : Controller
+{	
+	[HttpGet()]
     [HttpPost()]
     [Topic("mammon-pub-sub", "ReportRequests")]
     public async Task<StatusCodeResult> Invoke(CloudEvent<CostReportRequest> @event)
     {
         ArgumentNullException.ThrowIfNull(@event, nameof(@event));
 
-        var subscriptions = costCentreRuleEngine.Subscriptions;
+        var subscriptions = costCentreRuleEngine.SubscriptionNames;
 
         //check if workflow exists but in failed state, so we can reset it
         //or start new fresh instance
@@ -51,4 +51,12 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
         
         return Ok();
     }
+
+#if DEBUG
+    [HttpGet]
+    public async Task<string> GetReport([FromQuery] string reportId)
+    {
+        return await costCentreReportService.GenerateReportAsync(reportId);
+    }
+#endif
 }
