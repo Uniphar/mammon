@@ -7,7 +7,7 @@
       "workingDirectory": "$(ProjectDir)",
       "environmentVariables": {
         "ASPNETCORE_URLS": "http://+:8082",
-        "Mammon__MockCostAPIResponseFilePath": "./Services/dummyCostAPIResponse.json",
+        "_Mammon__MockCostAPIResponseFilePath": "./Services/dummyCostAPIResponse.json",
         "Mammon__CostCentreRuleEngineFilePath": "../../../costcentre-definitions/costCentreRules.json"
       },
       "remoteDebugEnabled": false
