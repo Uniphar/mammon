@@ -144,6 +144,4 @@ public class CostCentreRuleValidator : AbstractValidator<CostCentreRule>
 			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); } return true; });
 
 	}
-
-
 }
