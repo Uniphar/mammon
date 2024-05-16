@@ -13,12 +13,12 @@ public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinit
 {
     public CostCentreDefinitionValidator()
     {
-        RuleFor(x => x.Subscriptions).NotEmpty();
+        RuleFor(x => x.Subscriptions).NotEmpty().WithMessage("Subscription list cannot be empty");
         RuleForEach(x => x.Subscriptions).SetValidator(x=> new SubscriptionDefinitionValidator());
-        RuleFor(x => x.Rules).NotEmpty();
+        RuleFor(x => x.Rules).NotEmpty().WithMessage("Rule list cannot be empty");
         RuleForEach(x => x.Rules).SetValidator(x => new CostCentreRuleValidator());
-        RuleFor(x => x.Rules).Must(x => x.Where(x => x.IsDefault).Count() == 1);
-        RuleForEach(x => x.SpecialModes).NotEmpty();
+        RuleFor(x => x.Rules).Must(x => x.Where(x => x.IsDefault).Count() == 1).WithMessage("One rule must be set as default");
+        RuleForEach(x => x.SpecialModes).NotEmpty().WithMessage("Special mode names must be specified");
     }
 }
 
@@ -26,8 +26,8 @@ public class SubscriptionDefinitionValidator : AbstractValidator<SubscriptionDef
 {
     public SubscriptionDefinitionValidator()
     {
-        RuleFor(x => x.EnvironmentDesignation).NotEmpty();
-		RuleFor(x => x.SubscriptionName).NotEmpty();
-		RuleFor(x => x.SubscriptionId).NotEmpty();
+        RuleFor(x => x.EnvironmentDesignation).NotEmpty().WithMessage("Subscription EnvironmentDesignation must be set");
+		RuleFor(x => x.SubscriptionName).NotEmpty().WithMessage("Subscription SubscriptionName must be set");
+		RuleFor(x => x.SubscriptionId).NotEmpty().WithMessage("Subscription SubscriptionId must be set");
 	}
 }

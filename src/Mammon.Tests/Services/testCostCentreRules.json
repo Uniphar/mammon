@@ -26,26 +26,26 @@
       "CostCentres": [
         "FullMatchMultiTag"
       ],
-      "ResourceName": "sampleSA",
+      "ResourceNameMatchPattern": "sampleSA",
       "Tags": {
         "tagAName": "tagAValue",
         "tagBName": "tagBValue"
       },
-      "ResourceGroupName": "rgName",
+      "ResourceGroupNameMatchPattern": "rgName",
       "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695",
-      "ResourceType": "microsoft.storage/storageaccounts"
+      "ResourceTypeMatchPattern": "microsoft.storage/storageaccounts"
     },
     {
       "CostCentres": [
         "FullMatchSingleTag"
       ],
-      "ResourceName": "sampleSA",
+      "ResourceNameMatchPattern": "sampleSA",
       "Tags": {
         "tagAName": "tagAValue"
       },
-      "ResourceGroupName": "rgName",
+      "ResourceGroupNameMatchPattern": "rgName",
       "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695",
-      "ResourceType": "microsoft.storage/storageaccounts"
+      "ResourceTypeMatchPattern": "microsoft.storage/storageaccounts"
     },
     {
       "CostCentres": [
@@ -54,7 +54,7 @@
       "Tags": {
         "tagAName": "tagAValue"
       },
-      "ResourceGroupName": "rgName",
+      "ResourceGroupNameMatchPattern": "rgName",
       "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695"
     },
     {
@@ -71,7 +71,7 @@
         "ResourceTypeMatch1",
         "ResourceTypeMatch2"
       ],
-      "ResourceType": "microsoft.containerservice/managedclusters"
+      "ResourceTypeMatchPattern": "microsoft.containerservice/managedclusters"
     },
     {
       "CostCentres": [
@@ -80,6 +80,24 @@
       "Tags": {
         "tagAName": "tagAValue"
       }
+    },
+    {
+      "CostCentres": [
+        "RegExpResourceNameMatch"
+      ],
+      "ResourceNameMatchPattern": "regexpResource(-prod|-dev)"
+    },
+    {
+      "CostCentres": [
+        "RegExpResourceGroupNameMatch"
+      ],
+      "ResourceGroupNameMatchPattern": "regexpRG(-prod|-dev)"
+    },
+    {
+      "CostCentres": [
+        "RegExpResourceTypeNameMatch"
+      ],
+      "ResourceTypeMatchPattern": "microsoft.regexptest\/(.)+"
     },
     {
       "CostCentres": [

@@ -95,7 +95,25 @@ public class CostCentreRuleEngineTests
         result.CostCentres.Should().Contain(new[] { "TagsMatch" });
     }
 
-    [TestMethod]
+	[DataTestMethod]
+	[DataRow("/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/blah/providers/microsoft.storage/storageaccounts/regexpResource-prod", "RegExpResourceNameMatch")]
+	[DataRow("/subscriptions/030dc63d-963c-47bf-996e-cc0c32fc46ae/resourcegroups/regexpRG-prod/providers/microsoft.storage/storageaccounts/blah", "RegExpResourceGroupNameMatch")]
+	[DataRow("/subscriptions/030dc63d-963c-47bf-996e-cc0c32fc46ae/resourcegroups/blah/providers/microsoft.regexptest/storageaccounts/blah", "RegExpResourceTypeNameMatch")]
+	public void ShouldMatchRegExpRule(string resourceId, string expectedRuleName)
+	{
+
+		//act
+		var result = InnerTest(
+			resourceId,
+			new Dictionary<string, string> { { "unusedTag", "tagAValue" } });
+
+		//assert
+		result.Should().NotBeNull();
+		result.CostCentres.Length.Should().Be(1);
+		result.CostCentres.Should().Contain(new[] { expectedRuleName });
+	}
+
+	[TestMethod]
     public void ShouldMatchDefaultCostCentreRule()
     {
 
