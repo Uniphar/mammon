@@ -18,29 +18,13 @@ public class CostCentreRule
     public bool IsSplittable => CostCentres.Length > 1;
 
     private Regex? _resourceGroupNameRegExp;
-	public Regex? ResourceGroupNameRegExp { 
-        get
-        {
-			return GetRegExp(ResourceGroupNameMatchPattern, ref _resourceGroupNameRegExp);			
-        }
-    }
+	public Regex? ResourceGroupNameRegExp => GetRegExp(ResourceGroupNameMatchPattern, ref _resourceGroupNameRegExp);			
 
 	private Regex? _resourceNameRegExp;
-	public Regex? ResourceNameRegExp
-    {
-        get
-        {
-            return GetRegExp(ResourceNameMatchPattern, ref _resourceNameRegExp);
-		}
-    }
+	public Regex? ResourceNameRegExp => GetRegExp(ResourceNameMatchPattern, ref _resourceNameRegExp);
 
     public Regex? _resourceTypeRegExp;
-	public Regex? ResourceTypeRegExp { 
-        get 
-        {
-			return GetRegExp(ResourceTypeMatchPattern, ref _resourceTypeRegExp);
-		} 
-    }
+    public Regex? ResourceTypeRegExp => GetRegExp(ResourceTypeMatchPattern, ref _resourceTypeRegExp);
 
 	/// <summary>
 	/// evaluate match level of available rules to a given resource id and tags
