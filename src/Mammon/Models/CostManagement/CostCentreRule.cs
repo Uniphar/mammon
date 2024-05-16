@@ -37,11 +37,11 @@ public class CostCentreRule
 	///  - resource name - 16
 	///  
 	/// the more specific match, the higher the score
+    /// (i.e. in the case of resource type level rule or subscription level rule, subscription rule wins)
+    /// 
 	/// certain rule definitions are probably only theoretical - e.g. subscription level - but special use cases may apply
-	/// (i.e. in the case of resource type and subscription level, subscription rule wins)
 	/// 
 	/// we support the concept of the default rule
-	/// 
 	/// </summary>
 	/// <param name="resourceId">azure resource id of the target resource</param>
 	/// <param name="resourceTags">list of tag names and values associated with the resource instance</param>
