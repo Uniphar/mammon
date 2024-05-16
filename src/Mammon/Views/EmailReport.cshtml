@@ -1,8 +1,60 @@
 ﻿@model Mammon.Models.Views.CostCentreReportModel
 
 <html>
-	<body>
-		<h1 style="color: red">Cost Breakdown</h1>
+<head>
+	<style>
+		html * {
+			font-family: Arial, sans-serif;
+		}
+
+		.level-0 {
+			color: darkblue;
+			font-size: 20px;
+			font-weight: bold;
+			padding-top: 0.5em;
+		}
+
+		.currency {
+			text-align: right;
+		}		
+
+		.currency:before {
+			content: '€ ';
+			padding-left: .5em;
+		}			
+
+		.level-1 {
+			padding-left: .5em;
+			font-weight: bold;
+		}
+
+		.level-1:before {
+			content: "• ";
+		}
+
+		.level-2 {
+			padding-left: 1em;
+		}
+
+		.level-2:before {
+			content: "› ";
+		}
+
+		.level-3 {
+			padding-left: 2em;
+		}
+
+		.level-3:before {
+			content: "» ";
+		}
+
+		.level-4 {
+			padding-left: 3em;
+		}
+	</style>
+</head>
+<body>
+	<h1>Cost Breakdown</h1>
 	@{
 		RenderNode(null, Model.Root);
 	}
@@ -10,42 +62,21 @@
 </html>
 
 @functions {
-	private string GetClassForReportNode(CostCentreReportNode node)
+
+	private void RenderNode(string? nodeName, CostCentreReportNode node, int level = 0)
 	{
-		switch (node.Type)
+		if (node.Type!= CostCentreReportNodeType.Root)
 		{
-			case CostCentreReportNodeType.CostCentre:
-				return "font-size:22px;font-weight: bold";
-			case CostCentreReportNodeType.RG:
-				return "font-size:18px;background-color:#cfcccc; min-width: 100px";
-			case CostCentreReportNodeType.Group:
-				return "font-size:18px;font-weight: bold";
-			default:
-				return "";
+			<p class="level-@(level)">@nodeName<span class="currency">@node.NodeTotal.ToString("F")</span></p>
 		}
-	}
-	private void RenderNode(string? nodeName, CostCentreReportNode node)
-	{		
-		@if(!string.IsNullOrWhiteSpace(nodeName))
-		{
-				@:<ul style="margin-left: 10px;">
-				<li style="border-width:5px"><b style="@GetClassForReportNode(node)">@nodeName</b> - @node.NodeTotal.ToString("F")</li>
-		}
-		
+
 		@foreach (var subNode in node.SubNodes)
-		{			
-			RenderNode(subNode.Key, subNode.Value);
+		{
+			RenderNode(subNode.Key, subNode.Value, node.Type== CostCentreReportNodeType.Root? level :  level + 1);
 		}
 		@foreach (var leaf in node.Leaves)
 		{
-			<ul>
-			<li style="margin-left: 10px; border-width:5px"><span style="float:left;border-right-width:10px;min-width:100px">@leaf.Key</span><span>@leaf.Value.ToString("F")</span></li>
-			</ul>
-		}		
-
-		@if(!string.IsNullOrWhiteSpace(nodeName))
-		{
-			@:</ul>
+			<p class="level-@(level+1)">@leaf.Key<span class="currency">@leaf.Value.ToString("F")</span></p>
 		}
 	}
 }
