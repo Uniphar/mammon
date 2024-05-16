@@ -21,12 +21,7 @@ public class CostCentreRule
 	public Regex? ResourceGroupNameRegExp { 
         get
         {
-            if (string.IsNullOrEmpty(ResourceGroupNameMatchPattern))
-                return null;
-            
-            _resourceGroupNameRegExp ??= new Regex(ResourceGroupNameMatchPattern);
-
-            return _resourceGroupNameRegExp;
+			return GetRegExp(ResourceGroupNameMatchPattern, ref _resourceGroupNameRegExp);			
         }
     }
 
@@ -35,12 +30,7 @@ public class CostCentreRule
     {
         get
         {
-			if (string.IsNullOrEmpty(ResourceNameMatchPattern))
-				return null;
-
-			_resourceNameRegExp ??= new Regex(ResourceNameMatchPattern);
-
-			return _resourceNameRegExp;
+            return GetRegExp(ResourceNameMatchPattern, ref _resourceNameRegExp);
 		}
     }
 
@@ -48,12 +38,7 @@ public class CostCentreRule
 	public Regex? ResourceTypeRegExp { 
         get 
         {
-			if (string.IsNullOrEmpty(ResourceTypeMatchPattern))
-				return null;
-
-			_resourceTypeRegExp ??= new Regex(ResourceTypeMatchPattern);
-
-			return _resourceTypeRegExp;
+			return GetRegExp(ResourceTypeMatchPattern, ref _resourceTypeRegExp);
 		} 
     }
 
@@ -124,6 +109,14 @@ public class CostCentreRule
 
         return Tags.All(item => resourceTags.ContainsKey(item.Key) && resourceTags[item.Key] == item.Value);
     }
+
+    private static Regex? GetRegExp(string? input, ref Regex? regex)
+    {
+		if (string.IsNullOrEmpty(input))
+			return null;
+
+		return regex ??= new Regex(input);
+	}
 }
 
 public class CostCentreRuleValidator : AbstractValidator<CostCentreRule>
