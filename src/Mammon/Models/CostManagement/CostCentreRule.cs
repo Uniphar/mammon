@@ -123,18 +123,22 @@ public class CostCentreRuleValidator : AbstractValidator<CostCentreRule>
 {
     public CostCentreRuleValidator()
     {
-        RuleFor(x => x.CostCentres).NotEmpty();
+        RuleFor(x => x.CostCentres).NotEmpty().WithMessage("Cost Centre list cannot be empty");
         RuleFor(x => x).Must(i => i.IsDefault || (!i.IsDefault && (!string.IsNullOrWhiteSpace(i.SubscriptionId) || !string.IsNullOrWhiteSpace(i.ResourceNameMatchPattern) || !string.IsNullOrWhiteSpace(i.ResourceGroupNameMatchPattern)
-            || !string.IsNullOrWhiteSpace(i.ResourceTypeMatchPattern) || (i.Tags != null && i.Tags.Count > 0))));
+            || !string.IsNullOrWhiteSpace(i.ResourceTypeMatchPattern) || (i.Tags != null && i.Tags.Count > 0))))
+            .WithMessage("if non-default rule, one differentiator must be set");
 
         RuleFor(x => x.ResourceGroupNameMatchPattern).Must((s) => {
-            if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); } return true; });
+            if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); } return true; })
+            .WithMessage("ResourceGroupNameMatchPattern must a string or regexp expression");
 
 		RuleFor(x => x.ResourceNameMatchPattern).Must((s) => {
-			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); } return true; });
+			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); } return true; })
+			.WithMessage("ResourceNameMatchPattern must a string or regexp expression");
 
 		RuleFor(x => x.ResourceTypeMatchPattern).Must((s) => {
-			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); } return true; });
+			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); } return true; })
+			.WithMessage("ResourceTypeMatchPattern must a string or regexp expression");
 
 	}
 }
