@@ -1,4 +1,7 @@
-﻿namespace Mammon.Tests.Services;
+﻿using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
+
+namespace Mammon.Tests.Services;
 
 [TestClass]
 [TestCategory("UnitTest")]
@@ -37,7 +40,7 @@ public class CostCentreReportServiceTests
 			}
 		};
 
-		var sut = new CostCentreReportService(Mock.Of<IServiceProvider>(), GetCostCentreRuleEngineInstance());
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<BlobClient>(), Mock.Of<IServiceProvider>());
 		//act
 		var modelBuilt= sut.BuildViewModel(costCentreStates);
 

@@ -1,7 +1,17 @@
-﻿namespace Mammon.Services;
+﻿using Azure.Storage.Blobs;
 
-public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine costCentreRuleEngine)
+namespace Mammon.Services;
+
+public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, DefaultAzureCredential azureCredential, IServiceProvider sp)
 {
+	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
+	
+	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]?.Split(',') 
+		?? throw new InvalidOperationException("Email Report To Address list is invalid");
+
+	private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey] 
+		?? throw new InvalidOperationException("Email From Address is invalid");
+
 	public async Task<string> GenerateReportAsync(string reportId)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
@@ -50,6 +60,35 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 		}
 
 		return emailReportModel;
+	}
+
+	public async Task SendReportToDotFlyerAsync(string reportId)
+	{
+		//generate report
+		var report = await GenerateReportAsync(reportId);
+
+		////store to Blob
+		//string blobStorageConnectionString = configuration[Consts.ReportBlobStorageConnectionStringConfigKey] ?? throw new InvalidOperationException("Invalid Blob Storage connection string");
+		//BlobContainerClient blobContainerClient = new BlobContainerClient(new(blobStorageConnectionString), azureCredential);
+		//BlobClient blobClient = blobContainerClient.GetBlobClient(Guid.NewGuid().ToString());
+
+		//var reportBlob = await blobClient.UploadAsync(BinaryData.FromString(report));
+		//send request to DotFlyer
+		var dotFlyerRequest = new EmailMessage
+		{
+			Body = report,
+			From = new Contact { Email = EmailFromAddress , Name = EmailFromAddress },
+			Subject = string.Format(EmailSubject, reportId),
+			To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
+			Attachments= []
+		};
+
+		await serviceBusClient.CreateSender("dotflyer-email").SendMessageAsync(new ServiceBusMessage
+		{
+			Body = BinaryData.FromObjectAsJson(dotFlyerRequest),
+			ContentType = "application/json",
+			MessageId = $"MammonEmailReport{reportId}"
+		});
 	}
 
 	private ControllerContext ControllerContext

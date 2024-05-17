@@ -1,6 +1,7 @@
 global using Azure;
 global using Azure.Core;
 global using Azure.Identity;
+global using Azure.Messaging.ServiceBus;
 global using Azure.ResourceManager;
 global using Azure.ResourceManager.Resources;
 global using Dapr;
@@ -9,6 +10,7 @@ global using Dapr.Actors.Client;
 global using Dapr.Actors.Runtime;
 global using Dapr.Client;
 global using Dapr.Workflow;
+global using DotFlyer.Common.Payload;
 global using FluentValidation;
 global using Grpc.Core;
 global using Mammon;
@@ -26,6 +28,7 @@ global using Mammon.Workflows.Activities;
 global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
+global using Microsoft.Extensions.Azure;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
@@ -42,16 +45,17 @@ global using Westwind.AspNetCore.Views;
 Debugger.Launch();
 #endif
 
+DefaultAzureCredential defaultAzureCredentials = new();
 
 var builder = WebApplication.CreateBuilder(args);
 
 var configKVURL = builder.Configuration[Consts.ConfigKeyVaultConfigEnvironmentVariable]?.ToString();
 if (string.IsNullOrWhiteSpace(configKVURL))
-    throw new InvalidOperationException($"{Consts.ConfigKeyVaultConfigEnvironmentVariable} environment variable is not set");
+	throw new InvalidOperationException($"{Consts.ConfigKeyVaultConfigEnvironmentVariable} environment variable is not set");
 
 builder.Configuration.AddAzureKeyVault(
-    new Uri(configKVURL),
-    new DefaultAzureCredential());
+	new Uri(configKVURL),
+	defaultAzureCredentials);
 
 builder.Services.AddApplicationInsightsTelemetry();
 
@@ -80,10 +84,17 @@ builder.Services
     });
 
 builder.Services
-    .AddTransient((sp) => new ArmClient(new DefaultAzureCredential()))
+    .AddTransient((sp) => new ArmClient(defaultAzureCredentials))
     .AddTransient<AzureAuthHandler>()
+    .AddSingleton(defaultAzureCredentials)
     .AddSingleton<CostCentreRuleEngine>()
-    .AddSingleton<CostCentreReportService>();
+    .AddSingleton<CostCentreReportService>()
+    .AddAzureClients(clientBuilder =>
+    {
+        clientBuilder.AddServiceBusClientWithNamespace(builder.Configuration[Consts.DotFlyerSBConnectionStringConfigKey] ?? throw new InvalidOperationException("DotFlyer SB connection string is invalid"));
+        clientBuilder.UseCredential(defaultAzureCredentials);
+    });
+
 
 var policy = HttpPolicyExtensions
     .HandleTransientHttpError() // HttpRequestException, 5XX and 408
@@ -110,4 +121,5 @@ app.MapSubscribeHandler();
 
 app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());
 
+app.Lifetime.ApplicationStarted.Register(async () => await app.Services.GetRequiredService<CostCentreReportService>().SendReportToDotFlyerAsync("test17"));
 app.Run();
