@@ -72,6 +72,7 @@ builder.Services
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
         config.RegisterActivity<AssignCostCentreActivity>();
+        config.RegisterActivity<SendReportViaEmail>();
     })
     .AddActors(options => {
         // Register actor types and configure actor settings
@@ -118,8 +119,6 @@ app.MapControllers();
 
 app.MapSubscribeHandler();
 
-
 app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());
 
-app.Lifetime.ApplicationStarted.Register(async () => await app.Services.GetRequiredService<CostCentreReportService>().SendReportToDotFlyerAsync("test17"));
 app.Run();

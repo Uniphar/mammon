@@ -1,6 +1,4 @@
-﻿using Azure.Storage.Blobs;
-
-namespace Mammon.Services;
+﻿namespace Mammon.Services;
 
 public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, DefaultAzureCredential azureCredential, IServiceProvider sp)
 {
@@ -66,13 +64,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	{
 		//generate report
 		var report = await GenerateReportAsync(reportId);
-
-		////store to Blob
-		//string blobStorageConnectionString = configuration[Consts.ReportBlobStorageConnectionStringConfigKey] ?? throw new InvalidOperationException("Invalid Blob Storage connection string");
-		//BlobContainerClient blobContainerClient = new BlobContainerClient(new(blobStorageConnectionString), azureCredential);
-		//BlobClient blobClient = blobContainerClient.GetBlobClient(Guid.NewGuid().ToString());
-
-		//var reportBlob = await blobClient.UploadAsync(BinaryData.FromString(report));
+		
 		//send request to DotFlyer
 		var dotFlyerRequest = new EmailMessage
 		{
