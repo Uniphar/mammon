@@ -33,6 +33,11 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		return await ViewRenderer.RenderViewToStringAsync("EmailReport", viewModel, ControllerContext);
 	}
 
+	public static void ValidateConfiguration(IConfiguration configuration)
+	{
+		new CostCentreReportServiceConfigValidator().ValidateAndThrow(configuration);
+	}
+
 	public CostCentreReportModel BuildViewModel(IDictionary<string, CostCentreActorState> costCentreStates)
 	{
 		CostCentreReportModel emailReportModel = new();
@@ -111,6 +116,24 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 				return 1;
 			else
 				return string.CompareOrdinal(x.Key.pivotName, y.Key.pivotName);
+		}
+	}
+
+	internal class CostCentreReportServiceConfigValidator : AbstractValidator<IConfiguration>
+	{
+		public CostCentreReportServiceConfigValidator()
+		{
+			RuleFor(x => x[Consts.ReportToAddressesConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service To Addresses list must not be empty");
+
+			RuleFor(x => x[Consts.ReportSubjectConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service Subject must not be empty");
+
+			RuleFor(x => x[Consts.ReportFromAddressConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service From Address must not be empty");
+
+			RuleFor(x => x[Consts.DotFlyerSBConnectionStringConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service Bus Uri must not be empty");
 		}
 	}
 }

@@ -109,6 +109,8 @@ builder.Services
 
 var app = builder.Build();
 
+CostCentreReportService.ValidateConfiguration(app.Configuration);
+
 app.UseRouting();
 
 app.MapActorsHandlers();
