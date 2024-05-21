@@ -12,6 +12,5 @@ public static class Consts
 	public const string ReportToAddressesConfigKey = "Mammon:EmailSettings:ToAddresses";
 	public const string ReportFromAddressConfigKey = "Mammon:EmailSettings:FromAddress";
 
-    public const string ReportBlobStorageConnectionStringConfigKey = "Mammon:BlobStorage:ConnectionString";
 	public const string DotFlyerSBConnectionStringConfigKey = "Mammon:DotFlyer:ServiceBusConnectionString";
 }
