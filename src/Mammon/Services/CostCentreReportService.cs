@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, DefaultAzureCredential azureCredential, IServiceProvider sp)
+public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, IServiceProvider sp)
 {
 	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
 	
