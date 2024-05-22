@@ -37,7 +37,8 @@ public class CostCentreReportServiceTests
 			}
 		};
 
-		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>());
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System);
+
 		//act
 		var modelBuilt= sut.BuildViewModel(costCentreStates);
 
@@ -54,6 +55,31 @@ public class CostCentreReportServiceTests
 		costCentreANode.SubNodes["rgA"].Leaves.Should().HaveCount(2); //environments
 		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(new KeyValuePair<string, double>("envA", 12)); //environment
 		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(new KeyValuePair<string, double>("envB", 13)); //environment
+	}
+
+
+	[DataTestMethod]
+	[DataRow("2024-04-15 22:15:26", "2024-03-01 00:00:00", "2024-03-31 23:59:59")]
+	[DataRow("2024-03-01 01:00:00", "2024-02-01 00:00:00", "2024-02-29 23:59:59")] //leap year
+	[DataRow("2023-03-01 01:00:00", "2023-02-01 00:00:00", "2023-02-28 23:59:59")] //non leap year
+	[DataRow("2024-01-01 01:00:00", "2023-12-01 00:00:00", "2023-12-31 23:59:59")] //new year's
+	public void GenerateDefaultReportRequestTest(string dtNow, string expectedFromDT, string expectedToDT)
+	{
+		const string expectedDTFormat = "yyyy-MM-dd HH:mm:ss";
+
+		//arrange
+		var testTimeProvider = new FakeTimeProvider();
+		
+		testTimeProvider.SetUtcNow(new(DateTime.ParseExact(dtNow, expectedDTFormat, CultureInfo.InvariantCulture)));
+		
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider);
+
+		//act
+		var result = sut.GenerateDefaultReportRequest();
+
+		//assert
+		result.CostFrom.Should().Be(DateTime.ParseExact(expectedFromDT, expectedDTFormat, CultureInfo.InvariantCulture));
+		result.CostTo.Should().Be(DateTime.ParseExact(expectedToDT, expectedDTFormat, CultureInfo.InvariantCulture));
 	}
 
 	private static CostCentreRuleEngine GetCostCentreRuleEngineInstance()

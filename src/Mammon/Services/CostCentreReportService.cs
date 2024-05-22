@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, IServiceProvider sp)
+public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, IServiceProvider sp, TimeProvider timeProvider)
 {
 	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
 	
@@ -102,6 +102,17 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 
 			return ctx;
 		}
+	}
+
+	public CostReportRequest GenerateDefaultReportRequest()
+	{
+		var now = timeProvider.GetLocalNow();
+
+		var month = new DateTime(now.Year, now.Month, 1, 0,0,0);
+		var first = month.AddMonths(-1);
+		var last = month.AddSeconds(-1);
+
+		return new CostReportRequest { CostFrom = first, CostTo = last, ReportId = first.ToString("yyMM") };
 	}
 
 	private class PivotDefinitionComparer : IComparer<IGrouping<(string pivotName,string subId), CostReportPivotEntry>>

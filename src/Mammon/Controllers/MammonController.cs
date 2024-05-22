@@ -52,8 +52,21 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
         return Ok();
     }
 
-#if DEBUG
+	[HttpOptions()]
+	public IActionResult Cron()
+	{
+		return NoContent();
+	}
+
     [HttpGet]
+    [HttpPost]
+    public async Task Cron([FromServices] DaprClient daprClient, [FromServices] CostCentreReportService costCentreReportService1)
+    {
+        await daprClient.PublishEventAsync("mammon-pub-sub", "ReportRequests", costCentreReportService.GenerateDefaultReportRequest());
+    }
+
+#if DEBUG
+		[HttpGet]
     public async Task<string> GetReport([FromQuery] string reportId)
     {
         return await costCentreReportService.GenerateReportAsync(reportId);

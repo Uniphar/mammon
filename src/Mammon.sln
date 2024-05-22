@@ -6,6 +6,7 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{482D50CD-26A1-45C4-B0F7-157C7E1265AB}"
 	ProjectSection(SolutionItems) = preProject
 		LocalComponents\actorStateStore.yaml = LocalComponents\actorStateStore.yaml
+		LocalComponents\cron.yaml = LocalComponents\cron.yaml
 		LocalComponents\pubsub.yaml = LocalComponents\pubsub.yaml
 	EndProjectSection
 EndProject
