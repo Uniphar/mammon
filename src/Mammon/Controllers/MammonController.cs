@@ -60,7 +60,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
 
     [HttpGet]
     [HttpPost]
-    public async Task Cron([FromServices] DaprClient daprClient, [FromServices] CostCentreReportService costCentreReportService1)
+    public async Task Cron([FromServices] DaprClient daprClient)
     {
         await daprClient.PublishEventAsync("mammon-pub-sub", "ReportRequests", costCentreReportService.GenerateDefaultReportRequest());
     }
