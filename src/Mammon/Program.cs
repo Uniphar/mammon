@@ -90,6 +90,7 @@ builder.Services
     .AddSingleton(defaultAzureCredentials)
     .AddSingleton<CostCentreRuleEngine>()
     .AddSingleton<CostCentreReportService>()
+    .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {
         clientBuilder.AddServiceBusClientWithNamespace(builder.Configuration[Consts.DotFlyerSBConnectionStringConfigKey] ?? throw new InvalidOperationException("DotFlyer SB connection string is invalid"));
