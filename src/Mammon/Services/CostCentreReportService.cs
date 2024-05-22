@@ -1,7 +1,15 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine costCentreRuleEngine)
+public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, IServiceProvider sp)
 {
+	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
+	
+	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]?.Split(',') 
+		?? throw new InvalidOperationException("Email Report To Address list is invalid");
+
+	private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey] 
+		?? throw new InvalidOperationException("Email From Address is invalid");
+
 	public async Task<string> GenerateReportAsync(string reportId)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
@@ -23,6 +31,11 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 		var viewModel = BuildViewModel(costCentreStates);
 
 		return await ViewRenderer.RenderViewToStringAsync("EmailReport", viewModel, ControllerContext);
+	}
+
+	public static void ValidateConfiguration(IConfiguration configuration)
+	{
+		new CostCentreReportServiceConfigValidator().ValidateAndThrow(configuration);
 	}
 
 	public CostCentreReportModel BuildViewModel(IDictionary<string, CostCentreActorState> costCentreStates)
@@ -50,6 +63,29 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 		}
 
 		return emailReportModel;
+	}
+
+	public async Task SendReportToDotFlyerAsync(string reportId)
+	{
+		//generate report
+		var report = await GenerateReportAsync(reportId);
+		
+		//send request to DotFlyer
+		var dotFlyerRequest = new EmailMessage
+		{
+			Body = report,
+			From = new Contact { Email = EmailFromAddress , Name = EmailFromAddress },
+			Subject = string.Format(EmailSubject, reportId),
+			To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
+			Attachments= []
+		};
+
+		await serviceBusClient.CreateSender("dotflyer-email").SendMessageAsync(new ServiceBusMessage
+		{
+			Body = BinaryData.FromObjectAsJson(dotFlyerRequest),
+			ContentType = "application/json",
+			MessageId = $"MammonEmailReport{reportId}"
+		});
 	}
 
 	private ControllerContext ControllerContext
@@ -80,6 +116,24 @@ public class CostCentreReportService (IServiceProvider sp, CostCentreRuleEngine 
 				return 1;
 			else
 				return string.CompareOrdinal(x.Key.pivotName, y.Key.pivotName);
+		}
+	}
+
+	internal class CostCentreReportServiceConfigValidator : AbstractValidator<IConfiguration>
+	{
+		public CostCentreReportServiceConfigValidator()
+		{
+			RuleFor(x => x[Consts.ReportToAddressesConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service To Addresses list must not be empty");
+
+			RuleFor(x => x[Consts.ReportSubjectConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service Subject must not be empty");
+
+			RuleFor(x => x[Consts.ReportFromAddressConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service From Address must not be empty");
+
+			RuleFor(x => x[Consts.DotFlyerSBConnectionStringConfigKey]).NotEmpty()
+				.WithMessage("Cost Centre Report Service Bus Uri must not be empty");
 		}
 	}
 }

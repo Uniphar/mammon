@@ -1,4 +1,5 @@
 ﻿global using Azure.Core;
+global using Azure.Messaging.ServiceBus;
 global using Azure.ResourceManager;
 global using FluentAssertions;
 global using Mammon.Extensions;

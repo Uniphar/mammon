@@ -15,41 +15,24 @@
 		}
 
 		.currency {
-			text-align: right;
+			text-align: right;	
 		}		
-
-		.currency:before {
-			content: '€ ';
-			padding-left: .5em;
-		}			
 
 		.level-1 {
 			padding-left: .5em;
 			font-weight: bold;
-		}
-
-		.level-1:before {
-			content: "• ";
-		}
+		}		
 
 		.level-2 {
-			padding-left: 1em;
-		}
-
-		.level-2:before {
-			content: "› ";
+			padding-left: 1.5em;
 		}
 
 		.level-3 {
-			padding-left: 2em;
-		}
-
-		.level-3:before {
-			content: "» ";
+			padding-left: 3em;
 		}
 
 		.level-4 {
-			padding-left: 3em;
+			padding-left: 4.5em;
 		}
 	</style>
 </head>
@@ -63,11 +46,26 @@
 
 @functions {
 
+	private string GetNodeForLevel(int level)
+	{
+		switch (level)
+		{
+			case 1:
+				return "• ";
+			case 2:
+				return "› ";
+			case 3:
+				return "» ";
+			default:
+				return "";
+		}
+	}
+
 	private void RenderNode(string? nodeName, CostCentreReportNode node, int level = 0)
 	{
 		if (node.Type!= CostCentreReportNodeType.Root)
 		{
-			<p class="level-@(level)">@nodeName<span class="currency">@node.NodeTotal.ToString("F")</span></p>
+			<p class="level-@(level)">@GetNodeForLevel(level)@nodeName<span class="currency"> €@node.NodeTotal.ToString("F")</span></p>
 		}
 
 		@foreach (var subNode in node.SubNodes)
@@ -76,7 +74,7 @@
 		}
 		@foreach (var leaf in node.Leaves)
 		{
-			<p class="level-@(level+1)">@leaf.Key<span class="currency">@leaf.Value.ToString("F")</span></p>
+			<p class="level-@(level+1)">@leaf.Key<span class="currency"> €@leaf.Value.ToString("F")</span></p>
 		}
 	}
 }

@@ -2,7 +2,6 @@
 
 public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool>
 {
-
     public async override Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
     {
         //obtain cost items from Cost API
@@ -19,6 +18,6 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
                 new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ResourceGroupSubWorkflow)}{input.SubscriptionName}{input.ReportId}{group.Key}"});
         }
 
-        return true;
+		return true;
     }
 }

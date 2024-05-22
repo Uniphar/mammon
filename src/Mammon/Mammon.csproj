@@ -11,11 +11,15 @@
   <ItemGroup>
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="*" />
     <PackageReference Include="Azure.Identity" Version="*" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="*" />
     <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="*" />
     <PackageReference Include="Dapr.AspNetCore" Version="*-*" />
+    <PackageReference Include="DotFlyer.Common" Version="*" />
     <PackageReference Include="FluentValidation" Version="*" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="*" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.6" />
     <PackageReference Include="Dapr.Actors" Version="*-*" />
