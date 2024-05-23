@@ -1,0 +1,21 @@
+name: CD for Mammon
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    paths:
+      - .github/workflows/ci.yaml
+      - src/**/*.cs
+      - src/**/*.json
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  Mammon_CD:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "Hello World"
