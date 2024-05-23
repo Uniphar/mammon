@@ -1,0 +1,34 @@
+name: Shared Application CI Workflow
+
+on:
+  workflow_call:
+    inputs:
+      applicationName:
+        type: string
+        required: true
+        description: 'Application Name'
+      
+jobs:
+  app_ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8'
+
+      - name: expose app name into env
+        run: |
+          echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $GITHUB_ENV
+          
+      - name: run unit tests
+        working-directory: ./src/${{ env.APPLICATION_NAME }}.Tests
+        run: |
+          dotnet test --filter TestCategory=Unit
+
+      - name: docker build test
+        working-directory: ./src/
+        run: |
+          docker build . -f ./$APPLICATION_NAME/Dockerfile

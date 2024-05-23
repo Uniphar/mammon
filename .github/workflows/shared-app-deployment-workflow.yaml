@@ -1,0 +1,151 @@
+name: Shared Application Deployment Workflow
+
+on:
+  workflow_call:
+    secrets:
+      AZURE_TENANT_ID:
+        required: true
+        description: 'Azure Tenant ID'
+      AZURE_CLIENT_ID:
+        required: true
+        description: 'Azure Client ID'
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+        description: 'Azure Subscription ID'
+      ACTIONS_AUTH_APP_ID:
+        required: true
+        description: 'GitHub App ID'
+      ACTIONS_AUTH_APP_PRIVATE_KEY:
+        required: true
+        description: 'GitHub App Private Key'
+    inputs:
+      acrName:
+        type: string
+        required: true
+        description: 'Azure Container Registry Name'
+      applicationName:
+        type: string
+        required: true
+        description: 'Application Name'
+      applicationVersion:
+        type: string
+        required: true
+        description: 'Application Version'
+      environment:
+        type: string
+        required: true
+        description: 'Environment'
+      aksRGName:
+        type: string
+        required: true
+        description: 'AKS Resource Group Name'
+      aksClusterName:
+        type: string
+        required: true
+        description: 'AKS Cluster Name'
+      shouldRunIntegrationTests:
+        type: boolean
+        required: false
+        default: false
+        description: 'Flag to indicate if integration tests should be run'
+
+jobs:
+  deploy_app:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v1
+
+      - name: gh-app-install token
+        id: gh-app
+        uses: getsentry/action-github-app-token@v2
+        with:
+          app_id: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+          private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+
+      - name: checkout devops-azure repo
+        uses: actions/checkout@v3
+        with:
+          path: devops-azure
+          repository: Uniphar/devops-azure
+          token: ${{ steps.gh-app.outputs.token }}
+
+      - id: repository
+        name: compute repository name
+        shell: pwsh
+        run: |
+          $repositoryName = "${{ inputs.applicationName }}".ToLowerInvariant()
+          echo "name=$repositoryName" >> $env:GITHUB_OUTPUT
+
+      - name: azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: setup kubectl
+        uses: azure/use-kubelogin@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          kubelogin-version: 'latest'
+
+      - name: Gets K8s context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ inputs.aksRGName }}
+          cluster-name: ${{ inputs.aksClusterName }}
+          use-kubelogin: 'true'
+        id: k8context
+
+      - name: setup helm
+        uses: azure/setup-helm@v3
+
+      - name: compute environment variables
+        run: |
+          echo "ACR_NAME=${{ inputs.acrName }}" >> $GITHUB_ENV
+          echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $GITHUB_ENV
+          echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $GITHUB_ENV
+
+      - name: ACR login
+        id: acrLogin
+        run: |
+          ACR_TOKEN=$(az acr login --name $ACR_NAME --expose-token --output tsv --query accessToken)
+          echo "ACR_TOKEN=$ACR_TOKEN" >> $GITHUB_OUTPUT
+          az acr login --name $ACR_NAME
+
+      - name: set AKS cluster
+        uses: azure/powershell@v1
+        with:
+          inlineScript: |
+            try{
+              Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
+
+              $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'devops' '${{ inputs.environment }}').AppId
+              echo "AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID=$AKSClusterServiceAccountClientId" >> $env:GITHUB_ENV
+            }
+            catch {
+              Write-Error $_
+              exit 1
+            }
+          azPSVersion: "latest"
+
+      - name: get helm chart
+        working-directory: ./charts/${{ env.APPLICATION_NAME }}
+        run: helm pull oci://$ACR_NAME.azurecr.io/helm/${{ steps.repository.outputs.name }} --version $APPLICATION_VERSION
+
+      - name: deploy app
+        working-directory: ./charts/${{ env.APPLICATION_NAME }}
+        run: helm upgrade ${{ steps.repository.outputs.name }} ${{ steps.repository.outputs.name }}-$APPLICATION_VERSION.tgz -i -f ${{ inputs.environment }}.yaml --set reason="Upgrade to $APPLICATION_VERSION" --set-string AKSClusterServiceAccountClientId="$AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID" -n devops --atomic
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8'
+
+      - name: run integration tests
+        if: ${{ inputs.shouldRunIntegrationTests }}
+        working-directory: ./src/${{ env.APPLICATION_NAME }}.Tests
+        run: dotnet test -s ./runsettings/${{ inputs.environment }}.runsettings --filter TestCategory=Integration

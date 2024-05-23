@@ -1,0 +1,95 @@
+name: Shared Application CD Workflow
+
+on:
+  workflow_call:
+    secrets:
+      AZURE_TENANT_ID:
+        required: true
+        description: 'Azure Tenant ID'
+      AZURE_CLIENT_ID:
+        required: true
+        description: 'Azure Client ID'
+      AZURE_PLATFORM_SUBSCRIPTION_ID:
+        required: true
+        description: 'Azure Platform Subscription ID'
+      AZURE_DEV_SUBSCRIPTION_ID:
+        required: true
+        description: 'Azure Dev Subscription ID'
+      AZURE_PROD_SUBSCRIPTION_ID:
+        required: true
+        description: 'Azure Prod Subscription ID'
+      ACTIONS_AUTH_APP_ID:
+        required: true
+        description: 'GitHub App ID'
+      ACTIONS_AUTH_APP_PRIVATE_KEY:
+        required: true
+        description: 'GitHub App Private Key'
+    inputs:
+      applicationName:
+        type: string
+        required: true
+        description: 'Application Name'
+      
+jobs:
+  app_package:
+    uses: ./.github/workflows/shared-app-package-workflow.yaml
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_PLATFORM_SUBSCRIPTION_ID }}
+    with:
+      acrName: computeaksacr
+      applicationName: ${{ inputs.applicationName }}
+
+  app_deployment_dev:
+    needs: app_package
+    uses: ./.github/workflows/shared-app-deployment-workflow.yaml
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_DEV_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+    with:
+      acrName: computeaksacr
+      applicationName: ${{ inputs.applicationName }}
+      applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
+      environment: dev
+      aksRGName: compute-ne-dev
+      aksClusterName: compute-aks-ne-dev-k8s
+      shouldRunIntegrationTests: true
+
+  app_deployment_test:
+    needs: [app_package, app_deployment_dev]
+    uses: ./.github/workflows/shared-app-deployment-workflow.yaml
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_DEV_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+    with:
+      acrName: computeaksacr
+      applicationName: ${{ inputs.applicationName }}
+      applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
+      environment: test
+      aksRGName: compute-ne-test
+      aksClusterName: compute-aks-ne-test-k8s
+      shouldRunIntegrationTests: true
+
+  app_deployment_prod:
+    needs: [app_package, app_deployment_test]
+    uses: ./.github/workflows/shared-app-deployment-workflow.yaml
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_PROD_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+    with:
+      acrName: computeaksacr
+      applicationName: ${{ inputs.applicationName }}
+      applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
+      environment: prod
+      aksRGName: compute-ne-prod
+      aksClusterName: compute-aks-ne-prod-k8s

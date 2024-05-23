@@ -1,0 +1,92 @@
+name: Shared Application Package Workflow
+
+on:
+  workflow_call:
+    secrets:
+      AZURE_TENANT_ID:
+        required: true
+        description: 'Azure Tenant ID'
+      AZURE_CLIENT_ID:
+        required: true
+        description: 'Azure Client ID'
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+        description: 'Azure Subscription ID'
+    inputs:
+      acrName:
+        type: string
+        required: true
+        description: 'Azure Container Registry Name'
+      applicationName:
+        type: string
+        required: true
+        description: 'Application Name'
+    outputs:
+      applicationVersion:
+        value: ${{ jobs.package.outputs.applicationVersion }}
+        description: 'Application Version'
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v1
+
+      - id: repository
+        name: compute repository name
+        shell: pwsh
+        run: |
+          $repositoryName = "${{ inputs.applicationName }}".ToLowerInvariant()
+          echo "name=$repositoryName" >> $env:GITHUB_OUTPUT
+
+      - name: compute environment variables
+        run: |
+          echo "ACR_NAME=${{ inputs.acrName }}" >> $GITHUB_ENV
+          echo "IMAGE_REPOSITORY=${{ inputs.acrName }}.azurecr.io/${{ steps.repository.outputs.name }}" >> $GITHUB_ENV
+          echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $GITHUB_ENV
+          echo "APPLICATION_VERSION=1.0.$GITHUB_RUN_NUMBER" >> $GITHUB_ENV
+
+      - name: azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR login
+        id: acrLogin
+        run: |
+          ACR_TOKEN=$(az acr login --name $ACR_NAME --expose-token --output tsv --query accessToken)
+          echo "ACR_TOKEN=$ACR_TOKEN" >> $GITHUB_OUTPUT
+          az acr login --name $ACR_NAME
+
+      - name: docker build
+        working-directory: ./src
+        run:  docker build . -f ./$APPLICATION_NAME/Dockerfile -t $IMAGE_REPOSITORY:$APPLICATION_VERSION -t $IMAGE_REPOSITORY:latest
+
+      - name: docker push
+        working-directory: ./src
+        run:  |
+          echo "${{ steps.acrLogin.outputs.ACR_TOKEN }}" | docker login $ACR_NAME.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
+          docker push -a $IMAGE_REPOSITORY
+      
+      - name: setup helm
+        uses: azure/setup-helm@v3
+
+      - name: helm update dependencies
+        working-directory: ./charts/${{ env.APPLICATION_NAME }}
+        run: helm dependency update $APPLICATION_NAME
+
+      - name: helm package
+        working-directory: ./charts/${{ env.APPLICATION_NAME }}
+        run: helm package $APPLICATION_NAME --version $APPLICATION_VERSION --app-version $APPLICATION_VERSION
+
+      - name: helm push
+        working-directory: ./charts/${{ env.APPLICATION_NAME }}
+        run: |
+          echo "${{ steps.acrLogin.outputs.ACR_TOKEN }}" | helm registry login $ACR_NAME.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
+          helm push ${{ steps.repository.outputs.name }}-$APPLICATION_VERSION.tgz oci://$ACR_NAME.azurecr.io/helm
+    
+    outputs:
+      applicationVersion: ${{ env.APPLICATION_VERSION }}
