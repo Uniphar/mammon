@@ -48,7 +48,6 @@ jobs:
       applicationName: ${{ inputs.applicationName }}
 
   app_deployment_dev:
-    if: false
     needs: app_package
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
@@ -64,6 +63,7 @@ jobs:
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
 
   app_integration_tests_dev:
+    if: false
     needs: app_deployment_dev
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
     secrets:
