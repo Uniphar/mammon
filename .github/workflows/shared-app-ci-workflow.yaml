@@ -3,10 +3,10 @@ name: Shared Application CI Workflow
 on:
   workflow_call:
     inputs:
-      applicationName:
+      applicationFolder:
         type: string
         required: true
-        description: 'Application Name'
+        description: Application Folder
       
 jobs:
   app_ci:
@@ -21,14 +21,23 @@ jobs:
 
       - name: expose app name into env
         run: |
-          echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $GITHUB_ENV
+          echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $GITHUB_ENV
           
       - name: run unit tests
-        working-directory: ./src/${{ env.APPLICATION_NAME }}.Tests
+        working-directory: ./src/${{ env.APPLICATION_FOLDER }}.Tests
         run: |
-          dotnet test --filter TestCategory=Unit
+          dotnet test --filter TestCategory=UnitTest
 
       - name: docker build test
         working-directory: ./src/
         run: |
-          docker build . -f ./$APPLICATION_NAME/Dockerfile
+          docker build . -f ./$APPLICATION_FOLDER/Dockerfile
+      
+      - name: check for NuGet vulnerabilites
+        working-directory: ./src/
+        shell: pwsh
+        run: |
+            dotnet restore
+            dotnet list package --vulnerable --include-transitive 2>&1 | tee build.log
+            echo "Analyze dotnet list package command log output..."
+            exit (Select-String -Path "build.log" -Pattern "has the following vulnerable packages" -AllMatches).Matches.Count -gt 0 ? 1 : 0

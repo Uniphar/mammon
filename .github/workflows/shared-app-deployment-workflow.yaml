@@ -19,10 +19,14 @@ on:
         required: true
         description: 'GitHub App Private Key'
     inputs:
-      acrName:
+      environment:
         type: string
         required: true
-        description: 'Azure Container Registry Name'
+        description: 'Environment'
+      applicationFolder:
+        type: string
+        required: true
+        description: 'Application Folder'
       applicationName:
         type: string
         required: true
@@ -31,28 +35,15 @@ on:
         type: string
         required: true
         description: 'Application Version'
-      environment:
-        type: string
-        required: true
-        description: 'Environment'
-      aksRGName:
-        type: string
-        required: true
-        description: 'AKS Resource Group Name'
-      aksClusterName:
-        type: string
-        required: true
-        description: 'AKS Cluster Name'
-      shouldRunIntegrationTests:
-        type: boolean
-        required: false
-        default: false
-        description: 'Flag to indicate if integration tests should be run'
 
 jobs:
   deploy_app:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        regionShortCode: ['ne', 'we']
     steps:
       - name: checkout repo
         uses: actions/checkout@v1
@@ -71,13 +62,6 @@ jobs:
           repository: Uniphar/devops-azure
           token: ${{ steps.gh-app.outputs.token }}
 
-      - id: repository
-        name: compute repository name
-        shell: pwsh
-        run: |
-          $repositoryName = "${{ inputs.applicationName }}".ToLowerInvariant()
-          echo "name=$repositoryName" >> $env:GITHUB_OUTPUT
-
       - name: azure login
         uses: azure/login@v1
         with:
@@ -85,6 +69,26 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
+
+      - name: compute environment variables
+        shell: pwsh
+        run: |
+          Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
+
+          $ACRName = Resolve-UniResourceName 'acr' $p_computeProject -Context $app_AKS
+          $AKSClusterResourceGroup = Resolve-UniResourceName 'resource-group' $p_computeProject -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
+          $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
+          $AKSClusterSAName = Resolve-UniComputeDomainSAName '${{ inputs.environment }}' $p_devopsDomain
+          $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
+
+          echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
+          echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
+          echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
+          echo "AKS_CLUSTER_SERVICE_ACCOUNT_NAME=$AKSClusterSAName" >> $env:GITHUB_ENV
+          echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
+          echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
+          echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
+          echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
 
       - name: setup kubectl
         uses: azure/use-kubelogin@v1
@@ -96,19 +100,13 @@ jobs:
       - name: Gets K8s context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: ${{ inputs.aksRGName }}
-          cluster-name: ${{ inputs.aksClusterName }}
+          resource-group: ${{ env.AKS_CLUSTER_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER_NAME }}
           use-kubelogin: 'true'
         id: k8context
 
       - name: setup helm
         uses: azure/setup-helm@v3
-
-      - name: compute environment variables
-        run: |
-          echo "ACR_NAME=${{ inputs.acrName }}" >> $GITHUB_ENV
-          echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $GITHUB_ENV
-          echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $GITHUB_ENV
 
       - name: ACR login
         id: acrLogin
@@ -117,35 +115,20 @@ jobs:
           echo "ACR_TOKEN=$ACR_TOKEN" >> $GITHUB_OUTPUT
           az acr login --name $ACR_NAME
 
-      - name: set AKS cluster
-        uses: azure/powershell@v1
-        with:
-          inlineScript: |
-            try{
-              Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
-
-              $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'devops' '${{ inputs.environment }}').AppId
-              echo "AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID=$AKSClusterServiceAccountClientId" >> $env:GITHUB_ENV
-            }
-            catch {
-              Write-Error $_
-              exit 1
-            }
-          azPSVersion: "latest"
-
       - name: get helm chart
-        working-directory: ./charts/${{ env.APPLICATION_NAME }}
-        run: helm pull oci://$ACR_NAME.azurecr.io/helm/${{ steps.repository.outputs.name }} --version $APPLICATION_VERSION
+        working-directory: ./charts/${{ env.APPLICATION_FOLDER }}
+        run: helm pull oci://$ACR_NAME.azurecr.io/helm/${{ env.APPLICATION_NAME }} --version $APPLICATION_VERSION
 
       - name: deploy app
-        working-directory: ./charts/${{ env.APPLICATION_NAME }}
-        run: helm upgrade ${{ steps.repository.outputs.name }} ${{ steps.repository.outputs.name }}-$APPLICATION_VERSION.tgz -i -f ${{ inputs.environment }}.yaml --set reason="Upgrade to $APPLICATION_VERSION" --set-string AKSClusterServiceAccountClientId="$AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID" -n devops --atomic
-
-      - uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '8'
-
-      - name: run integration tests
-        if: ${{ inputs.shouldRunIntegrationTests }}
-        working-directory: ./src/${{ env.APPLICATION_NAME }}.Tests
-        run: dotnet test -s ./runsettings/${{ inputs.environment }}.runsettings --filter TestCategory=Integration
+        working-directory: ./charts/${{ env.APPLICATION_FOLDER }}
+        run: >
+          helm upgrade
+          ${{ env.APPLICATION_NAME }}
+          ${{ env.APPLICATION_NAME }}-$APPLICATION_VERSION.tgz
+          -i
+          --set reason="Upgrade to $APPLICATION_VERSION"
+          --set-string ACRName="$ACR_NAME"
+          --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
+          --set-string AzureKeyVaultName="$AZURE_KEY_VAULT_NAME"
+          -n devops
+          --atomic

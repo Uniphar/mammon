@@ -25,6 +25,10 @@ on:
         required: true
         description: 'GitHub App Private Key'
     inputs:
+      applicationFolder:
+        type: string
+        required: true
+        description: 'Application Folder'
       applicationName:
         type: string
         required: true
@@ -37,8 +41,10 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_PLATFORM_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
     with:
-      acrName: computeaksacr
+      applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
 
   app_deployment_dev:
@@ -52,16 +58,26 @@ jobs:
       ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
       ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
     with:
-      acrName: computeaksacr
+      environment: dev
+      applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
+
+  app_integration_tests_dev:
+    needs: app_deployment_dev
+    uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_DEV_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+    with:
       environment: dev
-      aksRGName: compute-ne-dev
-      aksClusterName: compute-aks-ne-dev-k8s
-      shouldRunIntegrationTests: true
+      applicationFolder: ${{ inputs.applicationFolder }}
 
   app_deployment_test:
-    needs: [app_package, app_deployment_dev]
+    needs: [app_package, app_integration_tests_dev]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -70,16 +86,26 @@ jobs:
       ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
       ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
     with:
-      acrName: computeaksacr
+      environment: test
+      applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
+
+  app_integration_tests_test:
+    needs: app_deployment_test
+    uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_DEV_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+    with:
       environment: test
-      aksRGName: compute-ne-test
-      aksClusterName: compute-aks-ne-test-k8s
-      shouldRunIntegrationTests: true
+      applicationFolder: ${{ inputs.applicationFolder }}
 
   app_deployment_prod:
-    needs: [app_package, app_deployment_test]
+    needs: [app_package, app_integration_tests_test]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -88,9 +114,20 @@ jobs:
       ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
       ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
     with:
-      acrName: computeaksacr
+      environment: prod
+      applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
+
+  app_integration_tests_prod:
+    needs: app_deployment_prod
+    uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
+    secrets:
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_PROD_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+    with:
       environment: prod
-      aksRGName: compute-ne-prod
-      aksClusterName: compute-aks-ne-prod-k8s
+      applicationFolder: ${{ inputs.applicationFolder }}
