@@ -17,4 +17,4 @@ jobs:
   Mammon_CI:
     uses: ./.github/workflows/shared-app-ci-workflow.yaml
     with:
-      applicationName: Mammon
+      applicationFolder: Mammon
