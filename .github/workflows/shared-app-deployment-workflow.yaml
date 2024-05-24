@@ -80,12 +80,13 @@ jobs:
           $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
           $AKSClusterSAName = Resolve-UniComputeDomainSAName '${{ inputs.environment }}' $p_devopsDomain
           $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
-
+          $SBNamespace = Resolve-UniResourceName 'service-bus' $p_computeProject -Environment '${{ inputs.environment }}'
           echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
           echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
           echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
           echo "AKS_CLUSTER_SERVICE_ACCOUNT_NAME=$AKSClusterSAName" >> $env:GITHUB_ENV
           echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
+          echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
           echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
           echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
           echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
@@ -130,5 +131,6 @@ jobs:
           --set-string ACRName="$ACR_NAME"
           --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
           --set-string AzureKeyVaultName="$AZURE_KEY_VAULT_NAME"
+          --set-string SBNamespaceName="$SB_NAMESPACE"
           -n devops
           --atomic

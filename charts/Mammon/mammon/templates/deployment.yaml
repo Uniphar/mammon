@@ -33,6 +33,11 @@ spec:
               protocol: TCP
           env:
           - name: "ASPNETCORE_ENVIRONMENT"
-            value: {{ .Values.environment | quote }}        
+            value: {{ .Values.environment | quote }}
+          - name: "MAMMON_CONFIG_KEYVAULT_URL"
+            value: {{ .Values.AzureKeyVaultName | quote }}
+          - name: "Mammon__CostCentreRuleEngineFilePath"
+            value: /app/costCentreRules.json
+          
       nodeSelector:
         agentpool: platform
