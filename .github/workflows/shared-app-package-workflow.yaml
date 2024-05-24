@@ -58,7 +58,7 @@ jobs:
         with:
           path: costcentre-definitions
           repository: Uniphar/costcentre-definitions
-          ref: feature/initFile
+          ref: refs/heads/feature/initFile
           token: ${{ steps.gh-app.outputs.token }}
 
       - name: compute environment variables
