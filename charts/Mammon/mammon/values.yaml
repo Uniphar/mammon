@@ -4,12 +4,5 @@ service:
   type: ClusterIP
   port: 80
 
-kvSecrets:
-  daprStateStore:
-    kvNames:
-      - name: COSMOS--MASTERKEY
-        k8sKey: COSMOS--MASTERKEY
-    k8Name: mammon-statestoremasterkey
-
 dapr:
   port: 8082
