@@ -89,7 +89,7 @@ jobs:
           az acr login --name $ACR_NAME
       
       - name: add cost centre rule file
-        run: cp .\costcentre-definitions\costCentreRules.json src
+        run: cp ./costcentre-definitions/costCentreRules.json src
 
       - name: docker build
         working-directory: ./src
