@@ -43,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        regionShortCode: ['ne', 'we']
+        regionShortCode: ['ne']
     steps:
       - name: checkout repo
         uses: actions/checkout@v1
