@@ -6,7 +6,7 @@ public class ResourceGroupSubWorkflow : Workflow<ResourceGroupSubWorkflowRequest
     {
         ArgumentNullException.ThrowIfNull(nameof(input));
 
-        List<CallResourceActorActivityResponse> resourceActors = new();
+        List<CallResourceActorActivityResponse> resourceActors = [];
 
         //assign them to target resource and aggregate costs for each given resource
         foreach (var cost in input.Resources)
