@@ -1,7 +1,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: statestore
+  name: actor-state-store
 spec:
   type: state.azure.cosmosdb
   version: v1
@@ -13,6 +13,6 @@ spec:
   - name: database
     value: mammon
   - name: collection
-    value: actor-state
+    value: actor-state-store
   - name: actorStateStore
     value: "true"

@@ -38,6 +38,8 @@ spec:
             value: {{ .Values.AzureKeyVaultURL | quote }}
           - name: "Mammon__CostCentreRuleEngineFilePath"
             value: /app/costCentreRules.json
+          - name: "Mammon__StateStoreName"
+            value: actor-state-store
           
       nodeSelector:
         agentpool: platform
