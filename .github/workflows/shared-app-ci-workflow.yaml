@@ -43,7 +43,7 @@ jobs:
         with:
           path: costcentre-definitions
           repository: Uniphar/costcentre-definitions
-          ref: refs/heads/feature/initFile ##TODO: change to main
+          ref: main
           token: ${{ steps.gh-app.outputs.token }}
 
       - uses: actions/setup-dotnet@v3
