@@ -12,14 +12,27 @@ function Initialize-SubscriptionsRBAC {
 
     $templateFile = Join-Path $PSScriptRoot -ChildPath ".\costAPISubRBAC.bicep"
 
-    foreach ($subId in $subIds)
-    {
-        Select-AzSubscription -SubscriptionId $subId
+    if ($PSCmdlet.ShouldProcess('Mammon', 'Deploy')) {
+        foreach ($subId in $subIds)
+        {
+            Select-AzSubscription -SubscriptionId $subId
 
-        New-AzSubscriptionDeployment -Name "CostManagementReaderDevopsAKSPrincipal" `
-                                     -Location northeurope `
-                                     -TemplateFile $templateFile `
-                                     -principalId $principalId `
-                                     -Verbose:$PSCmdlet.MyInvocation.BoundParameters['Verbose'].IsPresent
+            New-AzSubscriptionDeployment -Name "CostManagementReaderDevopsAKSPrincipal" `
+                                        -Location northeurope `
+                                        -TemplateFile $templateFile `
+                                        -principalId $principalId `
+                                        -Verbose:$PSCmdlet.MyInvocation.BoundParameters['Verbose'].IsPresent
+        }
+    }
+    else {
+        $TestResult = Test-AzSubscriptionDeployment -Location northeurope `
+                                                    -TemplateFile $templateFile `
+                                                    -principalId $principalId `
+                                                    -Verbose:$PSCmdlet.MyInvocation.BoundParameters['Verbose'].IsPresent
+
+        if ($TestResult) {
+            $TestResult
+            throw "The deployment for $devopsDomainTemplateFile did not pass validation."
+        }
     }
 }
