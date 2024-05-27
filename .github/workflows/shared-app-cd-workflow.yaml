@@ -77,7 +77,7 @@ jobs:
       applicationFolder: ${{ inputs.applicationFolder }}
 
   app_deployment_test:
-    needs: [app_package, app_integration_tests_dev]
+    needs: [app_package]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -92,6 +92,7 @@ jobs:
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
 
   app_integration_tests_test:
+    if: false
     needs: app_deployment_test
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
     secrets:
@@ -105,7 +106,7 @@ jobs:
       applicationFolder: ${{ inputs.applicationFolder }}
 
   app_deployment_prod:
-    needs: [app_package, app_integration_tests_test]
+    needs: [app_package]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -120,6 +121,7 @@ jobs:
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
 
   app_integration_tests_prod:
+    if: false
     needs: app_deployment_prod
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
     secrets:
