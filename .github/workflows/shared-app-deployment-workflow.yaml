@@ -62,6 +62,14 @@ jobs:
           repository: Uniphar/devops-azure
           token: ${{ steps.gh-app.outputs.token }}
 
+      - name: checkout cost centre definition repo
+        uses: actions/checkout@v3
+        with:
+          path: costcentre-definitions
+          repository: Uniphar/costcentre-definitions
+          ref: refs/heads/feature/initFile ##TODO: change to main
+          token: ${{ steps.gh-app.outputs.token }}
+
       - name: azure login
         uses: azure/login@v1
         with:
@@ -79,17 +87,31 @@ jobs:
           $AKSClusterResourceGroup = Resolve-UniResourceName 'resource-group' $p_computeProject -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
           $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
           $AKSClusterSAName = Resolve-UniComputeDomainSAName '${{ inputs.environment }}' $p_devopsDomain
+          $AKSClusterSAID = Get-AzADServicePrincipal -DisplayName $AKSClusterSAName | Select-Object -ExpandProperty Id
           $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
           $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
           echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
           echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
           echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
           echo "AKS_CLUSTER_SERVICE_ACCOUNT_NAME=$AKSClusterSAName" >> $env:GITHUB_ENV
+          echo "AKS_CLUSTER_SERVICE_ACCOUNT_ID=$AKSClusterSAID" >> $env:GITHUB_ENV
           echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
           echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
           echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
           echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
           echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
+
+      - name: deploy Sub RBAC
+        uses: azure/powershell@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
+        with: 
+          inlineScript: |
+           . ./devops/Initialize-SubscriptionsRBAC.ps1
+            Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json ${{ env.AKS_CLUSTER_SERVICE_ACCOUNT_ID }}
+          azPSVersion: "latest"
+          errorActionPreference: 'stop'
+          failOnStandardError: true
 
       - name: setup kubectl
         uses: azure/use-kubelogin@v1
