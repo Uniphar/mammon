@@ -10,8 +10,9 @@ on:
       - src/**/*.json
 
 permissions:
-      id-token: write
-      contents: read
+  id-token: write
+  contents: read
+  pull-requests: read
 
 jobs:
   Mammon_CI:
