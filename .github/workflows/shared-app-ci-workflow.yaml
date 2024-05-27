@@ -2,6 +2,13 @@ name: Shared Application CI Workflow
 
 on:
   workflow_call:
+    secrets:
+      ACTIONS_AUTH_APP_ID:
+        required: true
+        description: 'GitHub App ID'
+      ACTIONS_AUTH_APP_PRIVATE_KEY:
+        required: true
+        description: 'GitHub App Private Key'
     inputs:
       applicationFolder:
         type: string
