@@ -50,6 +50,9 @@ jobs:
         run: |
           dotnet test --filter TestCategory=UnitTest
 
+      - name: add cost centre rule file
+        run: cp ./costcentre-definitions/costCentreRules.json src
+        
       - name: docker build test
         working-directory: ./src/
         run: |
