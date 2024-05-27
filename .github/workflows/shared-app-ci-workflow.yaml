@@ -3,6 +3,15 @@ name: Shared Application CI Workflow
 on:
   workflow_call:
     secrets:
+      AZURE_TENANT_ID:
+        required: true
+        description: 'Azure Tenant ID'
+      AZURE_CLIENT_ID:
+        required: true
+        description: 'Azure Client ID'
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+        description: 'Azure Subscription ID'
       ACTIONS_AUTH_APP_ID:
         required: true
         description: 'GitHub App ID'
@@ -52,7 +61,7 @@ jobs:
 
       - name: add cost centre rule file
         run: cp ./costcentre-definitions/costCentreRules.json src
-        
+
       - name: docker build test
         working-directory: ./src/
         run: |
@@ -67,6 +76,14 @@ jobs:
             echo "Analyze dotnet list package command log output..."
             exit (Select-String -Path "build.log" -Pattern "has the following vulnerable packages" -AllMatches).Matches.Count -gt 0 ? 1 : 0
 
+      - name: azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+    
       - name: Initialize-SubscriptionsRBAC WhatIf
         uses: azure/powershell@v2
         env:
