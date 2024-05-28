@@ -1,22 +1,24 @@
 ﻿namespace Mammon.Workflows.Activities;
 
-public class CallResourceActorActivity(DaprClient client) : WorkflowActivity<CallResourceActorActivityRequest, CallResourceActorActivityResponse>
+public class CallResourceActorActivity(DaprClient client, IConfiguration configuration) : WorkflowActivity<CallResourceActorActivityRequest, CallResourceActorActivityResponse>
 {
     public override async Task<CallResourceActorActivityResponse> RunAsync(WorkflowActivityContext context, CallResourceActorActivityRequest request)
     {
+        var storeName = configuration[Consts.StateStoreNameConfigKey];
+
         ArgumentNullException.ThrowIfNull(request);
 
         var parentResourceId = request.Cost!.ResourceId.ToParentResourceId();
         var stateKey = $"ResourceActorIdMap_{request.ReportId}_{new string(parentResourceId.Where(char.IsLetterOrDigit).ToArray())}";
 
-        var actorIdStateEntry = await client.GetStateAsync<string>(Consts.StateStoreName, stateKey);
+        var actorIdStateEntry = await client.GetStateAsync<string>(storeName, stateKey);
         
         var actorGuid = string.Empty;
 
         if (string.IsNullOrWhiteSpace(actorIdStateEntry))
         {
             actorGuid = Guid.NewGuid().ToString("N");
-            await client.SaveStateAsync(Consts.StateStoreName, stateKey, actorGuid);
+            await client.SaveStateAsync(storeName, stateKey, actorGuid);
         }
         else
         {

@@ -1,0 +1,45 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: mammon
+  labels:
+    app: mammon-app
+    service: mammon-service
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      service: mammon-service
+  template:
+    metadata:
+      labels:
+        app: mammon-app
+        service: mammon-service
+        azure.workload.identity/use: "true"
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: mammon
+        dapr.io/app-port: "{{ .Values.dapr.port }}"
+        dapr.io/enable-api-logging: "true"
+    spec:
+      serviceAccountName: {{ .Values.AKSClusterSAName }}
+      containers:
+        - name: mammon
+          image: {{ .Values.ACRName }}.azurecr.io/{{ .Chart.Name }}:{{ .Chart.AppVersion }}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mammon-port
+              containerPort: {{ .Values.dapr.port }}
+              protocol: TCP
+          env:
+          - name: "ASPNETCORE_ENVIRONMENT"
+            value: {{ .Values.environment | quote }}
+          - name: "MAMMON_CONFIG_KEYVAULT_URL"
+            value: {{ .Values.AzureKeyVaultURL | quote }}
+          - name: "Mammon__CostCentreRuleEngineFilePath"
+            value: /app/costCentreRules.json
+          - name: "Mammon__StateStoreName"
+            value: actor-state-store
+          
+      nodeSelector:
+        agentpool: platform

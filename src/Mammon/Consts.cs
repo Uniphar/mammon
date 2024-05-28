@@ -2,7 +2,7 @@
 
 public static class Consts
 {
-    public const string StateStoreName = "statestore";
+    public const string StateStoreNameConfigKey = "Mammon:StateStoreName";
 
     public const string ConfigKeyVaultConfigEnvironmentVariable  = "MAMMON_CONFIG_KEYVAULT_URL";
     public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";

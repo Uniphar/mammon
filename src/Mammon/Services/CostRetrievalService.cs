@@ -50,14 +50,14 @@ public class CostRetrievalService
         AzureCostResponse responseData = [];
 
         do
-        {
-            string? mockApiResponsePath;
-
+        {           
             string? nextLink;
             List<ResourceCost> costs;
 
 #if (DEBUG)
-            if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePathConfigKey]) 
+			string? mockApiResponsePath;
+
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePathConfigKey]) 
                 && File.Exists(mockApiResponsePath))
             {
                 var mockResponse = File.ReadAllText(mockApiResponsePath);

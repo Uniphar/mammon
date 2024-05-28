@@ -1,0 +1,164 @@
+name: Shared Application Deployment Workflow
+
+on:
+  workflow_call:
+    secrets:
+      AZURE_TENANT_ID:
+        required: true
+        description: 'Azure Tenant ID'
+      AZURE_CLIENT_ID:
+        required: true
+        description: 'Azure Client ID'
+      AZURE_SUBSCRIPTION_ID:
+        required: true
+        description: 'Azure Subscription ID'
+      ACTIONS_AUTH_APP_ID:
+        required: true
+        description: 'GitHub App ID'
+      ACTIONS_AUTH_APP_PRIVATE_KEY:
+        required: true
+        description: 'GitHub App Private Key'
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: 'Environment'
+      applicationFolder:
+        type: string
+        required: true
+        description: 'Application Folder'
+      applicationName:
+        type: string
+        required: true
+        description: 'Application Name'
+      applicationVersion:
+        type: string
+        required: true
+        description: 'Application Version'
+
+jobs:
+  deploy_app:
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        regionShortCode: ['ne']
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v1
+
+      - name: gh-app-install token
+        id: gh-app
+        uses: getsentry/action-github-app-token@v2
+        with:
+          app_id: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+          private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+
+      - name: checkout devops-azure repo
+        uses: actions/checkout@v3
+        with:
+          path: devops-azure
+          repository: Uniphar/devops-azure
+          token: ${{ steps.gh-app.outputs.token }}
+
+      - name: checkout cost centre definition repo
+        uses: actions/checkout@v3
+        with:
+          path: costcentre-definitions
+          repository: Uniphar/costcentre-definitions
+          ref: main
+          token: ${{ steps.gh-app.outputs.token }}
+
+      - name: azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: true
+
+      - name: compute environment variables
+        uses: azure/powershell@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
+        with: 
+          inlineScript: |
+            Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
+
+            $ACRName = Resolve-UniResourceName 'acr' $p_computeProject -Context $app_AKS
+            $AKSClusterResourceGroup = Resolve-UniResourceName 'resource-group' $p_computeProject -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
+            $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
+            $AKSClusterSAName = Resolve-UniComputeDomainSAName '${{ inputs.environment }}' $p_devopsDomain
+            $AKSClusterSAID = Get-AzADServicePrincipal -DisplayName $AKSClusterSAName | Select-Object -ExpandProperty Id
+            $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
+            $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
+            echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
+            echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
+            echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
+            echo "AKS_CLUSTER_SERVICE_ACCOUNT_NAME=$AKSClusterSAName" >> $env:GITHUB_ENV
+            echo "AKS_CLUSTER_SERVICE_ACCOUNT_ID=$AKSClusterSAID" >> $env:GITHUB_ENV
+            echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
+            echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
+            echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
+            echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
+            echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
+          azPSVersion: "latest"
+          errorActionPreference: 'stop'
+          failOnStandardError: true  
+
+      - name: deploy Sub RBAC
+        uses: azure/powershell@v2
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
+        with: 
+          inlineScript: |
+           . ./devops/Initialize-SubscriptionsRBAC.ps1
+            Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json ${{ env.AKS_CLUSTER_SERVICE_ACCOUNT_ID }}
+          azPSVersion: "latest"
+          errorActionPreference: 'stop'
+          failOnStandardError: true
+
+      - name: setup kubectl
+        uses: azure/use-kubelogin@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          kubelogin-version: 'latest'
+
+      - name: Gets K8s context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ env.AKS_CLUSTER_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+          use-kubelogin: 'true'
+        id: k8context
+
+      - name: setup helm
+        uses: azure/setup-helm@v3
+
+      - name: ACR login
+        id: acrLogin
+        run: |
+          ACR_TOKEN=$(az acr login --name $ACR_NAME --expose-token --output tsv --query accessToken)
+          echo "ACR_TOKEN=$ACR_TOKEN" >> $GITHUB_OUTPUT
+          az acr login --name $ACR_NAME
+
+      - name: get helm chart
+        working-directory: ./charts/${{ env.APPLICATION_FOLDER }}
+        run: helm pull oci://$ACR_NAME.azurecr.io/helm/${{ env.APPLICATION_NAME }} --version $APPLICATION_VERSION
+
+      - name: deploy app
+        working-directory: ./charts/${{ env.APPLICATION_FOLDER }}
+        run: >
+          helm upgrade
+          ${{ env.APPLICATION_NAME }}
+          ${{ env.APPLICATION_NAME }}-$APPLICATION_VERSION.tgz
+          -i
+          --set reason="Upgrade to $APPLICATION_VERSION"
+          --set-string ACRName="$ACR_NAME"
+          --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
+          --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
+          --set-string SBNamespaceName="$SB_NAMESPACE"
+          -n devops
+          --atomic
