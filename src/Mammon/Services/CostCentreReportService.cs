@@ -68,14 +68,14 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		foreach (var leaf in node.Leaves)
 		{
 			var parent = leaf.Parent;
-			var nodeClass = GenerateGroupForCSVRow(leaf.Parent);
+			var nodeClass = GenerateGroupingStringForCSVRow(leaf.Parent);
 
 			csv.WriteRecord(new CsvReportLine { Resource = parent.Name, Environment = leaf.Name, Cost = leaf.Value, CostCentre = leaf.CostCentreNode.Name, Grouping = nodeClass});
 			csv.NextRecord();
 		}	
 	}
 
-	private static string GenerateGroupForCSVRow(CostCentreReportNode node)
+	private static string GenerateGroupingStringForCSVRow(CostCentreReportNode node)
 	{
 		if (node.Type == CostCentreReportNodeType.Root)
 			return "";
