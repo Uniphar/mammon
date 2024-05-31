@@ -12,18 +12,16 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
         {
             pendingWorkflows.Add(context.CallChildWorkflowAsync<bool>(nameof(SubscriptionWorkflow),
                 new CostReportSubscriptionRequest
-                {
-                    ReportId = input.ReportId,
-                    CostFrom = input.CostFrom,
-                    CostTo = input.CostTo,
-                    SubscriptionName = subscription
+                {                    
+                    SubscriptionName = subscription,
+                    ReportRequest = input.ReportRequest
                 },
-                new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SubscriptionWorkflow)}{subscription}{input.ReportId}" }));
+                new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SubscriptionWorkflow)}{subscription}{input.ReportRequest.ReportId}" }));
         }
 
         await Task.WhenAll(pendingWorkflows);
 
-		await context.CallActivityAsync<bool>(nameof(SendReportViaEmail), input.ReportId);
+		await context.CallActivityAsync<bool>(nameof(SendReportViaEmail), input.ReportRequest);
 
 		return true;
     }

@@ -1,20 +1,16 @@
 ﻿namespace Mammon.Models.CostManagement;
 
 public record CostReportSubscriptionRequest
-{
-    public required string ReportId { get; set; }
+{    
     public required string SubscriptionName { get; set; }
-    public required DateTime CostFrom { get; set; }
-    public required DateTime CostTo { get; set; }
+    public required CostReportRequest ReportRequest { get; set; }
 }
 
 public class CostReportSubscriptionRequestValidator : AbstractValidator<CostReportSubscriptionRequest>
 {
     public CostReportSubscriptionRequestValidator()
     {
-        RuleFor(x => x.SubscriptionName).NotEmpty();
-        RuleFor(x => x.CostFrom).NotEmpty();
-        RuleFor(x => x.CostFrom).NotEmpty();
-        RuleFor(x => x.CostTo).GreaterThan(x => x.CostFrom);
+        RuleFor(x => x.SubscriptionName).NotEmpty().WithMessage("SubscriptionName must be specified");
+        RuleFor(x => x.ReportRequest).NotEmpty().SetValidator(new CostReportRequestValidator());        
     }
 }

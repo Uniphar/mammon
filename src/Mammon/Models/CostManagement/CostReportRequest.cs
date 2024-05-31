@@ -11,8 +11,8 @@ public class CostReportRequestValidator : AbstractValidator<CostReportRequest>
 {
     public CostReportRequestValidator()
     {
-        RuleFor(x => x.CostFrom).NotEmpty();
-        RuleFor(x => x.CostFrom).NotEmpty();
-        RuleFor(x => x.CostTo).GreaterThan(x => x.CostFrom);
+        RuleFor(x => x.CostFrom).NotEmpty().WithMessage("CostFrom must be set");
+        RuleFor(x => x.ReportId).NotEmpty().WithMessage("ReportId must be set");
+        RuleFor(x => x.CostTo).GreaterThan(x => x.CostFrom).WithMessage("CostTo must be later datetime then CostFrom");
     }
 }

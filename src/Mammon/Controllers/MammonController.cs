@@ -39,10 +39,8 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
         {
             var subRequest = new TenantWorkflowRequest
             {
-                ReportId = @event.Data.ReportId,
-                CostFrom = @event.Data.CostFrom,
-                CostTo = @event.Data.CostTo,
-                Subscriptions = subscriptions
+                Subscriptions = subscriptions,
+                ReportRequest = @event.Data
             };
 
             await workflowClient.ScheduleNewWorkflowAsync(nameof(TenantWorkflow), workflowName, subRequest);
