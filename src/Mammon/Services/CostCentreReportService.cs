@@ -105,7 +105,6 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 
 		foreach (var costCentre in costCentres)
 		{
-			//TODO: handle actor not existing
 			var state = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor, CostCentreActorState>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.GetCostsAsync());
 			if (state != null)
 			{
