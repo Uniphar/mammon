@@ -71,7 +71,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 			var parentNode = leafNode.Parent;
 			var nodeClass = GenerateGroupingStringForCSVRow(parentNode);
 
-			csv.WriteRecord(new CsvReportLine { Resource = parentNode.Name, Environment = leafNode.Name, Cost = leafNode.Cost, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass});
+			csv.WriteRecord(new CsvReportLine { Resource = parentNode.Name, Environment = leafNode.Name, CostTuple = leafNode.CostTuple, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass});
 			csv.NextRecord();
 		}	
 	}
@@ -136,14 +136,16 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 				var pivotGroups = pivots.GroupBy(x => (x.PivotName, x.SubscriptionId)).ToList();
 
 				pivotGroups.Sort(new PivotDefinitionComparer());
+
 				foreach (var pivotGroup in pivotGroups)
 				{
 					var pivotName = pivotGroup.Key.PivotName;
 
 					var nodeClass = costCentreRuleEngine.ClassifyPivot(pivotGroup.First());
 					var environment = costCentreRuleEngine.LookupEnvironment(pivotGroup.Key.SubscriptionId);
+					var currency = costCentre.Value.Currency;
 
-					emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, pivotGroup.Sum(x => x.Cost), nodeClass);
+					emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, pivotGroup.Sum(x => x.Cost), currency, nodeClass);
 				}
 			}
 		}
@@ -220,8 +222,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	{
 		public required string Resource { get; set; }
 		public required string Environment { get; set; }
-		public required double Cost { get; set; }
-		public string Currency { get; set; } = "EUR"; //this will be populated from response later
+		public required ResourceCost CostTuple { get; set; }
 		public required string CostCentre { get; set; }
 		public required string Grouping { get; set; }
 	}

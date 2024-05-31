@@ -3,5 +3,5 @@
 public record ResourceGroupSubWorkflowRequest
 {
     public required string ReportId { get; set; }
-    public required IEnumerable<ResourceCost> Resources { get; set; }
+    public required IEnumerable<ResourceCostResponse> Resources { get; set; }
 }
