@@ -11,7 +11,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	{
 		ArgumentNullException.ThrowIfNull(reportRequest);
 		
-		Dictionary<string, CostCentreActorState> costCentreStates = await RetrieveCostCentreStates(reportRequest.ReportId);
+		Dictionary<string, CostCentreActorState> costCentreStates = await RetrieveCostCentreStatesAsync(reportRequest.ReportId);
 
 		var viewModel = BuildViewModel(reportRequest, costCentreStates);
 
@@ -19,12 +19,12 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		var reportBody = await ViewRenderer.RenderViewToStringAsync("EmailReport", viewModel, ControllerContext);
 
 		//attachment
-		var attachmentUri = await RenderCSVAsync(viewModel);
+		var attachmentUri = await GenerateCSVAttachmentAsync(viewModel);
 
 		return (reportBody, attachmentUri);
 	}
 
-	private async Task<string> RenderCSVAsync(CostCentreReportModel model)
+	private async Task<string> GenerateCSVAttachmentAsync(CostCentreReportModel model)
 	{
 		ArgumentNullException.ThrowIfNull(model);
 
@@ -97,7 +97,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		return sb.ToString();
 	}
 
-	private async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStates(string reportId)
+	private async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId)
 	{
 		var costCentres = costCentreRuleEngine.CostCentres;
 
