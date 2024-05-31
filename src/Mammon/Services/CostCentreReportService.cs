@@ -46,15 +46,15 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 
 		AppendNodeToCsv(model.Root, csvWriter);
 
-		var blocClient = blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
+		var blobClient = blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
 		streamWriter.Flush();
 		stream.Position = 0;
 
 		var blobName = $"{model.ReportId}_{Guid.NewGuid()}.csv";
 
-		var response = await blocClient.UploadBlobAsync(blobName, BinaryData.FromStream(stream));
+		var response = await blobClient.UploadBlobAsync(blobName, BinaryData.FromStream(stream));
 
-		return $"{blocClient.Uri.AbsoluteUri}/{blobName}";
+		return $"{blobClient.Uri.AbsoluteUri}/{blobName}";
 		
 	}
 
