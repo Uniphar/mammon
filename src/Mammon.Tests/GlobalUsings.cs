@@ -1,11 +1,13 @@
-﻿global using Azure.Core;
+﻿global using Azure;
+global using Azure.Core;
 global using Azure.Messaging.ServiceBus;
 global using Azure.ResourceManager;
+global using Azure.Storage.Blobs;
+global using Azure.Storage.Blobs.Models;
 global using FluentAssertions;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;
 global using Mammon.Models.CostManagement;
-global using Mammon.Models.Views;
 global using Mammon.Services;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Logging;

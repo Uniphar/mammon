@@ -7,7 +7,6 @@ global using Azure.ResourceManager.Resources;
 global using Azure.Storage.Blobs;
 global using CsvHelper;
 global using CsvHelper.Configuration;
-global using CsvHelper.Configuration.Attributes;
 global using Dapr;
 global using Dapr.Actors;
 global using Dapr.Actors.Client;
