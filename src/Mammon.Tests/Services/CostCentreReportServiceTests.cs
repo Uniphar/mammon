@@ -1,4 +1,9 @@
-﻿namespace Mammon.Tests.Services;
+﻿using static Microsoft.Azure.Amqp.Serialization.SerializableType;
+using System.IO.Hashing;
+using System.Reflection.Metadata;
+using System;
+
+namespace Mammon.Tests.Services;
 
 [TestClass]
 [TestCategory("UnitTest")]
@@ -37,10 +42,10 @@ public class CostCentreReportServiceTests
 			}
 		};
 
-		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System);
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System, Mock.Of<BlobServiceClient>());
 
 		//act
-		var modelBuilt= sut.BuildViewModel(costCentreStates);
+		var modelBuilt= sut.BuildViewModel(ReportRequest, costCentreStates);
 
 		//assert
 		modelBuilt.Should().NotBeNull();
@@ -53,8 +58,8 @@ public class CostCentreReportServiceTests
 		costCentreANode.SubNodes.Should().ContainKey("classA"); //class grouping
 
 		costCentreANode.SubNodes["rgA"].Leaves.Should().HaveCount(2); //environments
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(new KeyValuePair<string, double>("envA", 12)); //environment
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(new KeyValuePair<string, double>("envB", 13)); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envA" && x.Value.Cost == 12); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envB" && x.Value.Cost == 13); //environment
 	}
 
 
@@ -72,7 +77,7 @@ public class CostCentreReportServiceTests
 		
 		testTimeProvider.SetUtcNow(new(DateTime.ParseExact(dtNow, expectedDTFormat, CultureInfo.InvariantCulture)));
 		
-		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider);
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
 
 		//act
 		var result = sut.GenerateDefaultReportRequest();
@@ -80,7 +85,7 @@ public class CostCentreReportServiceTests
 		//assert
 		result.CostFrom.Should().Be(DateTime.ParseExact(expectedFromDT, expectedDTFormat, CultureInfo.InvariantCulture));
 		result.CostTo.Should().Be(DateTime.ParseExact(expectedToDT, expectedDTFormat, CultureInfo.InvariantCulture));
-	}
+	}	
 
 	private static CostCentreRuleEngine GetCostCentreRuleEngineInstance()
 	{
@@ -94,4 +99,11 @@ public class CostCentreReportServiceTests
 
 		return new CostCentreRuleEngine(configuration);
 	}
+
+	private static CostReportRequest ReportRequest => new ()
+	{
+		ReportId = "testReportId",
+		CostFrom = DateTime.Now,
+		CostTo = DateTime.Now
+	};
 }

@@ -1,6 +1,7 @@
 ﻿global using Azure.Core;
 global using Azure.Messaging.ServiceBus;
 global using Azure.ResourceManager;
+global using Azure.Storage.Blobs;
 global using FluentAssertions;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;

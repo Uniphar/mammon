@@ -39,10 +39,8 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
         {
             var subRequest = new TenantWorkflowRequest
             {
-                ReportId = @event.Data.ReportId,
-                CostFrom = @event.Data.CostFrom,
-                CostTo = @event.Data.CostTo,
-                Subscriptions = subscriptions
+                Subscriptions = subscriptions,
+                ReportRequest = @event.Data
             };
 
             await workflowClient.ScheduleNewWorkflowAsync(nameof(TenantWorkflow), workflowName, subRequest);
@@ -66,10 +64,14 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
     }
 
 #if DEBUG
-		[HttpGet]
-    public async Task<string> GetReport([FromQuery] string reportId)
+
+	[HttpGet]
+    public async Task<object> GetReport([FromQuery] string reportId)
     {
-        return await costCentreReportService.GenerateReportAsync(reportId);
+        (string attachmentUri, string reportBody) = await costCentreReportService.GenerateReportAsync(new CostReportRequest { ReportId = reportId, CostFrom = DateTime.Now, CostTo = DateTime.Now });
+
+        return new { Attachment = attachmentUri, Body = reportBody };
     }
+
 #endif
 }

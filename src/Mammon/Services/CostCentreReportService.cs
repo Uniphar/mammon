@@ -1,26 +1,111 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, IServiceProvider sp, TimeProvider timeProvider)
+public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, IServiceProvider sp, TimeProvider timeProvider, BlobServiceClient blobServiceClient)
 {
 	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
-	
-	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]?.Split(',') 
-		?? throw new InvalidOperationException("Email Report To Address list is invalid");
+	private string BlobStorageContainerName => configuration[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
+	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]!.Split(',');
+	private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey]!;
 
-	private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey] 
-		?? throw new InvalidOperationException("Email From Address is invalid");
-
-	public async Task<string> GenerateReportAsync(string reportId)
+	public async Task<(string reportBody, string attachmentUri)> GenerateReportAsync(CostReportRequest reportRequest)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
+		ArgumentNullException.ThrowIfNull(reportRequest);
+		
+		Dictionary<string, CostCentreActorState> costCentreStates = await RetrieveCostCentreStatesAsync(reportRequest.ReportId);
 
+		var viewModel = BuildViewModel(reportRequest, costCentreStates);
+
+		//report body	
+		var reportBody = await ViewRenderer.RenderViewToStringAsync("EmailReport", viewModel, ControllerContext);
+
+		//attachment
+		var attachmentUri = await GenerateCSVAttachmentAsync(viewModel);
+
+		return (reportBody, attachmentUri);
+	}
+
+	private async Task<string> GenerateCSVAttachmentAsync(CostCentreReportModel model)
+	{
+		ArgumentNullException.ThrowIfNull(model);
+
+		using var stream = new MemoryStream();
+		using var streamWriter = new StreamWriter(stream);
+
+		var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+		{
+			HasHeaderRecord = true,
+		};
+
+		using var csvWriter = new CsvWriter(streamWriter, config);
+
+		csvWriter.WriteComment($"From : {model.ReportFromDateTime:dd/MM/yyyy} (inclusive) To: {model.ReportToDateTime:dd/MM/yyyy} (inclusive) ");
+		csvWriter.NextRecord();
+		csvWriter.NextRecord();
+		csvWriter.WriteHeader<CsvReportLine>();
+		csvWriter.NextRecord();
+
+		AppendNodeToCsv(model.Root, csvWriter);
+
+		var blobClient = blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
+		streamWriter.Flush();
+		stream.Position = 0;
+
+		var blobName = $"{model.ReportId}_{Guid.NewGuid()}.csv";
+
+		var response = await blobClient.UploadBlobAsync(blobName, BinaryData.FromStream(stream));
+
+		return $"{blobClient.Uri.AbsoluteUri}/{blobName}";
+		
+	}
+
+	private static void AppendNodeToCsv(CostCentreReportNode node, CsvWriter csv)
+	{
+		foreach (var subNode in node.SubNodes)
+		{
+			AppendNodeToCsv(subNode.Value, csv);
+		}
+
+		foreach (var leaf in node.Leaves)
+		{
+			var leafNode = leaf.Value;
+			var parentNode = leafNode.Parent;
+			var nodeClass = GenerateGroupingStringForCSVRow(parentNode);
+
+			csv.WriteRecord(new CsvReportLine { Resource = parentNode.Name, Environment = leafNode.Name, Cost = leafNode.Cost, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass});
+			csv.NextRecord();
+		}	
+	}
+
+	private static string GenerateGroupingStringForCSVRow(CostCentreReportNode node)
+	{
+		if (node.Type == CostCentreReportNodeType.Root)
+			return "";
+
+		StringBuilder sb = new();
+
+		var processedNode = node;
+		bool first = true;
+		do
+		{
+			if (processedNode.Type == CostCentreReportNodeType.Group)
+			{
+				sb.Append($"{(!first ? "/": "")}{processedNode.Name}");
+				first = false;
+			}
+			processedNode = processedNode.Parent;
+		} while (processedNode!=null && processedNode.Type != CostCentreReportNodeType.Root);
+
+		return sb.ToString();
+	}
+
+	private async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId)
+	{
 		var costCentres = costCentreRuleEngine.CostCentres;
 
 		Dictionary<string, CostCentreActorState> costCentreStates = [];
 
 		foreach (var costCentre in costCentres)
 		{
-			//TODO: handle actor not existing
 			var state = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor, CostCentreActorState>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.GetCostsAsync());
 			if (state != null)
 			{
@@ -28,9 +113,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 			}
 		}
 
-		var viewModel = BuildViewModel(costCentreStates);
-
-		return await ViewRenderer.RenderViewToStringAsync("EmailReport", viewModel, ControllerContext);
+		return costCentreStates;
 	}
 
 	public static void ValidateConfiguration(IConfiguration configuration)
@@ -38,9 +121,12 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		new CostCentreReportServiceConfigValidator().ValidateAndThrow(configuration);
 	}
 
-	public CostCentreReportModel BuildViewModel(IDictionary<string, CostCentreActorState> costCentreStates)
+	public CostCentreReportModel BuildViewModel(CostReportRequest reportRequest, IDictionary<string, CostCentreActorState> costCentreStates)
 	{
-		CostCentreReportModel emailReportModel = new();
+		ArgumentNullException.ThrowIfNull(reportRequest);
+		ArgumentNullException.ThrowIfNull(costCentreStates);
+
+		CostCentreReportModel emailReportModel = new() {ReportId = reportRequest.ReportId, ReportFromDateTime = reportRequest.CostFrom, ReportToDateTime = reportRequest.CostTo };
 
 		foreach (var costCentre in costCentreStates)
 		{
@@ -65,26 +151,26 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		return emailReportModel;
 	}
 
-	public async Task SendReportToDotFlyerAsync(string reportId)
+	public async Task SendReportToDotFlyerAsync(CostReportRequest reportRequest)
 	{
-		//generate report
-		var report = await GenerateReportAsync(reportId);
-		
+		//generate report body and its attachment
+		var (reportBody, attachmentUri) = await GenerateReportAsync(reportRequest);	
+
 		//send request to DotFlyer
 		var dotFlyerRequest = new EmailMessage
 		{
-			Body = report,
+			Body = reportBody,
 			From = new Contact { Email = EmailFromAddress , Name = EmailFromAddress },
-			Subject = string.Format(EmailSubject, reportId),
+			Subject = string.Format(EmailSubject, reportRequest.ReportId),
 			To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
-			Attachments= []
+			Attachments= [attachmentUri]
 		};
 
 		await serviceBusClient.CreateSender("dotflyer-email").SendMessageAsync(new ServiceBusMessage
 		{
 			Body = BinaryData.FromObjectAsJson(dotFlyerRequest),
 			ContentType = "application/json",
-			MessageId = $"MammonEmailReport{reportId}"
+			MessageId = $"MammonEmailReport{reportRequest.ReportId}"
 		});
 	}
 
@@ -130,6 +216,16 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		}
 	}
 
+	public record CsvReportLine
+	{
+		public required string Resource { get; set; }
+		public required string Environment { get; set; }
+		public required double Cost { get; set; }
+		public string Currency { get; set; } = "EUR"; //this will be populated from response later
+		public required string CostCentre { get; set; }
+		public required string Grouping { get; set; }
+	}
+
 	internal class CostCentreReportServiceConfigValidator : AbstractValidator<IConfiguration>
 	{
 		public CostCentreReportServiceConfigValidator()
@@ -145,6 +241,12 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 
 			RuleFor(x => x[Consts.DotFlyerSBConnectionStringConfigKey]).NotEmpty()
 				.WithMessage("Cost Centre Report Service Bus Uri must not be empty");
+
+			RuleFor(x => x[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]).NotEmpty()
+				.WithMessage("DotFlyer blob storage connection string must not be empty");
+
+			RuleFor(x => x[Consts.DotFlyerAttachmentsContainerNameConfigKey]).NotEmpty()
+				.WithMessage("DotFlyer blob storage container name must not be empty");
 		}
 	}
 }

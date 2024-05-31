@@ -39,7 +39,7 @@ public class CostRetrievalService
         if (string.IsNullOrWhiteSpace(subId))
             throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
-        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-dd}T00:00:00+00:00\",\"to\":\"{request.CostTo:yyyy-MM-dd}T00:00:00+00:00\"}}}}";
+        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.ReportRequest.CostFrom:yyyy-MM-dd}T00:00:00+00:00\",\"to\":\"{request.ReportRequest.CostTo:yyyy-MM-dd}T00:00:00+00:00\"}}}}";
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
         HttpResponseMessage response;

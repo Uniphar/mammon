@@ -1,12 +1,12 @@
 ﻿namespace Mammon.Workflows.Activities;
 
-public class SendReportViaEmail(CostCentreReportService costCentreReportService) : WorkflowActivity<string, bool>
+public class SendReportViaEmail(CostCentreReportService costCentreReportService) : WorkflowActivity<CostReportRequest, bool>
 {
-	public override async Task<bool> RunAsync(WorkflowActivityContext context, string reportId)
+	public override async Task<bool> RunAsync(WorkflowActivityContext context, CostReportRequest reportRequest)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
+		ArgumentNullException.ThrowIfNull(reportRequest);
 
-		await costCentreReportService.SendReportToDotFlyerAsync(reportId);
+		await costCentreReportService.SendReportToDotFlyerAsync(reportRequest);
 
 		return true;
 	}

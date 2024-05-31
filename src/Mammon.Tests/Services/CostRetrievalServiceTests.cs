@@ -26,7 +26,17 @@ public class CostRetrievalServiceTests
         var service = new TestCostRetrievalService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostRetrievalService>>(), Mock.Of<IConfiguration>());
 
         //test
-        var result = await service.QueryForSubAsync(new CostReportSubscriptionRequest { SubscriptionName="blah", CostFrom = DateTime.UtcNow.AddDays(-1), CostTo = DateTime.UtcNow, ReportId = Guid.NewGuid().ToString()});
+        var result = await service.QueryForSubAsync(
+            new CostReportSubscriptionRequest
+            {
+                SubscriptionName = "blah",
+                ReportRequest = new CostReportRequest
+                {
+                    CostFrom = DateTime.UtcNow.AddDays(-1),
+                    CostTo = DateTime.UtcNow,
+                    ReportId = Guid.NewGuid().ToString()
+                }
+            });
 
         //assert
         result.Should().NotBeNull();
