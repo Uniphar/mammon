@@ -15,6 +15,7 @@
     <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />
+    <PackageReference Include="CsvHelper" Version="*" />
     <PackageReference Include="Dapr.AspNetCore" Version="*-*" />
     <PackageReference Include="DotFlyer.Common" Version="*" />
     <PackageReference Include="FluentValidation" Version="*" />

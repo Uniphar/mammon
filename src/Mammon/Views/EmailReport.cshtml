@@ -7,6 +7,10 @@
 			font-family: Arial, sans-serif;
 		}
 
+		.dateRow {
+			.font-size: 15px
+		}
+
 		.level-0 {
 			color: darkblue;
 			font-size: 20px;
@@ -38,6 +42,7 @@
 </head>
 <body>
 	<h1>Cost Breakdown</h1>
+	<p class="dateRow">From : @Model.ReportFromDateTime.ToString("dd/MM/yyyy") (inclusive) To: @Model.ReportToDateTime.ToString("dd/MM/yyyy") (inclusive)</p>
 	@{
 		RenderNode(null, Model.Root);
 	}
@@ -74,7 +79,7 @@
 		}
 		@foreach (var leaf in node.Leaves)
 		{
-			<p class="level-@(level+1)">@leaf.Key<span class="currency"> €@leaf.Value.ToString("F")</span></p>
+			<p class="level-@(level+1)">@leaf.Name<span class="currency"> €@leaf.Value.ToString("F")</span></p>
 		}
 	}
 }

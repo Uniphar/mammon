@@ -67,9 +67,12 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
 
 #if DEBUG
 		[HttpGet]
-    public async Task<string> GetReport([FromQuery] string reportId)
+    public async Task<object> GetReport([FromQuery] string reportId)
     {
-        return await costCentreReportService.GenerateReportAsync(reportId);
+        await costCentreReportService.SendReportToDotFlyerAsync(new CostReportRequest { ReportId = reportId, CostFrom = DateTime.Now, CostTo = DateTime.Now });
+
+        //return new { Attachment = attachmentUri, Body = reportBody };
+        return null;
     }
 #endif
 }
