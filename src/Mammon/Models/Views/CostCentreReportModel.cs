@@ -42,7 +42,7 @@ public class CostCentreReportModel
 			node.SubNodes.Add(rgName, rgNode);
 		}
 
-		rgNode.Leaves.Add(new CostCentreReportLeaf { Name= environment, Value = cost, Parent = rgNode, CostCentreNode = costCentreNode });
+		rgNode.Leaves.TryAdd(environment, new CostCentreReportLeaf { Name= environment, Cost = cost, Parent = rgNode, CostCentreNode = costCentreNode });
 		ComputeTotal(rgNode);
 
 		if (!string.IsNullOrWhiteSpace(nodeClass))
@@ -53,14 +53,14 @@ public class CostCentreReportModel
 
 	private static void ComputeTotal(CostCentreReportNode node)
 	{
-		node.NodeTotal = node.Leaves.Sum(x => x.Value) + node.SubNodes.Sum(x => x.Value.NodeTotal);
+		node.NodeTotal = node.Leaves.Sum(x => x.Value.Cost) + node.SubNodes.Sum(x => x.Value.NodeTotal);
 	}
 }
 
 public record CostCentreReportNode
 {
 	public IDictionary<string, CostCentreReportNode> SubNodes { get; private set; } = new Dictionary<string, CostCentreReportNode>();
-	public IList<CostCentreReportLeaf> Leaves { get; private set; } = [];	
+	public IDictionary<string, CostCentreReportLeaf> Leaves { get; private set; } = new Dictionary<string, CostCentreReportLeaf>();
 	public required string Name { get; set; }
 	public double NodeTotal { get; set; }
 	public CostCentreReportNodeType Type { get; set; }
@@ -70,7 +70,7 @@ public record CostCentreReportNode
 public record CostCentreReportLeaf
 {
 	public required string Name { get; set; } = string.Empty;
-	public required double Value { get; set; }
+	public required double Cost { get; set; }
 	public required CostCentreReportNode Parent { get; set; }
 	public required CostCentreReportNode CostCentreNode { get; set; }
 }

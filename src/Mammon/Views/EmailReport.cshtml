@@ -8,7 +8,7 @@
 		}
 
 		.dateRow {
-			.font-size: 15px
+			font-size: 15px
 		}
 
 		.level-0 {
@@ -79,7 +79,7 @@
 		}
 		@foreach (var leaf in node.Leaves)
 		{
-			<p class="level-@(level+1)">@leaf.Name<span class="currency"> €@leaf.Value.ToString("F")</span></p>
+			<p class="level-@(level+1)">@leaf.Value.Name<span class="currency"> €@leaf.Value.Cost.ToString("F")</span></p>
 		}
 	}
 }

@@ -58,8 +58,8 @@ public class CostCentreReportServiceTests
 		costCentreANode.SubNodes.Should().ContainKey("classA"); //class grouping
 
 		costCentreANode.SubNodes["rgA"].Leaves.Should().HaveCount(2); //environments
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Name == "envA" && x.Value == 12); //environment
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Name == "envB" && x.Value == 13); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envA" && x.Value.Cost == 12); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envB" && x.Value.Cost == 13); //environment
 	}
 
 
