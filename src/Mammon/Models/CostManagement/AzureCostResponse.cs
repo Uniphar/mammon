@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace Mammon.Models.CostManagement;
+﻿namespace Mammon.Models.CostManagement;
 
 public class AzureCostResponse : List<ResourceCostResponse>
 {
