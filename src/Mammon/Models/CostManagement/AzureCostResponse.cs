@@ -16,12 +16,12 @@ public record ResourceCostResponse
 
 public record ResourceCost
 {
-    public ResourceCost() //required for JSON serialization/deserialization
-    {
-        
-    }
+	public ResourceCost() //required for JSON serialization/deserialization
+	{
 
-    [SetsRequiredMembers]
+	}
+
+	[SetsRequiredMembers]
 	public ResourceCost(decimal costValue, string currency)
 	{
 		Cost = costValue;
