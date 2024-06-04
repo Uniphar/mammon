@@ -69,7 +69,7 @@ public class CostCentreRuleEngine
         return costCentreRule;
     }
 
-    public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, double cost)
+    public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, ResourceCost cost)
     {
         var rId = new ResourceIdentifier(resourceId);
 
@@ -131,5 +131,5 @@ public record CostReportPivotEntry
     public required string PivotName { get; set; } 
     public required string ResourceId { get; set; }
     public required string SubscriptionId { get; set; }
-    public double Cost { get; set; }
+    public required ResourceCost Cost { get; set; }
 }

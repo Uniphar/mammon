@@ -2,7 +2,6 @@
 
 public record CostCentreActorState
 {
-    public double TotalCost { get; set; }
-    public string Currency { get; set; } = string.Empty;
-    public Dictionary<string, double>? ResourceCosts { get; set; }
+    public  ResourceCost TotalCost { get; set; } = new ResourceCost { Cost = 0, Currency = "N/A" };
+    public Dictionary<string, ResourceCost>? ResourceCosts { get; set; }
 }

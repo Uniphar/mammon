@@ -4,7 +4,7 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 {
     public const string CostStateName = "resourceCostState";
 
-    public async Task AddCostAsync(string fullCostId, ResourceCost costTuple, string parentResourceId, Dictionary<string, string> tags)
+    public async Task AddCostAsync(string fullCostId, ResourceCost cost, string parentResourceId, Dictionary<string, string> tags)
     {
         try
         {
@@ -16,10 +16,9 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
             state.Tags = tags;            
 
             state.CostItems ??= [];
-            state.Currency = costTuple.Currency; //all items are of the same currency
 
-            if (state.CostItems.TryAdd(fullCostId, costTuple.Cost))
-                state.TotalCost += costTuple.Cost;
+            state.CostItems.TryAdd(fullCostId, cost);
+            state.TotalCost = new ResourceCost(state.CostItems.Values);
 
             await SaveStateAsync(state);
         }
@@ -42,15 +41,15 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
             //pro-rata split if multi cost centre
             if (rule.CostCentres.Length > 1)
             {
-                var proRataValue = state.TotalCost/ rule.CostCentres.Length;
+                var proRataValue = state.TotalCost.Cost/ rule.CostCentres.Length;
                 var response = new Dictionary<string, ResourceCost>();
                 foreach (var costCentre in rule.CostCentres)
-                    response.Add(costCentre, new ResourceCost { Cost = proRataValue, Currency = state.Currency });
+                    response.Add(costCentre, new ResourceCost { Cost = proRataValue, Currency = state.TotalCost.Currency });
 
                 return response;
             }
             else
-                return new Dictionary<string, ResourceCost> { { rule.CostCentres.First(), new ResourceCost { Cost = state.TotalCost, Currency = state.Currency } } };
+                return new Dictionary<string, ResourceCost> { { rule.CostCentres.First(), state.TotalCost } };
         }
         catch (Exception ex)
         {

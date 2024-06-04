@@ -79,7 +79,7 @@
 		}
 		@foreach (var leaf in node.Leaves)
 		{
-			<p class="level-@(level+1)">@leaf.Value.Name<span class="currency"> @leaf.Value.CostTuple</span></p>
+			<p class="level-@(level+1)">@leaf.Value.Name<span class="currency"> @leaf.Value.Cost</span></p>
 		}
 	}
 }

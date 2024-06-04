@@ -71,7 +71,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 			var parentNode = leafNode.Parent;
 			var nodeClass = GenerateGroupingStringForCSVRow(parentNode);
 
-			csv.WriteRecord(new CsvReportLine { Resource = parentNode.Name, Environment = leafNode.Name, CostTuple = leafNode.CostTuple, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass});
+			csv.WriteRecord(new CsvReportLine { Resource = parentNode.Name, Environment = leafNode.Name, Cost = leafNode.Cost, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass});
 			csv.NextRecord();
 		}	
 	}
@@ -143,9 +143,8 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 
 					var nodeClass = costCentreRuleEngine.ClassifyPivot(pivotGroup.First());
 					var environment = costCentreRuleEngine.LookupEnvironment(pivotGroup.Key.SubscriptionId);
-					var currency = costCentre.Value.Currency;
 
-					emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, pivotGroup.Sum(x => x.Cost), currency, nodeClass);
+					emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, new ResourceCost(pivotGroup.Select(x=>x.Cost)), nodeClass);
 				}
 			}
 		}
@@ -222,7 +221,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	{
 		public required string Resource { get; set; }
 		public required string Environment { get; set; }
-		public required ResourceCost CostTuple { get; set; }
+		public required ResourceCost Cost { get; set; }
 		public required string CostCentre { get; set; }
 		public required string Grouping { get; set; }
 	}

@@ -7,7 +7,7 @@ public class CostCentreReportModel
 	public DateTime ReportFromDateTime { get; set; }
 	public DateTime ReportToDateTime { get; set; }
 
-	public void AddLeaf(string costCentre, string rgName, string environment, double cost, string currency, string? nodeClass)
+	public void AddLeaf(string costCentre, string rgName, string environment, ResourceCost cost, string? nodeClass)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(costCentre);
 		ArgumentException.ThrowIfNullOrWhiteSpace(rgName);
@@ -42,19 +42,22 @@ public class CostCentreReportModel
 			node.SubNodes.Add(rgName, rgNode);
 		}
 
-		rgNode.Leaves.TryAdd(environment, new CostCentreReportLeaf { Name= environment, CostTuple = new ResourceCost { Cost = cost, Currency = currency }, Parent = rgNode, CostCentreNode = costCentreNode });
+		rgNode.Leaves.TryAdd(environment, new CostCentreReportLeaf { Name= environment, Cost = cost, Parent = rgNode, CostCentreNode = costCentreNode });
 
-		ComputeTotal(rgNode, currency);
+		ComputeTotal(rgNode);
 
 		if (!string.IsNullOrWhiteSpace(nodeClass))
-			ComputeTotal(node, currency);
+			ComputeTotal(node);
 
-		ComputeTotal(costCentreNode, currency);	
+		ComputeTotal(costCentreNode);	
 	}
 
-	private static void ComputeTotal(CostCentreReportNode node, string currency)
+	private static void ComputeTotal(CostCentreReportNode node)
 	{
-		node.NodeTotal = new ResourceCost { Cost = node.Leaves.Sum(x => x.Value.CostTuple.Cost) + node.SubNodes.Sum(x => x.Value.NodeTotal.Cost), Currency = currency };
+		var list = node.Leaves.Select(x => x.Value.Cost).ToList();
+		list.AddRange(node.SubNodes.Select(x => x.Value.NodeTotal));
+
+		node.NodeTotal = new ResourceCost(list);
 	}
 }
 
@@ -71,7 +74,7 @@ public record CostCentreReportNode
 public record CostCentreReportLeaf
 {
 	public required string Name { get; set; }
-	public required ResourceCost CostTuple { get; set; }
+	public required ResourceCost Cost { get; set; }
 	public required CostCentreReportNode Parent { get; set; }
 	public required CostCentreReportNode CostCentreNode { get; set; }
 }

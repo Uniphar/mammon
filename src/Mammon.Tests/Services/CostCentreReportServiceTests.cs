@@ -19,25 +19,25 @@ public class CostCentreReportServiceTests
 				"CostCentreA",
 				new CostCentreActorState
 				{
-					ResourceCosts = new Dictionary<string, double>
+					ResourceCosts = new Dictionary<string, ResourceCost>
 					{
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgA-envA/providers/microsoft.storage/storageaccounts/sampleSA", 12 },
-						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", 13 },
-						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgC-tokenA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", 13 }
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgA-envA/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost{Cost=12, Currency="EUR" } },
+						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost{Cost=13, Currency="EUR" } },
+						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgC-tokenA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost{Cost=13, Currency="EUR" } }
 					},
-					TotalCost = 5000
+					TotalCost = new ResourceCost { Cost = 5000, Currency = "EUR" }
 				}
 			},
 			{
 				"CostCentreB",
 				new CostCentreActorState
 				{
-					ResourceCosts = new Dictionary<string, double>
+					ResourceCosts = new Dictionary<string, ResourceCost>
 					{
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgC/providers/microsoft.storage/storageaccounts/sampleSA", 14 },
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgD/providers/microsoft.storage/storageaccounts/sampleSA2", 15 }
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgC/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost{Cost=14, Currency="EUR" } },
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgD/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost{Cost=15, Currency="EUR" } }
 					},
-					TotalCost = 5000
+					TotalCost = new ResourceCost{ Cost=5000, Currency="EUR" }
 				}
 			}
 		};
@@ -58,8 +58,8 @@ public class CostCentreReportServiceTests
 		costCentreANode.SubNodes.Should().ContainKey("classA"); //class grouping
 
 		costCentreANode.SubNodes["rgA"].Leaves.Should().HaveCount(2); //environments
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envA" && x.Value.CostTuple.Cost == 12); //environment
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envB" && x.Value.CostTuple.Cost == 13); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envA" && x.Value.Cost.Cost == 12); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envB" && x.Value.Cost.Cost == 13); //environment
 	}
 
 

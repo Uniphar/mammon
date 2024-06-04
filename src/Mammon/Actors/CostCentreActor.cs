@@ -7,19 +7,16 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
     public static string GetActorId(string reportId, string costCentreName) => $"{reportId}_{costCentreName}";
 
     /// <inheritdoc/>
-    public async Task AddCostAsync(string resourceId, ResourceCost costTuple)
+    public async Task AddCostAsync(string resourceId, ResourceCost cost)
     {
         try
         {
             var state = await GetStateAsync();
             
             state.ResourceCosts ??= [];
-            state.Currency = costTuple.Currency;
 
-            if (state.ResourceCosts.TryAdd(resourceId, costTuple.Cost))
-            {
-                state.TotalCost += costTuple.Cost;
-            }
+            state.ResourceCosts.TryAdd(resourceId, cost);
+			state.TotalCost = new ResourceCost(state.ResourceCosts.Values);			
 
             await SaveStateAsync(state);
            
