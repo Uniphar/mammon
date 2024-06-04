@@ -16,8 +16,13 @@ public record ResourceCostResponse
 
 public record ResourceCost
 {
-	[SetsRequiredMembers]
-	public ResourceCost(double costValue, string currency)
+    public ResourceCost() //required for JSON serialization/deserialization
+    {
+        
+    }
+
+    [SetsRequiredMembers]
+	public ResourceCost(decimal costValue, string currency)
 	{
 		Cost = costValue;
 		Currency = currency;
@@ -33,7 +38,7 @@ public record ResourceCost
 		Currency = costs.FirstOrDefault()?.Currency ?? "NA";
 	}
 
-	public required double Cost { get; set; }
+	public required decimal Cost { get; set; }
 	public required string Currency { get; set; }
 
 	public override string ToString()
