@@ -39,7 +39,7 @@ public class CostRetrievalService
         if (string.IsNullOrWhiteSpace(subId))
             throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
-        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.ReportRequest.CostFrom:yyyy-MM-dd}T00:00:00+00:00\",\"to\":\"{request.ReportRequest.CostTo:yyyy-MM-dd}T00:00:00+00:00\"}}}}";
+        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.ReportRequest.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.ReportRequest.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
         HttpResponseMessage response;
@@ -52,7 +52,7 @@ public class CostRetrievalService
         do
         {           
             string? nextLink;
-            List<ResourceCost> costs;
+            List<ResourceCostResponse> costs;
 
 #if (DEBUG)
 			string? mockApiResponsePath;
@@ -88,7 +88,7 @@ public class CostRetrievalService
         return responseData;
     }
 
-    private (string? nextLink, List<ResourceCost> costs) ParseRawJson(string content)
+    private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content)
     {
         //ugly workaround to deal with invalid cost api response, alternatives are to write potentially some low level json.text code or scan resources for tags in a separate sub process
         content = content
@@ -102,7 +102,7 @@ public class CostRetrievalService
         var currencyIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == currencyColumnName);
         var tagsId = intermediateData.Properties.Columns.FindIndex(x => x.Name == tagsColumnName);
 
-        List<ResourceCost> costs = [];
+        List<ResourceCostResponse> costs = [];
 
         foreach (var row in intermediateData.Properties!.Rows!.Where((r) => !string.IsNullOrWhiteSpace((string)r[resourceIdIndex])))
         {
@@ -118,11 +118,10 @@ public class CostRetrievalService
                 }
 
             }
-            costs.Add(new ResourceCost
+            costs.Add(new ResourceCostResponse
             {
-                Cost = (double)row[costIndex],
-                ResourceId = (string)row[resourceIdIndex],
-                Currency = (string)row[currencyIndex],
+                Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
+				ResourceId = (string)row[resourceIdIndex],
                 Tags = tags
             });
         }

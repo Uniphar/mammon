@@ -136,7 +136,7 @@ public class CostCentreRuleEngineTests
 	public void ClassifyResourceGroupTest(string pivotName, string subId, string resourceId, string? expected)
     {
 		//act+assert
-		GetInstance().ClassifyPivot(new CostReportPivotEntry() { PivotName = pivotName, SubscriptionId = subId, ResourceId = resourceId, Cost = 1 }).Should().Be(expected);
+		GetInstance().ClassifyPivot(new CostReportPivotEntry() { PivotName = pivotName, SubscriptionId = subId, ResourceId = resourceId, Cost = new ResourceCost(1, "EUR")}).Should().Be(expected);
     }
 
     [TestMethod]

@@ -69,19 +69,21 @@ public class CostCentreRuleEngine
         return costCentreRule;
     }
 
-    public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, double cost)
+    public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, ResourceCost cost)
     {
         var rId = new ResourceIdentifier(resourceId);
 
 		var rgName = rId.ResourceGroupName ?? rId.ResourceType;
         var subId = rId.SubscriptionId ?? "N/A";
 
+        string pivotName;
+
         if (IsModeEnabled(DevBoxSpecialMode) && rId.IsDevBoxPool())
-        {
-            return new CostReportPivotEntry() { PivotName = rId.GetDevBoxProjectName(), ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
-        }
+            pivotName = rId.GetDevBoxProjectName();
         else
-		    return new CostReportPivotEntry() { PivotName = rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList), ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
+            pivotName = rgName.RemoveSuffixes(ResourceGroupSuffixRemoveList);
+
+		return new CostReportPivotEntry() { PivotName = pivotName, ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
     }   
 
     private bool IsModeEnabled(string modeName)
@@ -129,5 +131,5 @@ public record CostReportPivotEntry
     public required string PivotName { get; set; } 
     public required string ResourceId { get; set; }
     public required string SubscriptionId { get; set; }
-    public required double Cost { get; set; }
+    public required ResourceCost Cost { get; set; }
 }

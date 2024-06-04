@@ -19,25 +19,25 @@ public class CostCentreReportServiceTests
 				"CostCentreA",
 				new CostCentreActorState
 				{
-					ResourceCosts = new Dictionary<string, double>
+					ResourceCosts = new Dictionary<string, ResourceCost>
 					{
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgA-envA/providers/microsoft.storage/storageaccounts/sampleSA", 12 },
-						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", 13 },
-						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgC-tokenA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", 13 }
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgA-envA/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost(12, "EUR")},
+						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost(13, "EUR")},
+						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgC-tokenA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost(13, "EUR")}
 					},
-					TotalCost = 5000
+					TotalCost = new ResourceCost(5000, "EUR")
 				}
 			},
 			{
 				"CostCentreB",
 				new CostCentreActorState
 				{
-					ResourceCosts = new Dictionary<string, double>
+					ResourceCosts = new Dictionary<string, ResourceCost>
 					{
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgC/providers/microsoft.storage/storageaccounts/sampleSA", 14 },
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgD/providers/microsoft.storage/storageaccounts/sampleSA2", 15 }
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgC/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost(14, "EUR")},
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgD/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost(15, "EUR")}
 					},
-					TotalCost = 5000
+					TotalCost = new ResourceCost(5000, "EUR")
 				}
 			}
 		};
@@ -58,8 +58,8 @@ public class CostCentreReportServiceTests
 		costCentreANode.SubNodes.Should().ContainKey("classA"); //class grouping
 
 		costCentreANode.SubNodes["rgA"].Leaves.Should().HaveCount(2); //environments
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envA" && x.Value.Cost == 12); //environment
-		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envB" && x.Value.Cost == 13); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envA" && x.Value.Cost.Cost == 12); //environment
+		costCentreANode.SubNodes["rgA"].Leaves.Should().Contain(x => x.Value.Name == "envB" && x.Value.Cost.Cost == 13); //environment
 	}
 
 

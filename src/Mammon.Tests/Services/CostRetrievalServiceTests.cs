@@ -42,19 +42,19 @@ public class CostRetrievalServiceTests
         result.Should().NotBeNull();
         result.Should().HaveCount(4);
 
-        result.Should().Contain((r) => r.Cost == 1d && r.ResourceId == "resource1" && r.Currency=="EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 1 && r.ResourceId == "resource1" && r.Cost.Currency=="EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
-        result.Should().Contain((r) => r.Cost == 2d && r.ResourceId == "resource2" && r.Currency == "EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 2 && r.ResourceId == "resource2" && r.Cost.Currency == "EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
-        result.Should().Contain((r) => r.Cost == 3d && r.ResourceId == "resource3" && r.Currency == "EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 3 && r.ResourceId == "resource3" && r.Cost.Currency == "EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
-        result.Should().Contain((r) => r.Cost == 4d && r.ResourceId == "resource4" && r.Currency == "EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 4 && r.ResourceId == "resource4" && r.Cost.Currency == "EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 

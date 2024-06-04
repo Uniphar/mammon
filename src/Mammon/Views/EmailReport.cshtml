@@ -70,7 +70,7 @@
 	{
 		if (node.Type!= CostCentreReportNodeType.Root)
 		{
-			<p class="level-@(level)">@GetNodeForLevel(level)@nodeName<span class="currency"> €@node.NodeTotal.ToString("F")</span></p>
+			<p class="level-@(level)">@GetNodeForLevel(level)@nodeName<span class="currency"> @node.NodeTotal.ToString()</span></p>
 		}
 
 		@foreach (var subNode in node.SubNodes)
@@ -79,7 +79,7 @@
 		}
 		@foreach (var leaf in node.Leaves)
 		{
-			<p class="level-@(level+1)">@leaf.Value.Name<span class="currency"> €@leaf.Value.Cost.ToString("F")</span></p>
+			<p class="level-@(level+1)">@leaf.Value.Name<span class="currency"> @leaf.Value.Cost</span></p>
 		}
 	}
 }
