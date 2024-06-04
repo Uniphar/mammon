@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Newtonsoft.Json;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Mammon.Models.CostManagement;
 
@@ -16,9 +17,11 @@ public record ResourceCostResponse
 
 public record ResourceCost
 {
-    public ResourceCost()
+	[SetsRequiredMembers]
+	public ResourceCost(double costValue, string currency)
     {
-        
+        Cost = costValue;
+		Currency = currency;
     }
 
 	[SetsRequiredMembers]
@@ -38,6 +41,4 @@ public record ResourceCost
 	{
 		return $"{Currency} {Cost:F}";
 	}
-
-	public static ResourceCost operator  +(ResourceCost a, ResourceCost b) => new ResourceCost { Cost = a.Cost + b.Cost, Currency = a.Currency };
 }

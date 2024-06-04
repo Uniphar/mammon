@@ -21,11 +21,11 @@ public class CostCentreReportServiceTests
 				{
 					ResourceCosts = new Dictionary<string, ResourceCost>
 					{
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgA-envA/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost{Cost=12, Currency="EUR" } },
-						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost{Cost=13, Currency="EUR" } },
-						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgC-tokenA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost{Cost=13, Currency="EUR" } }
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgA-envA/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost(12, "EUR")},
+						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost(13, "EUR")},
+						{ "/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/rgC-tokenA-envB/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost(13, "EUR")}
 					},
-					TotalCost = new ResourceCost { Cost = 5000, Currency = "EUR" }
+					TotalCost = new ResourceCost(5000, "EUR")
 				}
 			},
 			{
@@ -34,10 +34,10 @@ public class CostCentreReportServiceTests
 				{
 					ResourceCosts = new Dictionary<string, ResourceCost>
 					{
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgC/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost{Cost=14, Currency="EUR" } },
-						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgD/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost{Cost=15, Currency="EUR" } }
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgC/providers/microsoft.storage/storageaccounts/sampleSA", new ResourceCost(14, "EUR")},
+						{ "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/rgD/providers/microsoft.storage/storageaccounts/sampleSA2", new ResourceCost(15, "EUR")}
 					},
-					TotalCost = new ResourceCost{ Cost=5000, Currency="EUR" }
+					TotalCost = new ResourceCost(5000, "EUR")
 				}
 			}
 		};

@@ -120,11 +120,7 @@ public class CostRetrievalService
             }
             costs.Add(new ResourceCostResponse
             {
-                Cost = new ResourceCost
-                {
-                    Cost = (double)row[costIndex],
-                    Currency = (string)row[currencyIndex]
-                },
+                Cost = new ResourceCost((double)row[costIndex], (string)row[currencyIndex]),
 				ResourceId = (string)row[resourceIdIndex],
                 Tags = tags
             });

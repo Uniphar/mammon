@@ -66,7 +66,7 @@ public record CostCentreReportNode
 	public IDictionary<string, CostCentreReportNode> SubNodes { get; private set; } = new Dictionary<string, CostCentreReportNode>();
 	public IDictionary<string, CostCentreReportLeaf> Leaves { get; private set; } = new Dictionary<string, CostCentreReportLeaf>();
 	public required string Name { get; set; }
-	public ResourceCost NodeTotal { get; set; } = new ResourceCost { Cost = 0, Currency = string.Empty };
+	public ResourceCost NodeTotal { get; set; } = new ResourceCost(0, string.Empty);
 	public CostCentreReportNodeType Type { get; set; }
 	public required CostCentreReportNode? Parent { get; set; }
 }

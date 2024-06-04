@@ -44,7 +44,7 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
                 var proRataValue = state.TotalCost.Cost/ rule.CostCentres.Length;
                 var response = new Dictionary<string, ResourceCost>();
                 foreach (var costCentre in rule.CostCentres)
-                    response.Add(costCentre, new ResourceCost { Cost = proRataValue, Currency = state.TotalCost.Currency });
+                    response.Add(costCentre, new ResourceCost(proRataValue, state.TotalCost.Currency));
 
                 return response;
             }
