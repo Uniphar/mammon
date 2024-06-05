@@ -1,9 +1,4 @@
-﻿using static Microsoft.Azure.Amqp.Serialization.SerializableType;
-using System.IO.Hashing;
-using System.Reflection.Metadata;
-using System;
-
-namespace Mammon.Tests.Services;
+﻿namespace Mammon.Tests.Services;
 
 [TestClass]
 [TestCategory("UnitTest")]
@@ -90,7 +85,7 @@ public class CostCentreReportServiceTests
 	private static CostCentreRuleEngine GetCostCentreRuleEngineInstance()
 	{
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
-			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreReport.json")
+			new(Mammon.Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreReport.json")
 		};
 
 		IConfiguration configuration = new ConfigurationBuilder()

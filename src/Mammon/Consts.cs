@@ -4,6 +4,8 @@ public static class Consts
 {
 	public const string StateStoreNameConfigKey = "Mammon:StateStoreName";
 
+	public const string MammonServiceBusTopicName = "MammonReportRequests";
+
 	public const string ConfigKeyVaultConfigEnvironmentVariable = "MAMMON_CONFIG_KEYVAULT_URL";
 	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
 	public const string CostCentreRuleEngineFilePathConfigKey = "Mammon:CostCentreRuleEngineFilePath";

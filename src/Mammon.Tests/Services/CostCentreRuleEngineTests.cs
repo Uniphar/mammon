@@ -164,7 +164,7 @@ public class CostCentreRuleEngineTests
     private CostCentreRuleEngine GetInstance()
     {
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
-			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
+			new(Mammon.Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
 		};
 
 		IConfiguration configuration = new ConfigurationBuilder()
