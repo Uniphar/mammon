@@ -9,7 +9,6 @@ public class TenantWorkflowTests
 	private static string? _reportSubject = string.Empty;
 	private static string? _fromEmail = string.Empty;
 	private static string? _toEmail = string.Empty;
-
 	private static CancellationToken _cancellationToken;
 
 	[ClassInitialize]
@@ -17,7 +16,7 @@ public class TenantWorkflowTests
 	{
 		_cancellationToken = testContext.CancellationTokenSource.Token;
 
-		var kvUrl = Environment.GetEnvironmentVariable(Mammon.Consts.ConfigKeyVaultConfigEnvironmentVariable);
+		var kvUrl = Environment.GetEnvironmentVariable(Consts.ConfigKeyVaultConfigEnvironmentVariable);
 		ArgumentException.ThrowIfNullOrWhiteSpace(kvUrl, nameof(kvUrl));
 
 		DefaultAzureCredential azureCredential = new();
@@ -29,8 +28,13 @@ public class TenantWorkflowTests
 		var sbConnectionString = config[Consts.DotFlyerSBConnectionStringConfigKey];
 
 		_reportSubject = config[Consts.ReportSubjectConfigKey];
+		ArgumentException.ThrowIfNullOrWhiteSpace(_reportSubject);
+
 		_fromEmail = config[Consts.ReportFromAddressConfigKey];
+		ArgumentException.ThrowIfNullOrWhiteSpace(_fromEmail);
+
 		_toEmail = config[Consts.ReportToAddressesConfigKey];
+		ArgumentException.ThrowIfNullOrWhiteSpace(_toEmail);
 
 		_serviceBusClient = new(sbConnectionString, azureCredential);
 		_serviceBusSender = _serviceBusClient.CreateSender(Consts.MammonServiceBusTopicName);
@@ -66,14 +70,19 @@ public class TenantWorkflowTests
 
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, reportId);
-		EmailData emailData = await _cslQueryProvider!.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
+
+		EmailData emailData = await _cslQueryProvider!
+			.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
 		
 		emailData.Should().NotBeNull();
 		emailData.FromEmail.Should().Be(_fromEmail);
 		emailData.FromName.Should().Be(_fromEmail);
 		emailData.Attachments.Should().NotBeEmpty();
 
-		var expectedToContacts = _toEmail!.Split(';').Select(e => new Contact { Name = e, Email = e });
+		var expectedToContacts = _toEmail!
+			.SplitEmailContacts()
+			.Select(e => new Contact { Name = e, Email = e });
+
 		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
 	}
 

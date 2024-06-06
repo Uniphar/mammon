@@ -4,7 +4,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 {
 	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
 	private string BlobStorageContainerName => configuration[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
-	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]!.Split(',');
+	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]!.SplitEmailContacts();
 	private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey]!;
 
 	public async Task<(string reportBody, string attachmentUri)> GenerateReportAsync(CostReportRequest reportRequest)
