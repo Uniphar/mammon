@@ -76,7 +76,7 @@ jobs:
 
               $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
 
-              echo "MAMMON_CONFIG_KEYVAULT_URL=http://$AzureKeyVaultName.vault.azure.net" >> $env:GITHUB_ENV
+              echo "MAMMON_CONFIG_KEYVAULT_URL=https://$AzureKeyVaultName.vault.azure.net" >> $env:GITHUB_ENV
             }
             catch {
               Write-Error $_
