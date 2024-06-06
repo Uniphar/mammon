@@ -40,7 +40,7 @@ builder.Services
             Enabled = false
         };
     });
-
+blah
 builder.Services
     .AddTransient((sp) => new ArmClient(defaultAzureCredentials))
     .AddTransient<AzureAuthHandler>()
