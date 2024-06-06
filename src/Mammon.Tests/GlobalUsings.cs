@@ -2,7 +2,6 @@
 global using Azure.Identity;
 global using Azure.Messaging.ServiceBus;
 global using Azure.ResourceManager;
-global using Azure.Security.KeyVault.Secrets;
 global using Azure.Storage.Blobs;
 global using DotFlyer.Common.Payload;
 global using FluentAssertions;
@@ -22,3 +21,4 @@ global using Moq;
 global using Polly;
 global using RichardSzalay.MockHttp;
 global using System.Globalization;
+global using System.Text.Json;

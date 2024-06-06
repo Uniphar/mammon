@@ -85,4 +85,4 @@ jobs:
 
       - name: run integration tests
         working-directory: ./src/${{ inputs.applicationFolder }}.Tests
-        run: dotnet test --filter TestCategory=Integration
+        run: dotnet test --filter TestCategory=IntegrationTest

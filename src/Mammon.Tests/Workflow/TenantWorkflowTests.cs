@@ -3,16 +3,17 @@
 [TestClass, TestCategory("IntegrationTest")]
 public class TenantWorkflowTests
 {
-	private static SecretClient? kvClient;
 	private static ServiceBusClient? _serviceBusClient;
 	private static ServiceBusSender? _serviceBusSender;
 	private static ICslQueryProvider? _cslQueryProvider;
 	private static string? _reportSubject = string.Empty;
+	private static string? _fromEmail = string.Empty;
+	private static string? _toEmail = string.Empty;
 
 	private static CancellationToken _cancellationToken;
 
 	[ClassInitialize]
-	public static async Task Initialize(TestContext testContext)
+	public static void Initialize(TestContext testContext)
 	{
 		_cancellationToken = testContext.CancellationTokenSource.Token;
 
@@ -25,14 +26,14 @@ public class TenantWorkflowTests
 		configurationBuilder.AddAzureKeyVault(new Uri(kvUrl), azureCredential);
 		var config = configurationBuilder.Build();
 
-		kvClient = new(new Uri(kvUrl), azureCredential);
+		var sbConnectionString = config[Consts.DotFlyerSBConnectionStringConfigKey];
 
-		var sbConnectionString = config[Mammon.Consts.DotFlyerSBConnectionStringConfigKey];
-
-		_reportSubject = config[Mammon.Consts.ReportSubjectConfigKey];
+		_reportSubject = config[Consts.ReportSubjectConfigKey];
+		_fromEmail = config[Consts.ReportFromAddressConfigKey];
+		_toEmail = config[Consts.ReportToAddressesConfigKey];
 
 		_serviceBusClient = new(sbConnectionString, azureCredential);
-		_serviceBusSender = _serviceBusClient.CreateSender(Mammon.Consts.MammonServiceBusTopicName);
+		_serviceBusSender = _serviceBusClient.CreateSender(Consts.MammonServiceBusTopicName);
 
 		var _adxHostAddress = config["AzureDataExplorer:HostAddress"];
 
@@ -46,55 +47,46 @@ public class TenantWorkflowTests
 	[TestMethod]
 	public async Task WorkflowFinishesAndSendsEmailAsync()
 	{
-		//send report request to SB Topic to wake up Mammon
+		//send report request to SB Topic to wake up Mammon instance
 		var reportId = Guid.NewGuid().ToString();
 
 		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
 		{
-			Body = BinaryData.FromObjectAsJson(new 
+			Body = BinaryData.FromObjectAsJson(new
 			{
-				data = new CostReportRequest 
-					{
-						ReportId = reportId, 
-						CostFrom = DateTime.UtcNow.AddDays(-1), 
-						CostTo = DateTime.UtcNow 
-					}
-				}),
+				data = new CostReportRequest
+				{
+					ReportId = reportId,
+					CostFrom = DateTime.UtcNow.AddDays(-1),
+					CostTo = DateTime.UtcNow
+				}
+			}),
 			ContentType = "application/json",
 		});
 
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, reportId);
 		EmailData emailData = await _cslQueryProvider!.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
+		
 		emailData.Should().NotBeNull();
-		//emailData.Attachments.Should().NotBeEmpty();//TODO: this needs fix in the common model
+		emailData.FromEmail.Should().Be(_fromEmail);
+		emailData.FromName.Should().Be(_fromEmail);
+		emailData.Attachments.Should().NotBeEmpty();
+
+		var expectedToContacts = _toEmail!.Split(';').Select(e => new Contact { Name = e, Email = e });
+		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
 	}
 
-	public class EmailData : EmailMessage
+	public class EmailData 
 	{
 		public required string FromEmail { get; set; }
 
 		public required string FromName { get; set; }
 
-		public new required string To { get; set; }
+		public required string Attachments { get; set; }
 
-		public new required string Cc { get; set; }
+		public IList<Contact>? ToList => JsonSerializer.Deserialize<IList<Contact>>(To);
 
-		public new required string Attachments { get; set; }
-
-		public new required string Tags { get; set; }
-
-		public required int SendGridStatusCodeInt { get; set; }
-
-		public required string SendGridStatusCodeString { get; set; }
-
-		public required string SendGridResponseContent { get; set; }
-
-		public required DateTime IngestDateTimeUtc { get; set; }
-
-		public class Attachment(string URI)
-		{
-			public string URI { get; } = URI;
-		}
+		public required string To { get; set; }
 	}
 }
