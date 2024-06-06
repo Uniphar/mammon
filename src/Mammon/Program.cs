@@ -51,7 +51,7 @@ builder.Services
     .AddAzureClients(clientBuilder =>
     {
         var blobServiceConnectionString = builder.Configuration[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey] 
-        ?? throw new InvalidOperationException("DotFlyer Blob Storage connection string is invalid");
+            ?? throw new InvalidOperationException("DotFlyer Blob Storage connection string is invalid");
 
 		clientBuilder.AddBlobServiceClient(new Uri(blobServiceConnectionString));
         clientBuilder.AddServiceBusClientWithNamespace(builder.Configuration[Consts.DotFlyerSBConnectionStringConfigKey] ?? throw new InvalidOperationException("DotFlyer SB connection string is invalid"));
