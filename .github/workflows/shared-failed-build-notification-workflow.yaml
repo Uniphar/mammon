@@ -1,0 +1,138 @@
+name: Shared Failed Build Notification Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      workflowId:
+        description: 'The ID of the workflow run'
+        required: true
+        type: number
+      repository:
+        description: 'The repository name'
+        required: true
+        type: string
+      timeout:
+        type: number
+        description: 'Timeout in minutes'
+        required: false
+        default: 360 # (6 hours = 6 * 60 minutes = 360 minutes)
+
+jobs:
+  Notifications:
+    name: 'Notify on Failed Build Result'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Notify Build Failure Result to Teams
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: azure/powershell@v2
+      with:
+        inlineScript: |
+          # Get the workflow run details
+          $workflow_run = gh api repos/${{ inputs.repository }}/actions/runs/${{ inputs.workflowId }} -H "Authorization: Bearer $env:GH_TOKEN" | ConvertFrom-Json
+          
+          # Get the job details
+          $jobs = (gh api $workflow_run.jobs_url | ConvertFrom-Json).jobs
+
+          $title = $workflow_run.name
+          $JobName = ""
+          $JobStatus = ""
+          $JobConclusion = ""
+          $JobFailLog = ""
+
+          foreach ($job in $jobs) {
+
+            if ($job.conclusion -eq "failure") {
+
+              # Get the job duration
+              $DateStarted = Get-Date($job.created_at)
+              $DateUpdated = Get-Date($job.completed_at)
+
+              $job_duration = [Math]::Abs(($DateUpdated - $DateStarted).TotalMinutes)
+                      
+              # Compare the job duration to the timeout value (in Minutes)
+              if ($job_duration -ge ${{ inputs.timeout }}) {
+
+                $reason = "Workflow Timed out ⏱️"
+                $JobName = $job.name
+                $JobStatus = $job.status
+                $JobConclusion = $job.conclusion
+
+                Exit 0
+              
+                } else {
+                
+                $JobName = $job.name
+                $JobStatus = $job.status
+                $JobConclusion = $job.conclusion
+
+                break
+              }
+            }
+          }
+
+          # Send a message to Teams when the job fails
+
+          $jsonContent = @"
+          {
+              "@type": "MessageCard",
+              "@context": "https://schema.org/extensions",
+              "summary": "Workflow $title Failed",
+              "themeColor": "ff0000",
+              "title": "$title - Workflow failed 💥",
+              "sections": [
+                  {
+                      "facts": [
+                          {
+                              "name": "Created:",
+                              "value": "$($workflow_run.created_at)"
+                          },
+                          {
+                              "name": "Updated:",
+                              "value": "$($workflow_run.updated_at)"
+                          },
+                          {
+                              "name": "Trigger:",
+                              "value": "$($workflow_run.event)"
+                          },
+                          {
+                              "name": "Author:",
+                              "value": "$($workflow_run.actor.login)"
+                          },
+                          {
+                              "name": "Repository:",
+                              "value": "$($workflow_run.head_repository.name)"
+                          },
+                          {
+                              "name": "Branch:",
+                              "value": "$($workflow_run.head_branch)"
+                          },
+                          {
+                              "name": "Details:",
+                              "value": "<strong>Name</strong>: $JobName<br /><strong>Status</strong>: $JobStatus<br /><strong>Conclusion</strong>: $JobConclusion<br />"
+                          }
+                      ]
+                  }
+              ],
+              "potentialAction": [
+                  {
+                      "@type": "OpenUri",
+                      "name": "View on GitHub",
+                      "targets": [
+                          {
+                              "os": "default",
+                              "uri": "$($workflow_run.html_url)"
+                          }
+                      ]
+                  }
+              ]
+          }
+          "@
+          
+          $jsonContent | Out-File -FilePath message.json
+
+          # Send a POST request
+          Invoke-RestMethod -Uri ${{ secrets.TEAMS_WEBHOOK }} -Method Post -Body (Get-Content -Path message.json -Raw) -ContentType 'application/json'
+        azPSVersion: "latest"
+        errorActionPreference: 'stop'
+        failOnStandardError: true

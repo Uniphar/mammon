@@ -118,5 +118,26 @@ jobs:
           echo "${{ steps.acrLogin.outputs.ACR_TOKEN }}" | helm registry login $ACR_NAME.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
           helm push $APPLICATION_NAME-$APPLICATION_VERSION.tgz oci://$ACR_NAME.azurecr.io/helm
     
+  notify:
+    needs: package
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+    steps:
+      - name: gh-app-install token
+        id: gh-app
+        uses: getsentry/action-github-app-token@v2
+        with:
+          app_id: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+          private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+
+      - uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: 'shared-failed-build-notification-workflow.yaml'
+          inputs: '{
+              "workflowId":"${{ github.run_id }}", 
+              "repository":"${{ github.repository }}"
+            }'
+          token: ${{ steps.gh-app.outputs.token }}
+
     outputs:
       applicationVersion: ${{ env.APPLICATION_VERSION }}
