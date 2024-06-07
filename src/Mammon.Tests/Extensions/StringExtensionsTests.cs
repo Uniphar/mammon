@@ -23,4 +23,16 @@ public class StringExtensionsTests
 
         ret.Should().Be(expected);
     }
+
+    [DataTestMethod]
+    [DataRow("a@b.c, d@e.f ","a@b.c", "d@e.f")]
+	[DataRow("a@b.c, ", "a@b.c")]
+    [DataRow("")]
+	[DataRow(null)]
+	public void SplitEmailContactsTests(string input, params string[] expectedItems)
+    {
+        var ret = input.SplitEmailContacts();
+
+		ret.Should().BeEquivalentTo(expectedItems);
+	}
 }
