@@ -3,7 +3,7 @@
 /// <summary>
 /// this class defines properties and logic of cost centre rule
 /// this is what logically maps resources to cost centres
-    /// 
+/// 
 /// regular expressions supported for resource name, resource group name, resource type
 /// </summary>
 public class CostCentreRule
