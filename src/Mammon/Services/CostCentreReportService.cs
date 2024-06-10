@@ -198,10 +198,11 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	{
 		var now = timeProvider.GetLocalNow();
 
-		var first = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0,0,0)
+		var first = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
 			.AddMonths(-1);
 
-		var last = first.AddDays(first.EndOfMonth().Day).AddSeconds(-1);
+		var last = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
+			.AddSeconds(-1);
 
 		return new CostReportRequest { CostFrom = first, CostTo = last, ReportId = first.ToString("yyMM") };
 	}
