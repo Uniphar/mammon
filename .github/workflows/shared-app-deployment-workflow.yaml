@@ -162,3 +162,24 @@ jobs:
           --set-string SBNamespaceName="$SB_NAMESPACE"
           -n devops
           --atomic
+
+  notify:
+    needs: deploy_app
+    runs-on: ubuntu-latest
+    if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
+    steps:
+      - name: gh-app-install token
+        id: gh-app
+        uses: getsentry/action-github-app-token@v2
+        with:
+          app_id: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+          private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+
+      - uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: 'shared-failed-build-notification-workflow.yaml'
+          inputs: '{
+              "workflowId":"${{ github.run_id }}", 
+              "repository":"${{ github.repository }}"
+            }'
+          token: ${{ steps.gh-app.outputs.token }}

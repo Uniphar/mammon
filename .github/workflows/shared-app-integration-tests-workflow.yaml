@@ -76,7 +76,7 @@ jobs:
 
               $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
 
-              echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
+              echo "MAMMON_CONFIG_KEYVAULT_URL=https://$AzureKeyVaultName.vault.azure.net" >> $env:GITHUB_ENV
             }
             catch {
               Write-Error $_
@@ -85,4 +85,4 @@ jobs:
 
       - name: run integration tests
         working-directory: ./src/${{ inputs.applicationFolder }}.Tests
-        run: dotnet test --filter TestCategory=Integration
+        run: dotnet test --filter TestCategory=IntegrationTest

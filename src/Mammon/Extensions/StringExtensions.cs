@@ -30,4 +30,15 @@ public static class StringExtensions
 
         return value;
     }
+
+    public static IList<string> SplitEmailContacts(this string value)
+	{
+		if (string.IsNullOrWhiteSpace(value))
+		{
+			return [];
+		}
+
+		return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+					.ToList();
+	}
 }

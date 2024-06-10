@@ -6,7 +6,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
 {	
 	[HttpGet()]
     [HttpPost()]
-    [Topic("mammon-pub-sub", "ReportRequests")]
+    [Topic(Consts.MammonPubSubCRDName, Consts.MammonServiceBusTopicName)]
     public async Task<StatusCodeResult> Invoke(CloudEvent<CostReportRequest> @event)
     {
         ArgumentNullException.ThrowIfNull(@event, nameof(@event));
@@ -60,7 +60,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
     [HttpPost]
     public async Task Cron([FromServices] DaprClient daprClient)
     {
-        await daprClient.PublishEventAsync("mammon-pub-sub", "ReportRequests", costCentreReportService.GenerateDefaultReportRequest());
+        await daprClient.PublishEventAsync(Consts.MammonPubSubCRDName, Consts.MammonServiceBusTopicName, costCentreReportService.GenerateDefaultReportRequest());
     }
 
 #if DEBUG

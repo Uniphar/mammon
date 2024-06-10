@@ -1,9 +1,4 @@
-﻿using static Microsoft.Azure.Amqp.Serialization.SerializableType;
-using System.IO.Hashing;
-using System.Reflection.Metadata;
-using System;
-
-namespace Mammon.Tests.Services;
+﻿namespace Mammon.Tests.Services;
 
 [TestClass]
 [TestCategory("UnitTest")]
