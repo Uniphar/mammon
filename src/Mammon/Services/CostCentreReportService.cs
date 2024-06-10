@@ -254,7 +254,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 				.WithMessage("DotFlyer blob storage container name must not be empty");
 
 			RuleFor(x => x[Consts.ReportBillingPeriodStartDayInMonthConfigKey]).NotEmpty().Must(x => int.TryParse(x, out var parsed) && parsed>= 1 && parsed<=31)
-				.WithMessage("Cost Centre Report Billing Period Start Day In Month must be a numer between 1 and 31 - inclusive");
+				.WithMessage("Cost Centre Report Billing Period Start Day In Month must be a number between 1 and 31 - inclusive");
 		}
 	}
 }
