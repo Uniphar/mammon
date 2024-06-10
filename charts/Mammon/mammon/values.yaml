@@ -4,5 +4,8 @@ service:
   type: ClusterIP
   port: 80
 
+cron:
+  BillingPeriodStartDayInMonth: << passed from pipeline >>
+
 dapr:
   port: 8082

@@ -7,6 +7,6 @@ spec:
   version: v1
   metadata:
   - name: schedule
-    value: "0 0 1 1 * *" #monthly 1AM of 1st (or about then)
+    value: "0 0 1 {{ .Values.cron.BillingPeriodStartDayInMonth }} * *" #monthly 1AM of day after billing period ends (or about then)
   - name: route
     value: "api/mammon/cron"
