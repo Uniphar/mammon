@@ -64,9 +64,9 @@ public class CostCentreReportServiceTests
 	[DataRow("2024-03-01 01:00:00", 1, "2024-02-01 00:00:00", "2024-02-29 23:59:59")] //leap year -cycle of 1st
 	[DataRow("2023-03-01 01:00:00", 1, "2023-02-01 00:00:00", "2023-02-28 23:59:59")] //non leap year -cycle of 1st
 	[DataRow("2024-01-01 01:00:00", 1, "2023-12-01 00:00:00", "2023-12-31 23:59:59")] //new year's -cycle of 1st
-	[DataRow("2024-03-01 01:00:00", 7, "2024-02-07 00:00:00", "2024-03-06 23:59:59")] //leap year -cycle of 7st
-	[DataRow("2023-03-01 01:00:00", 7, "2023-02-07 00:00:00", "2023-03-06 23:59:59")] //non leap year -cycle of 7st
-	[DataRow("2024-01-01 01:00:00", 7, "2023-12-07 00:00:00", "2024-01-06 23:59:59")] //new year's -cycle of 7st
+	[DataRow("2024-03-01 01:00:00", 7, "2024-02-07 00:00:00", "2024-03-06 23:59:59")] //leap year -cycle of 7th
+	[DataRow("2023-03-01 01:00:00", 7, "2023-02-07 00:00:00", "2023-03-06 23:59:59")] //non leap year -cycle of 7th
+	[DataRow("2024-01-01 01:00:00", 7, "2023-12-07 00:00:00", "2024-01-06 23:59:59")] //new year's -cycle of 7th
 	public void GenerateDefaultReportRequestTest(string dtNow, int billingPeriodStart,  string expectedFromDT, string expectedToDT)
 	{
 		const string expectedDTFormat = "yyyy-MM-dd HH:mm:ss";
