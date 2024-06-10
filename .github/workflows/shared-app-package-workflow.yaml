@@ -117,7 +117,9 @@ jobs:
         run: |
           echo "${{ steps.acrLogin.outputs.ACR_TOKEN }}" | helm registry login $ACR_NAME.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
           helm push $APPLICATION_NAME-$APPLICATION_VERSION.tgz oci://$ACR_NAME.azurecr.io/helm
-    
+    outputs:
+      applicationVersion: ${{ env.APPLICATION_VERSION }}
+
   notify:
     needs: package
     runs-on: ubuntu-latest
@@ -138,6 +140,3 @@ jobs:
               "repository":"${{ github.repository }}"
             }'
           token: ${{ steps.gh-app.outputs.token }}
-
-    outputs:
-      applicationVersion: ${{ env.APPLICATION_VERSION }}
