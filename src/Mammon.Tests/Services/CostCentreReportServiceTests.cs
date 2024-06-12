@@ -59,11 +59,15 @@ public class CostCentreReportServiceTests
 
 
 	[DataTestMethod]
-	[DataRow("2024-04-15 22:15:26", "2024-03-01 00:00:00", "2024-03-31 23:59:59")]
-	[DataRow("2024-03-01 01:00:00", "2024-02-01 00:00:00", "2024-02-29 23:59:59")] //leap year
-	[DataRow("2023-03-01 01:00:00", "2023-02-01 00:00:00", "2023-02-28 23:59:59")] //non leap year
-	[DataRow("2024-01-01 01:00:00", "2023-12-01 00:00:00", "2023-12-31 23:59:59")] //new year's
-	public void GenerateDefaultReportRequestTest(string dtNow, string expectedFromDT, string expectedToDT)
+	[DataRow("2024-04-15 22:15:26", 3, "2024-03-03 00:00:00", "2024-04-02 23:59:59")] //ordinary date - cycle of 1st
+	[DataRow("2024-04-15 22:15:26", 7, "2024-03-07 00:00:00", "2024-04-06 23:59:59")] //ordinary date - cycle of 7th
+	[DataRow("2024-03-01 01:00:00", 1, "2024-02-01 00:00:00", "2024-02-29 23:59:59")] //leap year -cycle of 1st
+	[DataRow("2023-03-01 01:00:00", 1, "2023-02-01 00:00:00", "2023-02-28 23:59:59")] //non leap year -cycle of 1st
+	[DataRow("2024-01-01 01:00:00", 1, "2023-12-01 00:00:00", "2023-12-31 23:59:59")] //new year's -cycle of 1st
+	[DataRow("2024-03-01 01:00:00", 7, "2024-02-07 00:00:00", "2024-03-06 23:59:59")] //leap year -cycle of 7th
+	[DataRow("2023-03-01 01:00:00", 7, "2023-02-07 00:00:00", "2023-03-06 23:59:59")] //non leap year -cycle of 7th
+	[DataRow("2024-01-01 01:00:00", 7, "2023-12-07 00:00:00", "2024-01-06 23:59:59")] //new year's -cycle of 7th
+	public void GenerateDefaultReportRequestTest(string dtNow, int billingPeriodStart,  string expectedFromDT, string expectedToDT)
 	{
 		const string expectedDTFormat = "yyyy-MM-dd HH:mm:ss";
 
@@ -71,8 +75,16 @@ public class CostCentreReportServiceTests
 		var testTimeProvider = new FakeTimeProvider();
 		
 		testTimeProvider.SetUtcNow(new(DateTime.ParseExact(dtNow, expectedDTFormat, CultureInfo.InvariantCulture)));
-		
-		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
+
+		var inMemorySettings = new List<KeyValuePair<string, string>> {
+			new(Consts.ReportBillingPeriodStartDayInMonthConfigKey, billingPeriodStart.ToString(CultureInfo.InvariantCulture))
+		};
+
+		IConfiguration configuration = new ConfigurationBuilder()
+			.AddInMemoryCollection(inMemorySettings!)
+			.Build();
+
+		var sut = new CostCentreReportService(configuration, GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
 
 		//act
 		var result = sut.GenerateDefaultReportRequest();

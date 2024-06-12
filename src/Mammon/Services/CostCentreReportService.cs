@@ -6,6 +6,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	private string BlobStorageContainerName => configuration[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
 	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]!.SplitEmailContacts();
 	private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey]!;
+	private int ReportBillingPeriodStartDayInMonth => int.Parse(configuration[Consts.ReportBillingPeriodStartDayInMonthConfigKey]!);
 
 	public async Task<(string reportBody, string attachmentUri)> GenerateReportAsync(CostReportRequest reportRequest)
 	{
@@ -195,9 +196,11 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	{
 		var now = timeProvider.GetLocalNow();
 
-		var month = new DateTime(now.Year, now.Month, 1, 0,0,0);
-		var first = month.AddMonths(-1);
-		var last = month.AddSeconds(-1);
+		var first = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
+			.AddMonths(-1);
+
+		var last = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
+			.AddSeconds(-1);
 
 		return new CostReportRequest { CostFrom = first, CostTo = last, ReportId = first.ToString("yyMM") };
 	}
@@ -247,6 +250,9 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 
 			RuleFor(x => x[Consts.DotFlyerAttachmentsContainerNameConfigKey]).NotEmpty()
 				.WithMessage("DotFlyer blob storage container name must not be empty");
+
+			RuleFor(x => x[Consts.ReportBillingPeriodStartDayInMonthConfigKey]).NotEmpty().Must(x => int.TryParse(x, out var parsed) && parsed>= 1 && parsed<=31)
+				.WithMessage("Cost Centre Report Billing Period Start Day In Month must be a number between 1 and 31 - inclusive");
 		}
 	}
 }

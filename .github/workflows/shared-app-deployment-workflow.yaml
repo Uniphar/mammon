@@ -93,6 +93,9 @@ jobs:
             $AKSClusterSAID = Get-AzADServicePrincipal -DisplayName $AKSClusterSAName | Select-Object -ExpandProperty Id
             $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
             $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
+            $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
+            $cronDayOfMonth = (ConvertFrom-SecureString $cronDayOfMonthSecret.SecretValue -AsPlainText)
+            $cronDayOfMonth = [int]$cronDayOfMonth+1
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
@@ -103,6 +106,7 @@ jobs:
             echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
             echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
             echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
+            echo "CRON_DAY_OF_MONTH=$cronDayOfMonth" >> $env:GITHUB_ENV
           azPSVersion: "latest"
           errorActionPreference: 'stop'
           failOnStandardError: true  
@@ -160,6 +164,7 @@ jobs:
           --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
           --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
           --set-string SBNamespaceName="$SB_NAMESPACE"
+          --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}
           -n devops
           --atomic
 

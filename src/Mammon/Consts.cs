@@ -8,8 +8,9 @@ public static class Consts
 	public const string MammonPubSubCRDName = "mammon-pub-sub";
 
 	public const string ConfigKeyVaultConfigEnvironmentVariable = "MAMMON_CONFIG_KEYVAULT_URL";
-	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
 	public const string CostCentreRuleEngineFilePathConfigKey = "Mammon:CostCentreRuleEngineFilePath";
+
+	public const string ReportBillingPeriodStartDayInMonthConfigKey = "Mammon:ReportSettings:BillingPeriodStartDayInMonth";
 
 	public const string ReportSubjectConfigKey = "Mammon:EmailSettings:SubjectFormat";
 	public const string ReportToAddressesConfigKey = "Mammon:EmailSettings:ToAddresses";
@@ -19,4 +20,8 @@ public static class Consts
 
 	public const string DotFlyerAttachmentsBlobStorageConnectionStringConfigKey = "Mammon:DotFlyer:AttachmentsBlobStorageConnectionString";
 	public const string DotFlyerAttachmentsContainerNameConfigKey = "Mammon:DotFlyer:AttachmentsBlobStorageContainerName";
+
+#if (DEBUG)        
+	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
+#endif
 }
