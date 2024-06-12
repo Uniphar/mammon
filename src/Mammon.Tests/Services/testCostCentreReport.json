@@ -20,18 +20,14 @@
   },
   "Rules": [
     {
-      "CostCentres": [
-        "CostCentreA"
-      ],
+      "CostCentre": "CostCentreA",
       "Tags": {
         "tagAName": "tagAValue",
         "tagBName": "tagBValue"
       }
     },    
     {
-      "CostCentres": [
-        "CostCentreB"
-      ],
+      "CostCentre": "CostCentreB",
       "IsDefault": true
     }
   ]

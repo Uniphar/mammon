@@ -8,14 +8,13 @@
 /// </summary>
 public class CostCentreRule
 {
-	public string[] CostCentres { get; set; } = [];
+	public string CostCentre { get; set; } = string.Empty;
 	public string? ResourceNameMatchPattern { get; set; }
 	public IDictionary<string, string>? Tags { get; set; }
 	public string? ResourceGroupNameMatchPattern { get; set; }
 	public string? SubscriptionId { get; set; }
 	public string? ResourceTypeMatchPattern { get; set; }
 	public bool IsDefault { get; set; }
-	public bool IsSplittable => CostCentres.Length > 1;
 
 	private Regex? _resourceGroupNameRegExp;
 	public Regex? ResourceGroupNameRegExp => GetRegExp(ResourceGroupNameMatchPattern, ref _resourceGroupNameRegExp);
@@ -107,10 +106,10 @@ public class CostCentreRuleValidator : AbstractValidator<CostCentreRule>
 {
 	public CostCentreRuleValidator()
 	{
-		RuleFor(x => x.CostCentres).NotEmpty().WithMessage("Cost Centre list cannot be empty");
-		RuleFor(x => x).Must(i => i.IsDefault || (!i.IsDefault && (!string.IsNullOrWhiteSpace(i.SubscriptionId) || !string.IsNullOrWhiteSpace(i.ResourceNameMatchPattern) || !string.IsNullOrWhiteSpace(i.ResourceGroupNameMatchPattern)
-			|| !string.IsNullOrWhiteSpace(i.ResourceTypeMatchPattern) || (i.Tags != null && i.Tags.Count > 0))))
-			.WithMessage("if non-default rule, one differentiator must be set");
+		RuleFor(x => x.CostCentre).NotEmpty().WithMessage("Cost Centre must be assigned");
+		RuleFor(x => x).Must(i => !i.IsDefault && (!string.IsNullOrWhiteSpace(i.SubscriptionId) || !string.IsNullOrWhiteSpace(i.ResourceNameMatchPattern) || !string.IsNullOrWhiteSpace(i.ResourceGroupNameMatchPattern)
+			|| !string.IsNullOrWhiteSpace(i.ResourceTypeMatchPattern) || (i.Tags != null && i.Tags.Count > 0)))
+			.WithMessage("At least one differentiator must be set");
 
 		RuleFor(x => x.ResourceGroupNameMatchPattern).Must((s) =>
 		{

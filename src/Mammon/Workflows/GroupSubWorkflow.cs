@@ -1,8 +1,8 @@
 ﻿namespace Mammon.Workflows;
 
-public class ResourceGroupSubWorkflow : Workflow<ResourceGroupSubWorkflowRequest, bool>
+public class GroupSubWorkflow : Workflow<GroupSubWorkflowRequest, bool>
 {
-    public override async Task<bool> RunAsync(WorkflowContext context, ResourceGroupSubWorkflowRequest input)
+    public override async Task<bool> RunAsync(WorkflowContext context, GroupSubWorkflowRequest input)
     {
         ArgumentNullException.ThrowIfNull(nameof(input));
 

@@ -12,8 +12,10 @@
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="*" />
     <PackageReference Include="Azure.Identity" Version="*" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="*" />
+    <PackageReference Include="Azure.Monitor.Query" Version="*" />
     <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
+    <PackageReference Include="Azure.ResourceManager.OperationalInsights" Version="*" />
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />
     <PackageReference Include="CsvHelper" Version="*" />
     <PackageReference Include="Dapr.AspNetCore" Version="*-*" />

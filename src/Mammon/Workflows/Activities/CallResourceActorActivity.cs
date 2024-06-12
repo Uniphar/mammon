@@ -27,7 +27,7 @@ public class CallResourceActorActivity(DaprClient client, IConfiguration configu
 
         var actorId = $"ResourceActor{actorGuid}";
 
-        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, "ResourceActor", async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
+        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, nameof(ResourceActor), async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
 
         return new CallResourceActorActivityResponse { ResourceActorId = actorId, ResourceId = parentResourceId };
     }

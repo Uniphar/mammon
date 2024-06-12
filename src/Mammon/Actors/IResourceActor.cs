@@ -13,8 +13,17 @@ public interface IResourceActor : IActor
     Task AddCostAsync(string costId, ResourceCost cost, string parentResourceId, Dictionary<string, string> tags);
 
     /// <summary>
-    /// determine cost centres and their respective monetary share for this resource's costs
+    /// determine cost centre
     /// </summary>
-    /// <returns>cost centre and their monetary share value mapping</returns>
-    Task<IDictionary<string, ResourceCost>> AssignCostCentreCosts();
+    /// <returns>cost centre</returns>
+    Task<(string costCentre, ResourceCost cost)> AssignCostCentre();
+
+    /// <summary>
+    /// returns the assigned cost centre for this resource and flag indicating if it was assigned
+    /// 
+    /// actor NOT assigned cost centre would indicate that the particular actor id has not been seen yet
+    /// (e.g. perhaps not bearing a direct cost and thus not returned by Cost API)s
+    /// </summary>
+    /// <returns>tuple with cost centre and assigned flag</returns>
+    Task<(string? costCentre, bool assigned)> GetAssignedCostCentre();
 }

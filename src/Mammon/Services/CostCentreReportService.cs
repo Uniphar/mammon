@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, ServiceBusClient serviceBusClient, IServiceProvider sp, TimeProvider timeProvider, BlobServiceClient blobServiceClient)
+public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, CostCentreService costCentreService, ServiceBusClient serviceBusClient, IServiceProvider sp, TimeProvider timeProvider, BlobServiceClient blobServiceClient)
 {
 	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
 	private string BlobStorageContainerName => configuration[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
@@ -12,7 +12,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 	{
 		ArgumentNullException.ThrowIfNull(reportRequest);
 		
-		Dictionary<string, CostCentreActorState> costCentreStates = await RetrieveCostCentreStatesAsync(reportRequest.ReportId);
+		Dictionary<string, CostCentreActorState> costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportRequest.ReportId);
 
 		var viewModel = BuildViewModel(reportRequest, costCentreStates);
 
@@ -97,24 +97,6 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		} while (processedNode!=null && processedNode.Type != CostCentreReportNodeType.Root);
 
 		return sb.ToString();
-	}
-
-	private async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId)
-	{
-		var costCentres = costCentreRuleEngine.CostCentres;
-
-		Dictionary<string, CostCentreActorState> costCentreStates = [];
-
-		foreach (var costCentre in costCentres)
-		{
-			var state = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor, CostCentreActorState>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.GetCostsAsync());
-			if (state != null)
-			{
-				costCentreStates.Add(costCentre, state);
-			}
-		}
-
-		return costCentreStates;
 	}
 
 	public static void ValidateConfiguration(IConfiguration configuration)

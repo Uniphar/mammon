@@ -8,13 +8,15 @@
 public class CostCentreRuleEngine
 {
     private readonly IConfiguration configuration;
-    private IEnumerable<CostCentreRule> CostCentreRules { get; set; } = [];
+    private IList<CostCentreRule> CostCentreRules { get; set; } = [];
     public IList<SubscriptionDefinition> Subscriptions { get; internal set; } = [];
     public IEnumerable<string> CostCentres { get; internal set; } = [];
+    public string DefaultCostCentre { get; set;} = string.Empty;
     public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
     public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
     public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
 	public IList<string> SpecialModes { get; set; } = [];
+    public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>();
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -39,9 +41,11 @@ public class CostCentreRuleEngine
 		new CostCentreDefinitionValidator().ValidateAndThrow(definition);
 
         CostCentreRules = definition.Rules;
+		DefaultCostCentre = definition.DefaultCostCentre;
+		CostCentreRules.Add(new CostCentreRule { CostCentre = DefaultCostCentre, IsDefault = true });        
         Subscriptions = definition.Subscriptions;
         ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;
-        CostCentres = CostCentreRules.SelectMany(r => r.CostCentres).Distinct();
+        CostCentres = CostCentreRules.Select(r => r.CostCentre).Distinct();
 		SubscriptionNames = Subscriptions.Select(x => x.SubscriptionName);
         SpecialModes = definition.SpecialModes;
 		ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
@@ -67,6 +71,13 @@ public class CostCentreRuleEngine
             .FirstOrDefault(); //default rule is always a fallback
 
         return costCentreRule;
+    }
+
+    public string GetCostCentreForAKSNamespace(string aksNS)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(aksNS);
+
+        return AKSNamespaceMapping.TryGetValue(aksNS, out string? value) ? value : DefaultCostCentre;
     }
 
     public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, ResourceCost cost)

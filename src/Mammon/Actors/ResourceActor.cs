@@ -30,26 +30,17 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
     }
 
     /// <inheritdoc/>    
-    public async Task<IDictionary<string, ResourceCost>> AssignCostCentreCosts()
+    public async Task<(string costCentre, ResourceCost cost)> AssignCostCentre()
     {
         try
         {           
             var state = await GetStateAsync();
 
             var rule = costCentreRuleEngine.FindCostCentreRule(state.ResourceId, state.Tags!);
+           
+            state.CostCentre = rule.CostCentre;
 
-            //pro-rata split if multi cost centre
-            if (rule.CostCentres.Length > 1)
-            {
-                var proRataValue = state.TotalCost.Cost/ rule.CostCentres.Length;
-                var response = new Dictionary<string, ResourceCost>();
-                foreach (var costCentre in rule.CostCentres)
-                    response.Add(costCentre, new ResourceCost(proRataValue, state.TotalCost.Currency));
-
-                return response;
-            }
-            else
-                return new Dictionary<string, ResourceCost> { { rule.CostCentres.First(), state.TotalCost } };
+            return (rule.CostCentre, state.TotalCost);
         }
         catch (Exception ex)
         {
@@ -58,7 +49,23 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
         }
     }
 
-    private async Task<ResourceActorState> GetStateAsync()
+    /// <inheritdoc/>
+	public async Task<(string? costCentre, bool assigned)> GetAssignedCostCentre()
+	{
+		try
+		{
+            var state = await GetStateAsync();
+
+            return (state.CostCentre, string.IsNullOrWhiteSpace(state.CostCentre));
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, $"Failure in ResourceActor.GetAssignedCostCentre (ActorId:{Id})");
+			throw;
+		}
+	}
+
+	private async Task<ResourceActorState> GetStateAsync()
     {
         var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(CostStateName);
         return (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;

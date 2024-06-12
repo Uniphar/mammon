@@ -23,18 +23,22 @@ builder.Services.AddControllers();
 builder.Services
     .AddDaprWorkflow((config) => { 
         config.RegisterWorkflow<SubscriptionWorkflow>();
-        config.RegisterWorkflow<ResourceGroupSubWorkflow>();
+        config.RegisterWorkflow<GroupSubWorkflow>();
         config.RegisterWorkflow<TenantWorkflow>();
+        config.RegisterWorkflow<LAWorkspaceWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
         config.RegisterActivity<AssignCostCentreActivity>();
         config.RegisterActivity<SendReportViaEmail>();
+        config.RegisterActivity<ExecuteLAWorkspaceDataQueryActivity>();
+        config.RegisterActivity<IdentityLAWorkspaceRefGapsActivity>();
+        config.RegisterActivity<SplitLAWorkspaceCostsActivity>();
     })
     .AddActors(options => {
-        // Register actor types and configure actor settings
         options.Actors.RegisterActor<ResourceActor>();
         options.Actors.RegisterActor<CostCentreActor>();
+        options.Actors.RegisterActor<LAWorkspaceActor>();
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {
             Enabled = false
@@ -47,6 +51,8 @@ builder.Services
     .AddSingleton(defaultAzureCredentials)
     .AddSingleton<CostCentreRuleEngine>()
     .AddSingleton<CostCentreReportService>()
+    .AddSingleton<CostCentreService>()
+    .AddSingleton<LogAnalyticsService>()
     .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {

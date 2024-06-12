@@ -23,9 +23,7 @@
   ],
   "Rules": [
     {
-      "CostCentres": [
-        "FullMatchMultiTag"
-      ],
+      "CostCentre": "FullMatchMultiTag",
       "ResourceNameMatchPattern": "sampleSA",
       "Tags": {
         "tagAName": "tagAValue",
@@ -36,9 +34,7 @@
       "ResourceTypeMatchPattern": "microsoft.storage/storageaccounts"
     },
     {
-      "CostCentres": [
-        "FullMatchSingleTag"
-      ],
+      "CostCentre":"FullMatchSingleTag",
       "ResourceNameMatchPattern": "sampleSA",
       "Tags": {
         "tagAName": "tagAValue"
@@ -48,9 +44,7 @@
       "ResourceTypeMatchPattern": "microsoft.storage/storageaccounts"
     },
     {
-      "CostCentres": [
-        "RGLevelMatch"
-      ],
+      "CostCentre":"RGLevelMatch",
       "Tags": {
         "tagAName": "tagAValue"
       },
@@ -58,51 +52,32 @@
       "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695"
     },
     {
-      "CostCentres": [
-        "SubLevelMatch"
-      ],
+      "CostCentre": "SubLevelMatch",
       "Tags": {
         "tagAName": "tagAValue"
       },
       "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695"
-    },
+    },  
     {
-      "CostCentres": [
-        "ResourceTypeMatch1",
-        "ResourceTypeMatch2"
-      ],
-      "ResourceTypeMatchPattern": "microsoft.containerservice/managedclusters"
-    },
-    {
-      "CostCentres": [
-        "TagsMatch"
-      ],
+      "CostCentre":"TagsMatch",
       "Tags": {
         "tagAName": "tagAValue"
       }
     },
     {
-      "CostCentres": [
-        "RegExpResourceNameMatch"
-      ],
+      "CostCentre": "RegExpResourceNameMatch",
       "ResourceNameMatchPattern": "regexpResource(-prod|-dev)"
     },
     {
-      "CostCentres": [
-        "RegExpResourceGroupNameMatch"
-      ],
+      "CostCentre": "RegExpResourceGroupNameMatch",
       "ResourceGroupNameMatchPattern": "regexpRG(-prod|-dev)"
     },
     {
-      "CostCentres": [
-        "RegExpResourceTypeNameMatch"
-      ],
+      "CostCentre": "RegExpResourceTypeNameMatch",
       "ResourceTypeMatchPattern": "microsoft.regexptest\/(.)+"
     },
     {
-      "CostCentres": [
-        "DefaultRuleMatch"
-      ],
+      "CostCentre": "DefaultRuleMatch",
       "IsDefault": true
     }
   ]

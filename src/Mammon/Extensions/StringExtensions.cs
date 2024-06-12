@@ -38,7 +38,6 @@ public static class StringExtensions
 			return [];
 		}
 
-		return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-					.ToList();
+		return [.. value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
 	}
 }
