@@ -2,17 +2,28 @@
 
 public static class StringExtensions
 {
-    public static string ToParentResourceId(this string value) 
+    public static string ToParentResourceId(this string value)
     {
-        const string providers = "/providers";
+        const string provider = "/providers/";
 
-        //we want to extract only the top level provider
-        var firstIndex = value.IndexOf(providers, StringComparison.Ordinal);
-        var lastIndex = value.LastIndexOf(providers, StringComparison.Ordinal);
-     
-        return firstIndex!=lastIndex ? value[..lastIndex] : value;
+        string[] removals = { "/extensions/" };
+
+		//we want to extract only the top level provider
+		var firstIndex = value.IndexOf(provider, StringComparison.Ordinal);
+		var lastIndex = value.LastIndexOf(provider, StringComparison.Ordinal);
+
+		value = firstIndex != lastIndex ? value[..lastIndex] : value;
+
+		foreach (var removal in removals)
+        {
+            firstIndex = value.IndexOf(removal, StringComparison.Ordinal);
+            if (firstIndex != -1)
+                value = value[..firstIndex];
+        }
+
+        return value;
     }
-
+   
     public static string RemoveSuffixes(this string value, IEnumerable<string> suffixes)
     {
         if (string.IsNullOrWhiteSpace(value) || suffixes==null || !suffixes.Any())

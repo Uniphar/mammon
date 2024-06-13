@@ -1,8 +1,8 @@
 ﻿namespace Mammon.Workflows.Activities.LogAnalytics;
 
-public class IdentityLAWorkspaceRefGapsActivity(CostCentreService costCentreService) : WorkflowActivity<IdentityMissingLAWorkspaceReferencesRequest, IEnumerable<string>>
+public class IdenfityLAWorkspaceRefGapsActivity(CostCentreService costCentreService) : WorkflowActivity<IdentifyMissingLAWorkspaceReferencesRequest, IEnumerable<string>>
 {
-	public override async Task<IEnumerable<string>> RunAsync(WorkflowActivityContext context, IdentityMissingLAWorkspaceReferencesRequest request)
+	public override async Task<IEnumerable<string>> RunAsync(WorkflowActivityContext context, IdentifyMissingLAWorkspaceReferencesRequest request)
 	{
 		var costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(request.ReportId);
 

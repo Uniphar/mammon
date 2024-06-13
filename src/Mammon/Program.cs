@@ -32,7 +32,7 @@ builder.Services
         config.RegisterActivity<AssignCostCentreActivity>();
         config.RegisterActivity<SendReportViaEmail>();
         config.RegisterActivity<ExecuteLAWorkspaceDataQueryActivity>();
-        config.RegisterActivity<IdentityLAWorkspaceRefGapsActivity>();
+        config.RegisterActivity<IdenfityLAWorkspaceRefGapsActivity>();
         config.RegisterActivity<SplitLAWorkspaceCostsActivity>();
     })
     .AddActors(options => {

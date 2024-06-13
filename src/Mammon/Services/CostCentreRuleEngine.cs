@@ -16,7 +16,7 @@ public class CostCentreRuleEngine
     public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
     public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
 	public IList<string> SpecialModes { get; set; } = [];
-    public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>();
+    public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 

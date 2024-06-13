@@ -13,8 +13,13 @@ public class LAWorkspaceWorkflow : Workflow<LAWorkspaceWorkflowRequest, bool>
 				 LAResourceId = request.LAResourceId
 			 });
 
-		var gaps = await context.CallActivityAsync<IEnumerable<string>>(nameof(IdentityLAWorkspaceRefGapsActivity),
-			new IdentityMissingLAWorkspaceReferencesRequest
+        foreach (var item in data)
+        {
+			item.Selector = item.Selector.ToParentResourceId();
+        }
+
+        var gaps = await context.CallActivityAsync<IEnumerable<string>>(nameof(IdenfityLAWorkspaceRefGapsActivity),
+			new IdentifyMissingLAWorkspaceReferencesRequest
 			{
 				ReportId = request.ReportRequest.ReportId,
 				Data = data
@@ -24,7 +29,7 @@ public class LAWorkspaceWorkflow : Workflow<LAWorkspaceWorkflowRequest, bool>
 
 		await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
 				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = gaps.Select(i=> new ResourceCostResponse { ResourceId = i, Cost = new(0, request.TotalWorkspaceCost.Currency), Tags = [] }) },
-				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
+				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
 
 		await context.CallActivityAsync<bool>(nameof(SplitLAWorkspaceCostsActivity),
 			new SplitLAWorkspaceCostsActivityRequest

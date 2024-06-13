@@ -17,6 +17,12 @@ public static class ResourceIdentifierExtensions
 		return fullRID.Substring(index+token.Length, subsequentDivider-(index + token.Length));
 	}
 
+	public static bool IsSplittableResource(this ResourceIdentifier value)
+	{
+		return value.ResourceType == "microsoft.operationalinsights/workspaces";
+	}
+
+
 	public static bool IsDevBoxPool(this ResourceIdentifier resourceIdentifier)
 	{
 		return resourceIdentifier.ResourceType.Type == "projects/pools" && resourceIdentifier.ResourceType.Namespace == "microsoft.devcenter";
