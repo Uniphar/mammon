@@ -9,7 +9,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
         
         //splittable resources are processed separately
         var rgGroups = costs
-            .Where(x => !x.ResourceIdentifier.IsSplittableResource())
+            .Where(x => !x.ResourceIdentifier.IsLogAnalyticsWorkspace())
             .GroupBy(x =>
             x.ResourceIdentifier.ResourceGroupName
         );
@@ -22,7 +22,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
         }
         
 
-        var laWorkspaces = costs.Where(x => x.ResourceIdentifier.IsSplittableResource());
+        var laWorkspaces = costs.Where(x => x.ResourceIdentifier.IsLogAnalyticsWorkspace());
         foreach (var laWorkspace in laWorkspaces)
         {
             await context.CallChildWorkflowAsync<bool>(nameof(LAWorkspaceWorkflow), new LAWorkspaceWorkflowRequest

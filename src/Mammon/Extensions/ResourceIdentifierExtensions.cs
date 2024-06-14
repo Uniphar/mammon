@@ -4,7 +4,6 @@ public static class ResourceIdentifierExtensions
 {
 	public static string GetDevBoxProjectName(this ResourceIdentifier resourceIdentifier)
 	{
-
 		if (!resourceIdentifier.IsDevBoxPool())
 			throw new InvalidOperationException("GetDevBoxPoolName can only be called for devbox resource");
 
@@ -14,10 +13,10 @@ public static class ResourceIdentifierExtensions
 		var index = fullRID.IndexOf(token);
 		var subsequentDivider = fullRID.IndexOf('/', index+token.Length);
 
-		return fullRID.Substring(index+token.Length, subsequentDivider-(index + token.Length));
+		return fullRID[(index + token.Length)..subsequentDivider];
 	}
 
-	public static bool IsSplittableResource(this ResourceIdentifier value)
+	public static bool IsLogAnalyticsWorkspace(this ResourceIdentifier value)
 	{
 		return value.ResourceType == "microsoft.operationalinsights/workspaces";
 	}

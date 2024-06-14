@@ -37,7 +37,8 @@ public class CostCentreReportServiceTests
 			}
 		};
 
-		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<CostCentreService>(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System, Mock.Of<BlobServiceClient>());
+		var testRuleEngine = GetCostCentreRuleEngineInstance();
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), testRuleEngine, new(testRuleEngine), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System, Mock.Of<BlobServiceClient>());
 
 		//act
 		var modelBuilt= sut.BuildViewModel(ReportRequest, costCentreStates);
