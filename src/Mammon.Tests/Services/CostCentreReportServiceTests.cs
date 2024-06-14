@@ -85,7 +85,8 @@ public class CostCentreReportServiceTests
 			.AddInMemoryCollection(inMemorySettings!)
 			.Build();
 
-		var sut = new CostCentreReportService(configuration, GetCostCentreRuleEngineInstance(), Mock.Of<CostCentreService>(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
+		var ruleEngine = GetCostCentreRuleEngineInstance();
+		var sut = new CostCentreReportService(configuration, ruleEngine, new(ruleEngine), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
 
 		//act
 		var result = sut.GenerateDefaultReportRequest();
