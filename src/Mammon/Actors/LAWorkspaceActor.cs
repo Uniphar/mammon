@@ -22,20 +22,20 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 
 			var totalSize = data.Sum(x => x.SizeSum);
 			Dictionary<string, ResourceCost> costCentreCosts = [];
-			
+
 			foreach (var item in data)
 			{
 				string costCentre;
-                if (item.SelectorType==Consts.ResourceIdLAWorkspaceSelectorType)
-                {
+				if (item.SelectorType == Consts.ResourceIdLAWorkspaceSelectorType)
+				{
 					//map via resource id
 					costCentre = costCentreStates.First(x => x.Value?.ResourceCosts != null && x.Value.ResourceCosts.ContainsKey(item.Selector.ToParentResourceId())).Key;
 				}
-				else 
+				else
 				{
 					//map via cost centre namespace mapping
 					costCentre = costCentreRuleEngine.GetCostCentreForAKSNamespace(item.Selector);
-				}                
+				}
 
 				if (!costCentreCosts.TryGetValue(costCentre, out var cost))
 				{
@@ -43,7 +43,7 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 					costCentreCosts.Add(costCentre, cost);
 				}
 
-				cost.Cost+= ((decimal) item.SizeSum / totalSize) * laTotalCost.Cost;
+				cost.Cost += ((decimal)item.SizeSum / totalSize) * laTotalCost.Cost;
 			}
 
 			foreach (var costCentreCost in costCentreCosts)

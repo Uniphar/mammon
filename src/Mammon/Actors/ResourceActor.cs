@@ -2,61 +2,61 @@
 
 public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
 {
-    public const string CostStateName = "resourceCostState";
+	public const string CostStateName = "resourceCostState";
 
-    public async Task AddCostAsync(string fullCostId, ResourceCost cost, string parentResourceId, Dictionary<string, string> tags)
-    {
-        try
-        {
-            ArgumentNullException.ThrowIfNull(fullCostId);
+	public async Task AddCostAsync(string fullCostId, ResourceCost cost, string parentResourceId, Dictionary<string, string> tags)
+	{
+		try
+		{
+			ArgumentNullException.ThrowIfNull(fullCostId);
 
-            var state = await GetStateAsync();
+			var state = await GetStateAsync();
 
-            state.ResourceId = parentResourceId;
-            state.Tags = tags;            
+			state.ResourceId = parentResourceId;
+			state.Tags = tags;
 
-            state.CostItems ??= [];
+			state.CostItems ??= [];
 
-            state.CostItems.TryAdd(fullCostId, cost);
-            state.TotalCost = new ResourceCost(state.CostItems.Values);
+			state.CostItems.TryAdd(fullCostId, cost);
+			state.TotalCost = new ResourceCost(state.CostItems.Values);
 
-            await SaveStateAsync(state);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Failure in ResourceActor.AddCostAsync (ActorId:{Id})");
-            throw;
-        }
-    }
+			await SaveStateAsync(state);
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, $"Failure in ResourceActor.AddCostAsync (ActorId:{Id})");
+			throw;
+		}
+	}
 
-    /// <inheritdoc/>    
-    public async Task<(string costCentre, ResourceCost cost)> AssignCostCentre()
-    {
-        try
-        {           
-            var state = await GetStateAsync();
+	/// <inheritdoc/>    
+	public async Task<(string costCentre, ResourceCost cost)> AssignCostCentre()
+	{
+		try
+		{
+			var state = await GetStateAsync();
 
-            var rule = costCentreRuleEngine.FindCostCentreRule(state.ResourceId, state.Tags!);
-           
-            state.CostCentre = rule.CostCentre;
+			var rule = costCentreRuleEngine.FindCostCentreRule(state.ResourceId, state.Tags!);
 
-            return (rule.CostCentre, state.TotalCost);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, $"Failure in ResourceActor.AssignCostCentreCosts (ActorId:{Id})");
-            throw;
-        }
-    }
+			state.CostCentre = rule.CostCentre;
 
-    /// <inheritdoc/>
+			return (rule.CostCentre, state.TotalCost);
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, $"Failure in ResourceActor.AssignCostCentreCosts (ActorId:{Id})");
+			throw;
+		}
+	}
+
+	/// <inheritdoc/>
 	public async Task<(string? costCentre, bool assigned)> GetAssignedCostCentre()
 	{
 		try
 		{
-            var state = await GetStateAsync();
+			var state = await GetStateAsync();
 
-            return (state.CostCentre, string.IsNullOrWhiteSpace(state.CostCentre));
+			return (state.CostCentre, string.IsNullOrWhiteSpace(state.CostCentre));
 		}
 		catch (Exception ex)
 		{
@@ -66,13 +66,13 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 	}
 
 	private async Task<ResourceActorState> GetStateAsync()
-    {
-        var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(CostStateName);
-        return (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;
-    }
-    
-    private async Task SaveStateAsync(ResourceActorState state)
-    {
-        await StateManager.SetStateAsync(CostStateName, state);
-    }
+	{
+		var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(CostStateName);
+		return (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;
+	}
+
+	private async Task SaveStateAsync(ResourceActorState state)
+	{
+		await StateManager.SetStateAsync(CostStateName, state);
+	}
 }

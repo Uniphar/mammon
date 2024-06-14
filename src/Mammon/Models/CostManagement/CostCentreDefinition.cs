@@ -16,7 +16,6 @@ public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinit
     {
         RuleFor(x => x.Subscriptions).NotEmpty().WithMessage("Subscription list cannot be empty");
         RuleForEach(x => x.Subscriptions).SetValidator(x=> new SubscriptionDefinitionValidator());
-        RuleFor(x => x.Rules).NotEmpty().WithMessage("Rule list cannot be empty");
         RuleFor(x => x.DefaultCostCentre).NotEmpty().WithMessage("Default Cost Centre must be specified");
         RuleForEach(x => x.Rules).SetValidator(x => new CostCentreRuleValidator());
         RuleFor(x => x.Rules).Must(x => !x.Any(x => x.IsDefault)).WithMessage("Default rule is implicit");
