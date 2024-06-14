@@ -31,6 +31,6 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 			throw new InvalidOperationException($"Error querying workspace for {laResourceId}");
 		}
 
-		return response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || x.SelectorIdentifier!.ResourceType != "microsoft.operationalinsights/workspaces");
+		return response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || x.SelectorIdentifier!.IsLogAnalyticsWorkspace());
 	}
 }
