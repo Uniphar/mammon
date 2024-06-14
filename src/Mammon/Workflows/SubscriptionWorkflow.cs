@@ -21,7 +21,6 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
                 new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}"});
         }
         
-
         var laWorkspaces = costs.Where(x => x.ResourceIdentifier.IsLogAnalyticsWorkspace());
         foreach (var laWorkspace in laWorkspaces)
         {
