@@ -17,7 +17,7 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 
 		var response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 			@$"search * 
-			| where $table !='AzureActivity' and _ResourceId <>'' and _BilledSize > 0
+			| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
 			| project
 				Size=_BilledSize,
 				Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
