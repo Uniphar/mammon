@@ -20,8 +20,8 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 			| where $table !='AzureActivity' and _ResourceId <>'' and _BilledSize > 0
 			| project
 				Size=_BilledSize,
-				Selector=iff(PodNamespace != '', PodNamespace, _ResourceId),
-				SelectorType=iff(PodNamespace != '', 'Namespace', 'ResourceId')
+				Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
+				SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
 			| summarize SizeSum=sum(Size) by Selector, SelectorType
 			| order by Selector desc",
 			new QueryTimeRange(from, to));
