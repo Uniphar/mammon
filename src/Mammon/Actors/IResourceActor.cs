@@ -25,5 +25,5 @@ public interface IResourceActor : IActor
     /// (e.g. perhaps not bearing a direct cost and thus not returned by Cost API)s
     /// </summary>
     /// <returns>tuple with cost centre and assigned flag</returns>
-    Task<(string? costCentre, bool assigned)> GetAssignedCostCentre();
+    Task<(string? costCentre, bool assignmentExists)> GetAssignedCostCentre();
 }

@@ -50,7 +50,7 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 	}
 
 	/// <inheritdoc/>
-	public async Task<(string? costCentre, bool assigned)> GetAssignedCostCentre()
+	public async Task<(string? costCentre, bool assignmentExists)> GetAssignedCostCentre()
 	{
 		try
 		{
