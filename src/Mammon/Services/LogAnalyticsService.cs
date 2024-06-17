@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Services;
 
-public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azureCredential)
+public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<LogAnalyticsService> logger)
 {
 	public async Task<IEnumerable<LAWorkspaceQueryResponseItem>> CollectUsageData(string laResourceId, DateTime from, DateTime to)
 	{
@@ -8,11 +8,20 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 
 		LogsQueryClient client = new(azureCredential);
 
-		var workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
+		Response<OperationalInsightsWorkspaceResource>? workspace;
+		try
+		{
+			workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
+		}
+		catch (RequestFailedException e)//LA cannot be found
+		{
+			logger.LogError(e, $"Error querying workspace for {laResourceId}");
+			workspace = null;
+		}
 
 		if (workspace == null || !workspace.Value.HasData || workspace.Value.Data.CustomerId == null)
 		{
-			throw new InvalidOperationException($"Workspace not found for {laResourceId}");
+			return [];
 		}
 
 		var response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),

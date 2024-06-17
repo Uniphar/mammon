@@ -13,6 +13,9 @@ public class LAWorkspaceWorkflow : Workflow<LAWorkspaceWorkflowRequest, bool>
 				 LAResourceId = request.LAResourceId
 			 });
 
+		if (!data.Any())
+			return true;
+
         foreach (var item in data)
         {
 			item.Selector = item.Selector.ToParentResourceId();
