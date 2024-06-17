@@ -8,6 +8,7 @@ public record CostCentreDefinition
     public IList<string> ResourceGroupSuffixRemoveList { get; set; } = [];
     public IDictionary<string, string>? ResourceGroupTokenClassMap { get; set; } = new Dictionary<string, string>();
     public IList<string> SpecialModes { get; set; } = [];
+	public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 }
 
 public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinition>

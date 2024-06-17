@@ -39,7 +39,8 @@ public class CostCentreRuleEngine
 			?? throw new InvalidOperationException("Unable to deserialize Cost centre definition");
 
 		new CostCentreDefinitionValidator().ValidateAndThrow(definition);
-
+		
+		AKSNamespaceMapping = definition.AKSNamespaceMapping;
 		CostCentreRules = definition.Rules;
 		DefaultCostCentre = definition.DefaultCostCentre;
 		CostCentreRules.Add(new CostCentreRule { CostCentre = DefaultCostCentre, IsDefault = true });
