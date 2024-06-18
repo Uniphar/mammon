@@ -63,7 +63,6 @@ jobs:
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
 
   app_integration_tests_dev:
-    if: false
     needs: app_deployment_dev
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
     secrets:

@@ -2,7 +2,7 @@
 
 public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<LogAnalyticsService> logger)
 {
-	public async Task<IEnumerable<LAWorkspaceQueryResponseItem>> CollectUsageData(string laResourceId, DateTime from, DateTime to)
+	public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
 
@@ -13,15 +13,15 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 		{
 			workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
 		}
-		catch (RequestFailedException e)//LA cannot be found
+		catch (RequestFailedException e)
 		{
-			logger.LogError(e, $"Error querying workspace for {laResourceId}");
+			logger.LogError(e, $"Workspace {laResourceId} not found");
 			workspace = null;
 		}
 
 		if (workspace == null || !workspace.Value.HasData || workspace.Value.Data.CustomerId == null)
 		{
-			return [];
+			return ([], false);
 		}
 
 		var response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
@@ -40,6 +40,6 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 			throw new InvalidOperationException($"Error querying workspace for {laResourceId}");
 		}
 
-		return response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || x.SelectorIdentifier!.IsLogAnalyticsWorkspace());
+		return (response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || x.SelectorIdentifier!.IsLogAnalyticsWorkspace()), true);
 	}
 }
