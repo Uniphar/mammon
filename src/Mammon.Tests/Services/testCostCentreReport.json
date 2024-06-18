@@ -18,21 +18,14 @@
   "ResourceGroupTokenClassMap": {
     "tokenA": "classA"
   },
+  "DefaultCostCentre": "CostCentreB",
   "Rules": [
     {
-      "CostCentres": [
-        "CostCentreA"
-      ],
+      "CostCentre": "CostCentreA",
       "Tags": {
         "tagAName": "tagAValue",
         "tagBName": "tagBValue"
       }
-    },    
-    {
-      "CostCentres": [
-        "CostCentreB"
-      ],
-      "IsDefault": true
     }
   ]
 }

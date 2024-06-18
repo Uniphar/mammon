@@ -61,8 +61,8 @@ public class TenantWorkflowTests
 				data = new CostReportRequest
 				{
 					ReportId = reportId,
-					CostFrom = DateTime.UtcNow.AddDays(-1),
-					CostTo = DateTime.UtcNow
+					CostFrom = DateTime.UtcNow.AddDays(-2),
+					CostTo = DateTime.UtcNow.AddDays(-1)
 				}
 			}),
 			ContentType = "application/json",

@@ -21,6 +21,8 @@ public static class Consts
 	public const string DotFlyerAttachmentsBlobStorageConnectionStringConfigKey = "Mammon:DotFlyer:AttachmentsBlobStorageConnectionString";
 	public const string DotFlyerAttachmentsContainerNameConfigKey = "Mammon:DotFlyer:AttachmentsBlobStorageContainerName";
 
+	public const string ResourceIdLAWorkspaceSelectorType = "ResourceId";
+
 #if (DEBUG)        
 	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
 #endif

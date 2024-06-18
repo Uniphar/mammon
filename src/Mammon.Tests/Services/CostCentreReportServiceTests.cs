@@ -37,7 +37,8 @@ public class CostCentreReportServiceTests
 			}
 		};
 
-		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System, Mock.Of<BlobServiceClient>());
+		var testRuleEngine = GetCostCentreRuleEngineInstance();
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), testRuleEngine, new(testRuleEngine), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System, Mock.Of<BlobServiceClient>());
 
 		//act
 		var modelBuilt= sut.BuildViewModel(ReportRequest, costCentreStates);
@@ -84,7 +85,8 @@ public class CostCentreReportServiceTests
 			.AddInMemoryCollection(inMemorySettings!)
 			.Build();
 
-		var sut = new CostCentreReportService(configuration, GetCostCentreRuleEngineInstance(), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
+		var ruleEngine = GetCostCentreRuleEngineInstance();
+		var sut = new CostCentreReportService(configuration, ruleEngine, new(ruleEngine), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
 
 		//act
 		var result = sut.GenerateDefaultReportRequest();

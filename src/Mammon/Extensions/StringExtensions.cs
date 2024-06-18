@@ -2,43 +2,53 @@
 
 public static class StringExtensions
 {
-    public static string ToParentResourceId(this string value) 
-    {
-        const string providers = "/providers";
+	public static string ToParentResourceId(this string value)
+	{
+		const string provider = "/providers/";
 
-        //we want to extract only the top level provider
-        var firstIndex = value.IndexOf(providers, StringComparison.Ordinal);
-        var lastIndex = value.LastIndexOf(providers, StringComparison.Ordinal);
-     
-        return firstIndex!=lastIndex ? value[..lastIndex] : value;
-    }
+		string[] removals = { "/extensions/" };
 
-    public static string RemoveSuffixes(this string value, IEnumerable<string> suffixes)
-    {
-        if (string.IsNullOrWhiteSpace(value) || suffixes==null || !suffixes.Any())
-        {
-            return value;
-        }
-        
-        foreach ( var suffix in suffixes )
-        {
-            if (!string.IsNullOrWhiteSpace(suffix) && value.EndsWith(suffix))
-            {
-                value = value.Remove(value.LastIndexOf(suffix));
-            }
-        }
+		//we want to extract only the top level provider
+		var firstIndex = value.IndexOf(provider, StringComparison.Ordinal);
+		var lastIndex = value.LastIndexOf(provider, StringComparison.Ordinal);
 
-        return value;
-    }
+		value = firstIndex != lastIndex ? value[..lastIndex] : value;
 
-    public static IList<string> SplitEmailContacts(this string value)
+		foreach (var removal in removals)
+		{
+			firstIndex = value.IndexOf(removal, StringComparison.Ordinal);
+			if (firstIndex != -1)
+				value = value[..firstIndex];
+		}
+
+		return value;
+	}
+
+	public static string RemoveSuffixes(this string value, IEnumerable<string> suffixes)
+	{
+		if (string.IsNullOrWhiteSpace(value) || suffixes == null || !suffixes.Any())
+		{
+			return value;
+		}
+
+		foreach (var suffix in suffixes)
+		{
+			if (!string.IsNullOrWhiteSpace(suffix) && value.EndsWith(suffix))
+			{
+				value = value.Remove(value.LastIndexOf(suffix));
+			}
+		}
+
+		return value;
+	}
+
+	public static IList<string> SplitEmailContacts(this string value)
 	{
 		if (string.IsNullOrWhiteSpace(value))
 		{
 			return [];
 		}
 
-		return value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-					.ToList();
+		return [.. value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
 	}
 }

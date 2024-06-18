@@ -12,7 +12,7 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
         {
             pendingWorkflows.Add(context.CallChildWorkflowAsync<bool>(nameof(SubscriptionWorkflow),
                 new CostReportSubscriptionRequest
-                {                    
+                {
                     SubscriptionName = subscription,
                     ReportRequest = input.ReportRequest
                 },
@@ -21,8 +21,8 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
 
         await Task.WhenAll(pendingWorkflows);
 
-		await context.CallActivityAsync<bool>(nameof(SendReportViaEmail), input.ReportRequest);
+        await context.CallActivityAsync<bool>(nameof(SendReportViaEmail), input.ReportRequest);
 
-		return true;
+        return true;
     }
 }

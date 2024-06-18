@@ -6,5 +6,5 @@ public record ResourceActorState
     public ResourceCost TotalCost { get; set; } = new ResourceCost(0, string.Empty);
     public Dictionary<string, ResourceCost>? CostItems { get; set; }
     public Dictionary<string, string>? Tags { get; set;  }
-    public List<string>? CostCentres { get; set; }
+    public string? CostCentre { get; set; }
 }

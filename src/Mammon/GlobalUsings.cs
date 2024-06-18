@@ -2,7 +2,9 @@
 global using Azure.Core;
 global using Azure.Identity;
 global using Azure.Messaging.ServiceBus;
+global using Azure.Monitor.Query;
 global using Azure.ResourceManager;
+global using Azure.ResourceManager.OperationalInsights;
 global using Azure.ResourceManager.Resources;
 global using Azure.Storage.Blobs;
 global using CsvHelper;
@@ -28,6 +30,8 @@ global using Mammon.Services;
 global using Mammon.Utils;
 global using Mammon.Workflows;
 global using Mammon.Workflows.Activities;
+global using Mammon.Workflows.Activities.LogAnalytics;
+global using Mammon.Workflows.LogAnalytics;
 global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;

@@ -2,12 +2,12 @@
 
 public class AzureCostResponse : List<ResourceCostResponse>
 {
-	public string Currency => this.FirstOrDefault()?.Cost?.Currency ?? "N/A";
 }
 
 public record ResourceCostResponse
 {
 	public required string ResourceId { get; set; }
+	public ResourceIdentifier ResourceIdentifier => new(ResourceId);
 	public required ResourceCost Cost { get; set; }
 	public required Dictionary<string, string> Tags { get; set; }
 }

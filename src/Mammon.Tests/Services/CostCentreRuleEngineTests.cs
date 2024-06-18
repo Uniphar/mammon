@@ -15,8 +15,7 @@ public class CostCentreRuleEngineTests
 
         //assert
         result.Should().NotBeNull();
-        result.CostCentres.Length.Should().Be(1);
-        result.CostCentres.Should().Contain(new[] { "FullMatchMultiTag" });
+        result.CostCentre.Should().Be("FullMatchMultiTag");
     }
 
     [TestMethod]
@@ -30,25 +29,9 @@ public class CostCentreRuleEngineTests
 
         //assert
         result.Should().NotBeNull();
-        result.CostCentres.Length.Should().Be(1);
-        result.CostCentres.Should().Contain(new[] { "FullMatchSingleTag" });
+        result.CostCentre.Should().Be("FullMatchSingleTag");
     }
-
-    [TestMethod]
-    public void ShouldMatchSingleSplittableCostCentreRule()
-    {
-
-        //act
-        var result = InnerTest(
-            "/subscriptions/71b2a3b5-f857-4926-b85c-1bd1f659ffb9/resourcegroups/otherRgName/providers/microsoft.containerservice/managedclusters/sampleSA",
-            new Dictionary<string, string> { { "tagAName", "tagAValue" }, { "tagBName", "tagBValue" } });
-
-        //assert
-        result.Should().NotBeNull();
-        result.CostCentres.Length.Should().Be(2);
-        result.CostCentres.Should().Contain(new[] { "ResourceTypeMatch1", "ResourceTypeMatch2" });
-        result.IsSplittable.Should().BeTrue();
-    }
+  
 
     [TestMethod]
     public void ShouldMatchResourceGroupLevelCostCentreRule()
@@ -61,8 +44,7 @@ public class CostCentreRuleEngineTests
 
         //assert
         result.Should().NotBeNull();
-        result.CostCentres.Length.Should().Be(1);
-        result.CostCentres.Should().Contain(new[] { "RGLevelMatch" });
+        result.CostCentre.Should().Be("RGLevelMatch");
     }
 
     [TestMethod]
@@ -76,8 +58,7 @@ public class CostCentreRuleEngineTests
 
         //assert
         result.Should().NotBeNull();
-        result.CostCentres.Length.Should().Be(1);
-        result.CostCentres.Should().Contain(new[] { "SubLevelMatch" });
+        result.CostCentre.Should().Be("SubLevelMatch" );
     }   
 
     [TestMethod]
@@ -91,8 +72,7 @@ public class CostCentreRuleEngineTests
 
         //assert
         result.Should().NotBeNull();
-        result.CostCentres.Length.Should().Be(1);
-        result.CostCentres.Should().Contain(new[] { "TagsMatch" });
+        result.CostCentre.Should().Be("TagsMatch");
     }
 
 	[DataTestMethod]
@@ -109,8 +89,7 @@ public class CostCentreRuleEngineTests
 
 		//assert
 		result.Should().NotBeNull();
-		result.CostCentres.Length.Should().Be(1);
-		result.CostCentres.Should().Contain(new[] { expectedRuleName });
+		result.CostCentre.Should().Be(expectedRuleName);
 	}
 
 	[TestMethod]
@@ -124,9 +103,7 @@ public class CostCentreRuleEngineTests
 
         //assert
         result.Should().NotBeNull();
-        result.CostCentres.Length.Should().Be(1);
-        result.CostCentres.Should().Contain(new[] { "DefaultRuleMatch" });
-        result.IsSplittable.Should().BeFalse();
+        result.CostCentre.Should().Be("DefaultRuleMatch");
         result.IsDefault.Should().BeTrue();
     }
 
