@@ -14,6 +14,7 @@
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="*" />
     <PackageReference Include="Azure.Monitor.Query" Version="*" />
     <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="*" />
+    <PackageReference Include="Azure.ResourceManager.ContainerService" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
     <PackageReference Include="Azure.ResourceManager.OperationalInsights" Version="*" />
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />

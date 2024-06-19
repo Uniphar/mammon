@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-
-namespace Mammon.Actors;
+﻿namespace Mammon.Actors;
 
 public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : Actor(actorHost), ILAWorkspaceActor
 {
@@ -29,6 +27,10 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 				if (item.SelectorType == Consts.ResourceIdLAWorkspaceSelectorType)
 				{
 					//map via resource id
+					///TODO: consider mapping by simply running the selector through the cost centre rule engine (however no tags at this level)
+					///but tags can be retrieved either via resource actor or Azure SDK
+					///this removes the need for large payload to be passed around and simplifies the code as no need to identity/process gaps (previous unseen resource ids) first
+
 					costCentre = costCentreStates.First(x => x.Value?.ResourceCosts != null && x.Value.ResourceCosts.ContainsKey(item.Selector.ToParentResourceId())).Key;
 				}
 				else
@@ -54,6 +56,8 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 
 
 			state.ResourceId = resourceId;
+			state.TotalCost = laTotalCost;
+
 			await SaveStateAsync(state);
 		}
 		catch (Exception ex)

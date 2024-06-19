@@ -26,4 +26,16 @@ public static class ResourceIdentifierExtensions
 	{
 		return resourceIdentifier.ResourceType.Type == "projects/pools" && resourceIdentifier.ResourceType.Namespace == "microsoft.devcenter";
 	}
+
+	public static ResourceIdentifier GetResourceGroupIdentifier(this ResourceIdentifier resourceIdentifier)
+	{
+		var rIDString = resourceIdentifier.ToString();
+		int providerIndex = rIDString.IndexOf("/providers");
+		
+		if(providerIndex == -1)
+			throw new InvalidOperationException($"Unexpected resource identifier{rIDString}");
+
+		return new ResourceIdentifier(rIDString.Substring(0, providerIndex));
+
+	}
 }

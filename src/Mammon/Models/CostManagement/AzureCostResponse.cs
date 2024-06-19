@@ -4,12 +4,18 @@ public class AzureCostResponse : List<ResourceCostResponse>
 {
 }
 
-public record ResourceCostResponse
+public class ResourceCostResponse
 {
 	public required string ResourceId { get; set; }
 	public ResourceIdentifier ResourceIdentifier => new(ResourceId);
 	public required ResourceCost Cost { get; set; }
 	public required Dictionary<string, string> Tags { get; set; }
+
+	public bool IsLogAnalyticsWorkspace() => ResourceIdentifier.IsLogAnalyticsWorkspace();
+
+	public bool IsAKSScaleSet() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachinescalesets" && Tags.ContainsKey("aks-managed-poolname");
+
+	public bool IsSplittable() => IsAKSScaleSet() || IsLogAnalyticsWorkspace();
 }
 
 public record ResourceCost

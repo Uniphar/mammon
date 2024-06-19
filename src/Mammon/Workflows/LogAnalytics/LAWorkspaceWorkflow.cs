@@ -32,7 +32,7 @@ public class LAWorkspaceWorkflow : Workflow<LAWorkspaceWorkflowRequest, bool>
 				});
 
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-					new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = gaps.Select(i => new ResourceCostResponse { ResourceId = i, Cost = new(0, request.TotalWorkspaceCost.Currency), Tags = [] }) },
+					new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = gaps.Select(i => new ResourceCostResponse { ResourceId = i, Cost = new(0, request.TotalCost.Currency), Tags = [] }) },
 					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
 
 			await context.CallActivityAsync<bool>(nameof(SplitLAWorkspaceCostsActivity),
@@ -41,13 +41,13 @@ public class LAWorkspaceWorkflow : Workflow<LAWorkspaceWorkflowRequest, bool>
 					ReportId = request.ReportRequest.ReportId,
 					Data = data,
 					ResourceId = request.LAResourceId,
-					TotalWorkspaceCost = request.TotalWorkspaceCost
+					TotalWorkspaceCost = request.TotalCost
 				});
 		}
 		else
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [new ResourceCostResponse { Cost = request.TotalWorkspaceCost, ResourceId = request.LAResourceId, Tags = [] }] },
+				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [new ResourceCostResponse { Cost = request.TotalCost, ResourceId = request.LAResourceId, Tags = [] }] },
 				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
 		}
 
