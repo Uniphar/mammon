@@ -26,7 +26,7 @@ public class AKSService(ArmClient armClient, DefaultAzureCredential azureCredent
 			var workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laWorkspaceId)).GetAsync();
 
 			LogsQueryClient client = new(azureCredential);
-			var response = await client.QueryWorkspaceAsync< AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+			var response = await client.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 				@$"Perf
 				| where ObjectName == 'K8SContainer'
 					and CounterName in ('cpuUsageNanoCores', 'memoryWorkingSetBytes')
