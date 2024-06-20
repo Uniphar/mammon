@@ -35,9 +35,9 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 				}
 
 				if (item.CounterName == Consts.AKSCPUMetricName)
-					value.CPUMetricValue += item.AvgInstanceValue;
+					value.CPUMetricValue += item.AvgInstanceValue/10e9; //normalize to full core
 				else
-					value.MemMetricValue += item.AvgInstanceValue;
+					value.MemMetricValue += item.AvgInstanceValue/10e9; //normalize to gigabytes
 			}
 
 			var totalScore = nsMetrics.Values.Sum(x => x.Score);
