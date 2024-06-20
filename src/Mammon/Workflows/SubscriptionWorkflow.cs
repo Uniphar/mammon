@@ -34,7 +34,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		}
 
 		//AKS VMSS splitting
-		var aksScaleSets = costs.Where(x => x.IsAKSScaleSet());
+		var aksScaleSets = costs.Where(x => x.IsAKSVMSS());
 		foreach (var aksScaleSet in aksScaleSets)
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(AKSVMSSWorkflow), new AKSVMSSWorkflowRequest

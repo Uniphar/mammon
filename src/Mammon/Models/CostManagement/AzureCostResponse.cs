@@ -13,9 +13,9 @@ public class ResourceCostResponse
 
 	public bool IsLogAnalyticsWorkspace() => ResourceIdentifier.IsLogAnalyticsWorkspace();
 
-	public bool IsAKSScaleSet() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachinescalesets" && Tags.ContainsKey("aks-managed-poolname");
+	public bool IsAKSVMSS() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachinescalesets" && Tags.ContainsKey("aks-managed-poolname");
 
-	public bool IsSplittable() => IsAKSScaleSet() || IsLogAnalyticsWorkspace();
+	public bool IsSplittable() => IsAKSVMSS() || IsLogAnalyticsWorkspace();
 }
 
 public record ResourceCost
