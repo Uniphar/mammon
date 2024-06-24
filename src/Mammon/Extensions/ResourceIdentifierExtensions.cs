@@ -31,11 +31,11 @@ public static class ResourceIdentifierExtensions
 	{
 		var rIDString = resourceIdentifier.ToString();
 		int providerIndex = rIDString.IndexOf("/providers");
-		
-		if(providerIndex == -1)
-			throw new InvalidOperationException($"Unexpected resource identifier{rIDString}");
 
-		return new ResourceIdentifier(rIDString.Substring(0, providerIndex));
+		if (providerIndex == -1)
+			return resourceIdentifier;
+
+		return new ResourceIdentifier(rIDString[..providerIndex]);
 
 	}
 }
