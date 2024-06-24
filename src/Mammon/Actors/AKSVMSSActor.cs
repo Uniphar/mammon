@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger) : Actor(host), IAKSVMSSActor
+public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger) : ActorBase<AKSVMSSActorState>(host), IAKSVMSSActor
 {
 	private const string CostStateName = "aksVMSSCentreState";
 
@@ -17,11 +17,11 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 
 			Dictionary<string, NamespaceMetrics> nsMetrics = [];
 
-			var state = await GetStateAsync();
+			var state = await GetStateAsync(CostStateName);
 
 			state.TotalCost = vmssTotalCost;
 
-			await SaveStateAsync(state);
+			await SaveStateAsync(CostStateName, state);
 
 			foreach (var item in data)
 			{
@@ -53,17 +53,6 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 			logger.LogError(ex, $"Failure in AKSVMSSActor.SplitCost (ActorId:{Id})");
 			throw;
 		}
-	}
-
-	private async Task<AKSVMSSActorState> GetStateAsync()
-	{
-		var stateAttempt = await StateManager.TryGetStateAsync<AKSVMSSActorState>(CostStateName);
-		return (!stateAttempt.HasValue) ? new AKSVMSSActorState() : stateAttempt.Value;
-	}
-
-	private async Task SaveStateAsync(AKSVMSSActorState state)
-	{
-		await StateManager.SetStateAsync(CostStateName, state);
 	}
 
 	internal record NamespaceMetrics 

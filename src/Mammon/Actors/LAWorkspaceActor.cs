@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : Actor(actorHost), ILAWorkspaceActor
+public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : ActorBase<LAWorkspaceActorState>(actorHost), ILAWorkspaceActor
 {
 	private static readonly string CostStateName = "laWorkspaceCostState";
 	public static string GetActorId(string reportId, string workspaceName, string subId) => $"{reportId}_{subId}_{workspaceName}";
@@ -16,7 +16,7 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 
 		try
 		{
-			var state = await GetStateAsync();
+			var state = await GetStateAsync(CostStateName);
 
 			var totalSize = data.Sum(x => x.SizeSum);
 			Dictionary<string, ResourceCost> costCentreCosts = [];
@@ -58,23 +58,12 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 			state.ResourceId = resourceId;
 			state.TotalCost = laTotalCost;
 
-			await SaveStateAsync(state);
+			await SaveStateAsync(CostStateName, state);
 		}
 		catch (Exception ex)
 		{
 			logger.LogError(ex, $"Failure in LAWorkspaceActor.SplitCost (ActorId:{Id})");
 			throw;
 		}
-	}
-
-	private async Task<LAWorkspaceActorState> GetStateAsync()
-	{
-		var stateAttempt = await StateManager.TryGetStateAsync<LAWorkspaceActorState>(CostStateName);
-		return (!stateAttempt.HasValue) ? new LAWorkspaceActorState() : stateAttempt.Value;
-	}
-
-	private async Task SaveStateAsync(LAWorkspaceActorState state)
-	{
-		await StateManager.SetStateAsync(CostStateName, state);
-	}
+	}	
 }
