@@ -26,6 +26,7 @@ builder.Services
         config.RegisterWorkflow<GroupSubWorkflow>();
         config.RegisterWorkflow<TenantWorkflow>();
         config.RegisterWorkflow<LAWorkspaceWorkflow>();
+        config.RegisterWorkflow<AKSVMSSWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
@@ -34,11 +35,15 @@ builder.Services
         config.RegisterActivity<ExecuteLAWorkspaceDataQueryActivity>();
         config.RegisterActivity<IdenfityLAWorkspaceRefGapsActivity>();
         config.RegisterActivity<SplitLAWorkspaceCostsActivity>();
+        config.RegisterActivity<AKSVMSSObtainUsageDataActivity>();
+        config.RegisterActivity<AKSSplitUsageCostActivity>();
     })
     .AddActors(options => {
         options.Actors.RegisterActor<ResourceActor>();
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
+        options.Actors.RegisterActor<AKSVMSSActor>();
+
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {
             Enabled = false
@@ -53,6 +58,7 @@ builder.Services
     .AddSingleton<CostCentreReportService>()
     .AddSingleton<CostCentreService>()
     .AddSingleton<LogAnalyticsService>()
+    .AddSingleton<AKSService>()
     .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {

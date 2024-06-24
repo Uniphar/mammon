@@ -22,6 +22,7 @@ public static class Consts
 	public const string DotFlyerAttachmentsContainerNameConfigKey = "Mammon:DotFlyer:AttachmentsBlobStorageContainerName";
 
 	public const string ResourceIdLAWorkspaceSelectorType = "ResourceId";
+	public const string AKSCPUMetricName = "cpuUsageNanoCores";
 
 #if (DEBUG)        
 	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";

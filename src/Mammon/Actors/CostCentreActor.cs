@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : Actor(host), ICostCentreActor
+public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : ActorBase<CostCentreActorState>(host), ICostCentreActor
 {
     private const string CostStateName = "costCentreState";
 
@@ -11,14 +11,14 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
     {
         try
         {
-            var state = await GetStateAsync();
+            var state = await GetStateAsync(CostStateName);
             
             state.ResourceCosts ??= [];
 
             state.ResourceCosts.TryAdd(resourceId, cost);
 			state.TotalCost = new ResourceCost(state.ResourceCosts.Values);			
 
-            await SaveStateAsync(state);
+            await SaveStateAsync(CostStateName, state);
            
         }
         catch (Exception ex)
@@ -30,17 +30,6 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
 
 	public async Task<CostCentreActorState> GetCostsAsync()
 	{
-        return await GetStateAsync();
-	}
-
-	private async Task<CostCentreActorState> GetStateAsync()
-    {
-        var stateAttempt = await StateManager.TryGetStateAsync<CostCentreActorState>(CostStateName);
-        return (!stateAttempt.HasValue) ? new CostCentreActorState() : stateAttempt.Value;
-    }
-
-    private async Task SaveStateAsync(CostCentreActorState state)
-    {
-        await StateManager.SetStateAsync(CostStateName, state);
-    }
+        return await GetStateAsync(CostStateName);
+	}	
 }

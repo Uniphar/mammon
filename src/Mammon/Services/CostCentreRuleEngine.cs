@@ -38,18 +38,26 @@ public class CostCentreRuleEngine
 		var definition = JsonSerializer.Deserialize<CostCentreDefinition>(new FileStream(filePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions)
 			?? throw new InvalidOperationException("Unable to deserialize Cost centre definition");
 
-		new CostCentreDefinitionValidator().ValidateAndThrow(definition);
-		
+		new CostCentreDefinitionValidator().ValidateAndThrow(definition);		
+
 		AKSNamespaceMapping = definition.AKSNamespaceMapping;
 		CostCentreRules = definition.Rules;
 		DefaultCostCentre = definition.DefaultCostCentre;
 		CostCentreRules.Add(new CostCentreRule { CostCentre = DefaultCostCentre, IsDefault = true });
 		Subscriptions = definition.Subscriptions;
-		ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;
-		CostCentres = CostCentreRules.Select(r => r.CostCentre).Distinct();
+		ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;		
 		SubscriptionNames = Subscriptions.Select(x => x.SubscriptionName);
 		SpecialModes = definition.SpecialModes;
 		ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
+		InitializeCostCentre();
+	}
+
+	private void InitializeCostCentre()
+	{
+		var list = CostCentreRules.Select(r => r.CostCentre).Distinct().ToList();
+		list.AddRange(AKSNamespaceMapping.Values.Distinct());
+
+		CostCentres = list.Distinct();
 	}
 
 	/// <summary>

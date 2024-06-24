@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<ResourceActor> logger) : Actor(host), IResourceActor
+public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<ResourceActor> logger) : ActorBase<ResourceActorState>(host), IResourceActor
 {
 	public const string CostStateName = "resourceCostState";
 
@@ -10,7 +10,7 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 		{
 			ArgumentNullException.ThrowIfNull(fullCostId);
 
-			var state = await GetStateAsync();
+			var state = await GetStateAsync(CostStateName);
 
 			state.ResourceId = parentResourceId;
 			state.Tags = tags;
@@ -20,7 +20,7 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 			state.CostItems.TryAdd(fullCostId, cost);
 			state.TotalCost = new ResourceCost(state.CostItems.Values);
 
-			await SaveStateAsync(state);
+			await SaveStateAsync(CostStateName, state);
 		}
 		catch (Exception ex)
 		{
@@ -34,7 +34,7 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 	{
 		try
 		{
-			var state = await GetStateAsync();
+			var state = await GetStateAsync(CostStateName);
 
 			var rule = costCentreRuleEngine.FindCostCentreRule(state.ResourceId, state.Tags!);
 
@@ -54,7 +54,7 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 	{
 		try
 		{
-			var state = await GetStateAsync();
+			var state = await GetStateAsync(CostStateName);
 
 			return (state.CostCentre, string.IsNullOrWhiteSpace(state.CostCentre));
 		}
@@ -63,16 +63,5 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 			logger.LogError(ex, $"Failure in ResourceActor.GetAssignedCostCentre (ActorId:{Id})");
 			throw;
 		}
-	}
-
-	private async Task<ResourceActorState> GetStateAsync()
-	{
-		var stateAttempt = await StateManager.TryGetStateAsync<ResourceActorState>(CostStateName);
-		return (!stateAttempt.HasValue) ? new ResourceActorState() : stateAttempt.Value;
-	}
-
-	private async Task SaveStateAsync(ResourceActorState state)
-	{
-		await StateManager.SetStateAsync(CostStateName, state);
 	}
 }
