@@ -17,6 +17,7 @@ public class CostCentreRuleEngine
 	public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
 	public IList<string> SpecialModes { get; set; } = [];
 	public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+	public IDictionary<Regex, string> SQLDatabaseMapping { get; set; } = new Dictionary<Regex, string>();
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -48,14 +49,17 @@ public class CostCentreRuleEngine
 		ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;		
 		SubscriptionNames = Subscriptions.Select(x => x.SubscriptionName);
 		SpecialModes = definition.SpecialModes;
+		SQLDatabaseMapping = definition.SQLDatabaseMapping.ToDictionary(x => new Regex(x.Key), x=> x.Value);
 		ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
-		InitializeCostCentre();
+
+		InitializeCostCentres();
 	}
 
-	private void InitializeCostCentre()
+	private void InitializeCostCentres()
 	{
 		var list = CostCentreRules.Select(r => r.CostCentre).Distinct().ToList();
 		list.AddRange(AKSNamespaceMapping.Values.Distinct());
+		list.AddRange(SQLDatabaseMapping.Values.Distinct());
 
 		CostCentres = list.Distinct();
 	}
@@ -87,6 +91,17 @@ public class CostCentreRuleEngine
 		ArgumentException.ThrowIfNullOrWhiteSpace(aksNS);
 
 		return AKSNamespaceMapping.TryGetValue(aksNS, out string? value) ? value : DefaultCostCentre;
+	}
+
+	public string GetCostCentreForSQLDatabase(string dbName)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(dbName);
+		KeyValuePair<Regex, string> match;
+
+		if (!(match = SQLDatabaseMapping.FirstOrDefault(x => x.Key.IsMatch(dbName))).Equals(default(KeyValuePair<Regex, string>)))
+			return match.Value;
+
+		return DefaultCostCentre;
 	}
 
 	public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, ResourceCost cost)

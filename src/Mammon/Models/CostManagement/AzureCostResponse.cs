@@ -15,7 +15,9 @@ public class ResourceCostResponse
 
 	public bool IsAKSVMSS() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachinescalesets" && Tags.ContainsKey("aks-managed-poolname");
 
-	public bool IsSplittable() => IsAKSVMSS() || IsLogAnalyticsWorkspace();
+	public bool IsSQLPool() => ResourceIdentifier.ResourceType == "microsoft.Sql/servers/elasticpools";
+
+	public bool IsSplittable() => IsAKSVMSS() || IsLogAnalyticsWorkspace() || IsSQLPool();
 }
 
 public record ResourceCost

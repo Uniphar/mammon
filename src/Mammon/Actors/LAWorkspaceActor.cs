@@ -1,23 +1,20 @@
 ﻿namespace Mammon.Actors;
 
-public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : ActorBase<LAWorkspaceActorState>(actorHost), ILAWorkspaceActor
+public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : ActorBase<CoreResourceActorState>(actorHost), ILAWorkspaceActor
 {
 	private static readonly string CostStateName = "laWorkspaceCostState";
-	public static string GetActorId(string reportId, string workspaceName, string subId) => $"{reportId}_{subId}_{workspaceName}";
 
-	public async Task SplitCost(string reportId, string resourceId, ResourceCost laTotalCost, IEnumerable<LAWorkspaceQueryResponseItem> data)
+	public async Task SplitCost(string reportId, string resourceId, ResourceCost totalCost, IEnumerable<LAWorkspaceQueryResponseItem> data)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
 		ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
 		ArgumentNullException.ThrowIfNull(data);
-		ArgumentNullException.ThrowIfNull(laTotalCost);
+		ArgumentNullException.ThrowIfNull(totalCost);
 
 		var costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportId);
 
 		try
-		{
-			var state = await GetStateAsync(CostStateName);
-
+		{			
 			var totalSize = data.Sum(x => x.SizeSum);
 			Dictionary<string, ResourceCost> costCentreCosts = [];
 
@@ -41,11 +38,11 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 
 				if (!costCentreCosts.TryGetValue(costCentre, out var cost))
 				{
-					cost = new ResourceCost(0, laTotalCost.Currency);
+					cost = new ResourceCost(0, totalCost.Currency);
 					costCentreCosts.Add(costCentre, cost);
 				}
 
-				cost.Cost += ((decimal)item.SizeSum / totalSize) * laTotalCost.Cost;
+				cost.Cost += ((decimal)item.SizeSum / totalSize) * totalCost.Cost;
 			}
 
 			foreach (var costCentreCost in costCentreCosts)
@@ -54,9 +51,10 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreCost.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, costCentreCost.Value));
 			}
 
+			var state = await GetStateAsync(CostStateName);
 
 			state.ResourceId = resourceId;
-			state.TotalCost = laTotalCost;
+			state.TotalCost = totalCost;
 
 			await SaveStateAsync(CostStateName, state);
 		}

@@ -1,8 +1,8 @@
 ﻿namespace Mammon.Workflows.Activities.AKS;
 
-public class AKSSplitUsageCostActivity : WorkflowActivity<AKSSplitUsageCostActivityRequest, bool>
+public class AKSSplitUsageCostActivity : WorkflowActivity<SplitUsageActivityRequest<AKSVMSSUsageResponseItem>, bool>
 {
-	public override async Task<bool> RunAsync(WorkflowActivityContext context, AKSSplitUsageCostActivityRequest request)
+	public override async Task<bool> RunAsync(WorkflowActivityContext context, SplitUsageActivityRequest<AKSVMSSUsageResponseItem> request)
 	{
 		ResourceIdentifier rId = new(request.ResourceId);
 
