@@ -15,7 +15,12 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
             
             state.ResourceCosts ??= [];
 
-            state.ResourceCosts.TryAdd(resourceId, cost);
+            if (!state.ResourceCosts.TryAdd(resourceId, cost))
+            {
+                //log this - this is either logical error or dapr retrying actor call
+                logger.LogWarning($"Resource {resourceId} already exists in cost centre {Id}");
+            }
+
 			state.TotalCost = new ResourceCost(state.ResourceCosts.Values);			
 
             await SaveStateAsync(CostStateName, state);

@@ -2,6 +2,7 @@
 
 public class AzureCostResponse : List<ResourceCostResponse>
 {
+	public decimal TotalCost => this.Sum(x => x.Cost.Cost);
 }
 
 public class ResourceCostResponse

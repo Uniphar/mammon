@@ -3,7 +3,7 @@
 public record CostCentreDefinition
 {
     public required IList<SubscriptionDefinition> Subscriptions { get; set; }
-    public required IList<CostCentreRule> Rules { get; set; }
+    public IList<CostCentreRule> Rules { get; set; } = [];
     public required string DefaultCostCentre { get; set; }
     public IList<string> ResourceGroupSuffixRemoveList { get; set; } = [];
     public IDictionary<string, string>? ResourceGroupTokenClassMap { get; set; } = new Dictionary<string, string>();
