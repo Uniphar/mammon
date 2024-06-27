@@ -24,7 +24,7 @@ public class CostRetrievalService
         jsonSerializerOptions.Converters.Add(new ObjectToInferredTypesConverter());
     }
 
-    public virtual string? GetSubscriptionId(string subscriptionName)
+    public virtual string? GetSubscriptionFullResourceId(string subscriptionName)
     {
         var subByName = armClient.GetSubscriptions().FirstOrDefault((s) => s.Data.DisplayName == subscriptionName);
 
@@ -35,7 +35,7 @@ public class CostRetrievalService
     {
         new CostReportSubscriptionRequestValidator().ValidateAndThrow(request);
 
-        var subId = GetSubscriptionId(request.SubscriptionName);
+        var subId = GetSubscriptionFullResourceId(request.SubscriptionName);
         if (string.IsNullOrWhiteSpace(subId))
             throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
@@ -61,7 +61,7 @@ public class CostRetrievalService
                 && File.Exists(mockApiResponsePath))
             {
                 var mockResponse = File.ReadAllText(mockApiResponsePath);
-                (nextLink, costs) = ParseRawJson(mockResponse);
+                (nextLink, costs) = ParseRawJson(mockResponse, subId);
             }
             else
             {
@@ -72,7 +72,7 @@ public class CostRetrievalService
 
                 response.EnsureSuccessStatusCode();
 
-                (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync());
+                (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync(), subId);
 #if (DEBUG)
             }
 #endif
@@ -88,7 +88,7 @@ public class CostRetrievalService
         return responseData;
     }
 
-    private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content)
+    private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content, string subId)
     {
         //ugly workaround to deal with invalid cost api response, alternatives are to write potentially some low level json.text code or scan resources for tags in a separate sub process
         content = content
@@ -104,7 +104,7 @@ public class CostRetrievalService
 
         List<ResourceCostResponse> costs = [];
 
-        foreach (var row in intermediateData.Properties!.Rows!.Where((r) => !string.IsNullOrWhiteSpace((string)r[resourceIdIndex])))
+        foreach (var row in intermediateData.Properties!.Rows!)
         {
             Dictionary<string, string> tags = [];
 
@@ -118,10 +118,18 @@ public class CostRetrievalService
                 }
 
             }
-            costs.Add(new ResourceCostResponse
+
+            var rID = (string)row[resourceIdIndex];
+
+            ///handle edge case of missing resource id (often external marketplace)
+            ///assign virtual one
+            if (string.IsNullOrWhiteSpace(rID))
+                rID = $"{subId}/resourceGroups/unknown/providers/unknown/unknown/{Guid.NewGuid()}";
+
+			costs.Add(new ResourceCostResponse
             {
                 Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
-				ResourceId = (string)row[resourceIdIndex],
+				ResourceId = rID,
                 Tags = tags
             });
         }
