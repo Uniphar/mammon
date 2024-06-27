@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Services;
 
-public class AKSService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<AKSService> logger)
+public class AKSService(ArmClient armClient, LogsQueryClient logsQueryClient, ILogger<AKSService> logger)
 {
 	public async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> QueryUsage(string vmssResourceId, DateTime from, DateTime to)
 	{
@@ -25,8 +25,7 @@ public class AKSService(ArmClient armClient, DefaultAzureCredential azureCredent
 
 			var workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laWorkspaceId)).GetAsync();
 
-			LogsQueryClient client = new(azureCredential);
-			var response = await client.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+			var response = await logsQueryClient.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 				@$"Perf
 				| where ObjectName == 'K8SContainer'
 					and CounterName in ('cpuUsageNanoCores', 'memoryWorkingSetBytes')

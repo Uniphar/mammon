@@ -1,25 +1,23 @@
 ﻿namespace Mammon.Actors;
 
-public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger) : ActorBase<AKSVMSSActorState>(host), IAKSVMSSActor
+public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger) : ActorBase<CoreResourceActorState>(host), IAKSVMSSActor
 {
 	private const string CostStateName = "aksVMSSCentreState";
 
-	public static string GetActorId(string reportId, string vmssName, string subId) => $"{reportId}_{subId}_{vmssName}";
-
-	public async Task SplitCost(string reportId, string resourceId, ResourceCost vmssTotalCost, IEnumerable<AKSVMSSUsageResponseItem> data)
+	public async Task SplitCost(string reportId, string resourceId, ResourceCost totalCost, IEnumerable<AKSVMSSUsageResponseItem> data)
 	{
 		try
 		{
 			ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
 			ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
 			ArgumentNullException.ThrowIfNull(data);
-			ArgumentNullException.ThrowIfNull(vmssTotalCost);
+			ArgumentNullException.ThrowIfNull(totalCost);
 
 			Dictionary<string, NamespaceMetrics> nsMetrics = [];
 
 			var state = await GetStateAsync(CostStateName);
 
-			state.TotalCost = vmssTotalCost;
+			state.TotalCost = totalCost;
 
 			await SaveStateAsync(CostStateName, state);
 
@@ -44,9 +42,11 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 
 			foreach (var nsMetric in nsMetrics)
 			{
-				var cost = new ResourceCost((decimal)(nsMetric.Value.Score / totalScore) * vmssTotalCost.Cost, vmssTotalCost.Currency);
+				var cost = new ResourceCost((decimal)(nsMetric.Value.Score / totalScore) * totalCost.Cost, totalCost.Currency);
 				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, nsMetric.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, cost));
 			}
+
+			//assumption here of at least one namespace ("default") so no unallocated cost should exist
 		}
 		catch (Exception ex)
 		{

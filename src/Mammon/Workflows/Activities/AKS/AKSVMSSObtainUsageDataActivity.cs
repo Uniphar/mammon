@@ -1,9 +1,9 @@
 ﻿namespace Mammon.Workflows.Activities.AKS;
 
-public class AKSVMSSObtainUsageDataActivity(AKSService aKSService) : WorkflowActivity<AKSVMSSObtainUsageDataActivityRequest, (IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)>
+public class AKSVMSSObtainUsageDataActivity(AKSService aKSService) : WorkflowActivity<SplittableResourceRequest, (IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)>
 {
-	public override async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> RunAsync(WorkflowActivityContext context, AKSVMSSObtainUsageDataActivityRequest request)
+	public override async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> RunAsync(WorkflowActivityContext context, SplittableResourceRequest request)
 	{
-		return await aKSService.QueryUsage(request.VMSSResourceId, request.FromDateTime, request.ToDateTime);
+		return await aKSService.QueryUsage(request.ResourceId, request.ReportRequest.CostFrom, request.ReportRequest.CostTo);
 	}
 }

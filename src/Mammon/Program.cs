@@ -27,6 +27,7 @@ builder.Services
         config.RegisterWorkflow<TenantWorkflow>();
         config.RegisterWorkflow<LAWorkspaceWorkflow>();
         config.RegisterWorkflow<AKSVMSSWorkflow>();
+        config.RegisterWorkflow<SQLPoolWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
@@ -37,12 +38,15 @@ builder.Services
         config.RegisterActivity<SplitLAWorkspaceCostsActivity>();
         config.RegisterActivity<AKSVMSSObtainUsageDataActivity>();
         config.RegisterActivity<AKSSplitUsageCostActivity>();
+        config.RegisterActivity<SQLPoolObtainUsageDataActivity>();
+        config.RegisterActivity<SQLPoolSplitUsageActivity>();
     })
     .AddActors(options => {
         options.Actors.RegisterActor<ResourceActor>();
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
         options.Actors.RegisterActor<AKSVMSSActor>();
+        options.Actors.RegisterActor<SQLPoolActor>();
 
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {
@@ -59,12 +63,14 @@ builder.Services
     .AddSingleton<CostCentreService>()
     .AddSingleton<LogAnalyticsService>()
     .AddSingleton<AKSService>()
+    .AddSingleton<SQLPoolService>()
     .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {
         var blobServiceConnectionString = builder.Configuration[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey] 
             ?? throw new InvalidOperationException("DotFlyer Blob Storage connection string is invalid");
 
+        clientBuilder.AddLogsQueryClient();
 		clientBuilder.AddBlobServiceClient(new Uri(blobServiceConnectionString));
         clientBuilder.AddServiceBusClientWithNamespace(builder.Configuration[Consts.DotFlyerSBConnectionStringConfigKey] ?? throw new InvalidOperationException("DotFlyer SB connection string is invalid"));
         clientBuilder.UseCredential(defaultAzureCredentials);
