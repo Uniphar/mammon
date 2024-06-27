@@ -2,7 +2,7 @@
 
 public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger) : ActorBase<CoreResourceActorState>(host), IAKSVMSSActor
 {
-	private const string CostStateName = "aksVMSSCentreState";	
+	private const string CostStateName = "aksVMSSCentreState";
 
 	public async Task SplitCost(string reportId, string resourceId, ResourceCost totalCost, IEnumerable<AKSVMSSUsageResponseItem> data)
 	{
