@@ -8,7 +8,7 @@ public class LAWorkspaceWorkflow : Workflow<SplittableResourceRequest, bool>
 		var (elements, workspaceFound) = await context.CallActivityAsync<(IEnumerable<LAWorkspaceQueryResponseItem> elements, bool workspaceFound)>(nameof(ExecuteLAWorkspaceDataQueryActivity),
 			 request);
 
-		var rId = new ResourceIdentifier(request.ResourceId);
+		var rId = new ResourceIdentifier(request.Resource.ResourceId);
 
 		if (workspaceFound)
 		{			
@@ -24,23 +24,22 @@ public class LAWorkspaceWorkflow : Workflow<SplittableResourceRequest, bool>
 					Data = elements
 				});
 
+			/* these stand outside of cost api, and are assumed to be allocated purely by LA splitting - no tag*/
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-					new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = gaps.Select(i => new ResourceCostResponse { ResourceId = i, Cost = new(0, request.TotalCost.Currency), Tags = [] }) },
+					new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = gaps.Select(i => new ResourceCostResponse { ResourceId = i, Cost = new(0, request.Resource.Cost.Currency), Tags = []}) },
 					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
 
 			await context.CallActivityAsync<bool>(nameof(SplitLAWorkspaceCostsActivity),
 				new SplitUsageActivityRequest<LAWorkspaceQueryResponseItem>
 				{
-					ReportId = request.ReportRequest.ReportId,
-					Data = elements,
-					ResourceId = request.ResourceId,
-					TotalCost = request.TotalCost
+					Request = request,
+					Data = elements
 				});
 		}
 		else
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [new ResourceCostResponse { Cost = request.TotalCost, ResourceId = request.ResourceId, Tags = [] }] },
+				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource] },
 				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
 		}
 

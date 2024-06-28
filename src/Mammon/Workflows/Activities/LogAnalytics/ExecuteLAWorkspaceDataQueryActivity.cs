@@ -4,6 +4,6 @@ public class ExecuteLAWorkspaceDataQueryActivity(LogAnalyticsService logAnalytic
 {
 	public override async Task<(IEnumerable<LAWorkspaceQueryResponseItem> elements, bool workspaceFound)> RunAsync(WorkflowActivityContext context, SplittableResourceRequest request)
 	{
-		return await logAnalyticsService.CollectUsageData(request.ResourceId, request.ReportRequest.CostFrom, request.ReportRequest.CostTo);
+		return await logAnalyticsService.CollectUsageData(request.Resource.ResourceId, request.ReportRequest.CostFrom, request.ReportRequest.CostTo);
 	}
 }

@@ -2,5 +2,5 @@
 
 public interface IAKSVMSSActor : IActor
 {
-	public Task SplitCost(string reportId, string resourceId, ResourceCost totalCost, IEnumerable<AKSVMSSUsageResponseItem> data);
+	public Task SplitCost(SplittableResourceRequest request, IEnumerable<AKSVMSSUsageResponseItem> data);
 }

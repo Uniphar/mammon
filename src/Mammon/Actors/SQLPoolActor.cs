@@ -4,14 +4,16 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 {
 	private const string CostStateName = "sqlPoolCentreState";
 
-	public async Task SplitCost(string reportId, string resourceId, ResourceCost totalCost, IEnumerable<SQLDatabaseUsageResponseItem> data)
+	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<SQLDatabaseUsageResponseItem> data)
 	{
 		try
 		{
-			ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
-			ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
-			ArgumentNullException.ThrowIfNull(data);
-			ArgumentNullException.ThrowIfNull(totalCost);
+			ArgumentNullException.ThrowIfNull(request);
+
+			var totalCost = request.Resource.Cost;
+			var resourceId = request.Resource.ResourceId;
+			var tags = request.Resource.Tags;
+			var reportId = request.ReportRequest.ReportId;
 
 			var state = await GetStateAsync(CostStateName);
 
@@ -19,24 +21,28 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 
 			await SaveStateAsync(CostStateName, state);
 
-			var totalDTU = data.Sum(x => x.DTUAverage);
+			var totalDTU = data.Sum(x => x.DTUAverage);			
 
-			decimal allocatedCost= 0; 
-			foreach (var db in data)
+			if (totalDTU > 0)
 			{
-				var cost = new ResourceCost((decimal)(db.DTUAverage / totalDTU) * totalCost.Cost, totalCost.Currency);
-				allocatedCost+= cost.Cost;
+				decimal allocatedCost = 0;
 
-				ResourceIdentifier dbRID = new(db.ResourceId);
+				foreach (var db in data)
+				{
+					var cost = new ResourceCost((decimal)(db.DTUAverage / totalDTU) * totalCost.Cost, totalCost.Currency);
+					allocatedCost += cost.Cost;
 
-				var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(dbRID.Name);
+					ResourceIdentifier dbRID = new(db.ResourceId);
 
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, cost));
+					var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(dbRID.Name);
+
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, cost));
+				}
 			}
-
-			if (allocatedCost != totalCost.Cost)
+			else
 			{
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.DefaultCostCentre), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, new(totalCost.Cost-allocatedCost, totalCost.Currency)));
+				//no usage, assign to sql pool cost centre - likely a default one
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, new ResourceCost(totalCost.Cost, totalCost.Currency)));
 			}
 
 		}
