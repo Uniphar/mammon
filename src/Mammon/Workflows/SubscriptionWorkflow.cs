@@ -46,16 +46,16 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		///note that this resource type splitting should be the last
 		///as its usage may contain resources that are also splittable
 		///and any further cost assignment would be ignored due to strict deduplication
-		//var laWorkspaces = costs.Where(x => x.IsLogAnalyticsWorkspace());
-		//foreach (var laWorkspace in laWorkspaces)
-		//{
-		//	await context.CallChildWorkflowAsync<bool>(nameof(LAWorkspaceWorkflow), new SplittableResourceRequest
-		//	{
-		//		Resource = laWorkspace,
-		//		ReportRequest = input.ReportRequest
-				
-		//	}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{laWorkspace.ResourceIdentifier.Name}" });
-		//}
+		var laWorkspaces = costs.Where(x => x.IsLogAnalyticsWorkspace());
+		foreach (var laWorkspace in laWorkspaces)
+		{
+			await context.CallChildWorkflowAsync<bool>(nameof(LAWorkspaceWorkflow), new SplittableResourceRequest
+			{
+				Resource = laWorkspace,
+				ReportRequest = input.ReportRequest
+
+			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{laWorkspace.ResourceIdentifier.Name}" });
+		}
 
 		return true;
     }
