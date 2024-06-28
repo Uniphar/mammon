@@ -1,4 +1,7 @@
-﻿namespace Mammon.Actors;
+﻿using Microsoft.Extensions.Hosting;
+using static Mammon.Actors.AKSVMSSActor;
+
+namespace Mammon.Actors;
 
 public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<SQLPoolActor> logger) : ActorBase<CoreResourceActorState>(actorHost), ISQLPoolActor
 {
@@ -27,6 +30,8 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 			{
 				decimal allocatedCost = 0;
 
+				Dictionary<string, NSSQLCost> nsMetrics = [];
+
 				foreach (var db in data)
 				{
 					var cost = new ResourceCost((decimal)(db.DTUAverage / totalDTU) * totalCost.Cost, totalCost.Currency);
@@ -35,8 +40,21 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 					ResourceIdentifier dbRID = new(db.ResourceId);
 
 					var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(dbRID.Name);
+					if (!nsMetrics.TryGetValue(costCentre, out NSSQLCost? value))
+					{
+						value = new NSSQLCost { Cost = cost };
 
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, cost));
+						nsMetrics.Add(costCentre, value);
+					}
+					else
+					{
+						value.Cost.Cost += cost.Cost;
+					}					
+				}
+
+				foreach (var nsMetric in nsMetrics)
+				{
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, nsMetric.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, nsMetric.Value.Cost));
 				}
 			}
 			else
@@ -52,4 +70,9 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 			throw;
 		}
 	}
+}
+
+internal record NSSQLCost
+{
+	internal required ResourceCost Cost { get; set; }
 }
