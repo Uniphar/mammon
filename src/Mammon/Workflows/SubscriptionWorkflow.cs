@@ -8,31 +8,31 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		var costs = await context.CallActivityAsync<AzureCostResponse>(nameof(ObtainCostsActivity), input);
 
 		//splittable resources are processed separately
-		//var rgGroups = costs
-		//	.Where(x => !x.IsSplittable())
-		//	.GroupBy(x => x.ResourceIdentifier.ResourceGroupName
-		//);
+		var rgGroups = costs
+			.Where(x => !x.IsSplittable())
+			.GroupBy(x => x.ResourceIdentifier.ResourceGroupName
+		);
 
-		//foreach (var group in rgGroups)
-		//{
-		//	await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-		//		new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
-		//		new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" });
-		//}
+		foreach (var group in rgGroups)
+		{
+			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
+				new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
+				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" });
+		}
 
-		////AKS VMSS splitting
-		//var aksScaleSets = costs.Where(x => x.IsAKSVMSS());
-		//foreach (var aksScaleSet in aksScaleSets)
-		//{
-		//	await context.CallChildWorkflowAsync<bool>(nameof(AKSVMSSWorkflow), new SplittableResourceRequest
-		//	{
-		//		Resource = aksScaleSet,
-		//		ReportRequest = input.ReportRequest,
-		//	}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{aksScaleSet.ResourceIdentifier.Name}" });
-		//}
+		//AKS VMSS splitting
+		var aksScaleSets = costs.Where(x => x.IsAKSVMSS());
+		foreach (var aksScaleSet in aksScaleSets)
+		{
+			await context.CallChildWorkflowAsync<bool>(nameof(AKSVMSSWorkflow), new SplittableResourceRequest
+			{
+				Resource = aksScaleSet,
+				ReportRequest = input.ReportRequest,
+			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{aksScaleSet.ResourceIdentifier.Name}" });
+		}
 
 		//SQL Pool splitting
-		var sqlPools = costs.Where(x => x.IsSQLPool() && x.ResourceId== "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/datasql-prod/providers/microsoft.sql/servers/uni-datasql-prod-sql/elasticpools/datasql-prod-sql-pool");
+		var sqlPools = costs.Where(x => x.IsSQLPool());
 		foreach (var sqlPool in sqlPools)
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(SQLPoolWorkflow), new SplittableResourceRequest
