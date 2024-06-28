@@ -21,7 +21,8 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
 
         await Task.WhenAll(pendingWorkflows);
 
+		await context.CallActivityAsync<bool>(nameof(SendReportViaEmail), input.ReportRequest);
 
-        return true;
+		return true;
     }
 }
