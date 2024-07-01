@@ -119,7 +119,9 @@ public class TenantWorkflowTests
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
 		expectedSubject = "Uniphar Cost Report - 2e88e8ee-1139-45cc-a503-b7a8890289d9";
-		EmailData emailData = await _cslQueryProvider!
+		try
+		{
+			EmailData emailData = await _cslQueryProvider!
 			.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
 
 		//assertions
@@ -135,9 +137,7 @@ public class TenantWorkflowTests
 		emailData.Attachments.Should().NotBeEmpty();
 		emailData.AttachmentsList.Should().ContainSingle();
 		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
-
-		try
-		{
+	
 			//retrieve content and compute total
 			var apiTotal = await ComputeCostAPITotalAsync();
 			var total = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
