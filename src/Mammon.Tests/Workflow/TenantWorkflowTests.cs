@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net.Http;
 
 namespace Mammon.Tests.Workflow;
 
@@ -11,8 +12,8 @@ public class TenantWorkflowTests
 	private static BlobContainerClient? _blobContainerClient;
 	private static ICslQueryProvider? _cslQueryProvider;
 	private static CostCentreRuleEngine? _costCentreRuleEngine;
-	private static CostRetrievalService? _costRetrievalService;
 	private static IHost? _host;
+	private static IConfiguration? _config;
 	private static CostReportRequest _reportRequest = new()
 	{
 		ReportId = Guid.NewGuid().ToString(),
@@ -24,16 +25,12 @@ public class TenantWorkflowTests
 	private static string? _fromEmail = string.Empty;
 	private static string? _toEmail = string.Empty;
 	private static CancellationToken _cancellationToken;
-	private static TestContext _testContext;
 
 
 	[ClassInitialize]
 	public static void Initialize(TestContext testContext)
 	{
-		_testContext = testContext;
 		_cancellationToken = testContext.CancellationTokenSource.Token;
-
-		DefaultAzureCredential defaultAzureCredential = new();
 
 		var kvUrl = Environment.GetEnvironmentVariable(Consts.ConfigKeyVaultConfigEnvironmentVariable);
 		ArgumentException.ThrowIfNullOrWhiteSpace(kvUrl, nameof(kvUrl));
@@ -68,34 +65,30 @@ public class TenantWorkflowTests
 		ConfigurationBuilder configurationBuilder = new();
 		configurationBuilder.AddAzureKeyVault(new Uri(kvUrl), azureCredential);
 		configurationBuilder.AddInMemoryCollection(inMemorySettings!);
-		var config = configurationBuilder.Build();
+		_config = configurationBuilder.Build();
 
-		var sbConnectionString = config[Consts.DotFlyerSBConnectionStringConfigKey];
+		var sbConnectionString = _config[Consts.DotFlyerSBConnectionStringConfigKey];
 
-		_reportSubject = config[Consts.ReportSubjectConfigKey];
+		_reportSubject = _config[Consts.ReportSubjectConfigKey];
 		ArgumentException.ThrowIfNullOrWhiteSpace(_reportSubject);
 
-		_fromEmail = config[Consts.ReportFromAddressConfigKey];
+		_fromEmail = _config[Consts.ReportFromAddressConfigKey];
 		ArgumentException.ThrowIfNullOrWhiteSpace(_fromEmail);
 
-		_toEmail = config[Consts.ReportToAddressesConfigKey];
+		_toEmail = _config[Consts.ReportToAddressesConfigKey];
 		ArgumentException.ThrowIfNullOrWhiteSpace(_toEmail);
 
 		_serviceBusClient = new(sbConnectionString, azureCredential);
 		_serviceBusSender = _serviceBusClient.CreateSender(Consts.MammonServiceBusTopicName);
 
-		var blobStorageConnectionString = config[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]!;
-		_blobServiceClient = new(new Uri(blobStorageConnectionString), defaultAzureCredential);
+		var blobStorageConnectionString = _config[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]!;
+		_blobServiceClient = new(new Uri(blobStorageConnectionString), azureCredential);
 
-		var BlobStorageContainerName = config[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
+		var BlobStorageContainerName = _config[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
 		_blobContainerClient = _blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
-		_costCentreRuleEngine = new(config);
-
-		var httpClientFactory = _host.Services.GetRequiredService<IHttpClientFactory>();
+		_costCentreRuleEngine = new(_config);
 		
-		_costRetrievalService = new(new ArmClient(defaultAzureCredential), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>(), config);
-
-		var _adxHostAddress = config["AzureDataExplorer:HostAddress"];
+		var _adxHostAddress = _config["AzureDataExplorer:HostAddress"];
 
 		var kcsb = new KustoConnectionStringBuilder(_adxHostAddress, "devops")		
 			.WithAadTokenProviderAuthentication(async () =>
@@ -108,6 +101,8 @@ public class TenantWorkflowTests
 	public async Task WorkflowFinishesAndSendsEmailAsync()
 	{
 		//send report request to SB Topic to wake up Mammon instance
+
+		var apiTotal = await ComputeCostAPITotalAsync();
 
 		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
 		{
@@ -139,7 +134,6 @@ public class TenantWorkflowTests
 		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
 	
 		//retrieve content and compute total
-		var apiTotal = await ComputeCostAPITotalAsync();
 		var csvTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 		
 		decimal.Round(apiTotal, 2).Should().Be(decimal.Round(csvTotal, 2));	
@@ -157,6 +151,9 @@ public class TenantWorkflowTests
 				ReportRequest = _reportRequest,
 				GroupingMode = GroupingMode.Subscription
 			};
+
+			var httpClientFactory = _host!.Services.GetRequiredService<IHttpClientFactory>();
+			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>(), _config);
 
 			var response = await _costRetrievalService!.QueryForSubAsync(request);
 			total += response.TotalCost;
