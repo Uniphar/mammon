@@ -1,15 +1,4 @@
-﻿using CsvHelper.Configuration;
-using Kusto.Cloud.Platform.Modularization;
-using Mammon.Utils;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Http;
-using Polly.Extensions.Http;
-using Westwind.Utilities.Extensions;
-using static Mammon.Services.CostCentreReportService;
-
-namespace Mammon.Tests.Workflow;
+﻿namespace Mammon.Tests.Workflow;
 
 [TestClass, TestCategory("IntegrationTest")]
 public class TenantWorkflowTests
@@ -22,13 +11,13 @@ public class TenantWorkflowTests
 	private static CostCentreRuleEngine? _costCentreRuleEngine;
 	private static CostRetrievalService? _costRetrievalService;
 	private static IHost? _host;
-	private static readonly CostReportRequest costReportRequest = new()
+	private static CostReportRequest _reportRequest = new()
 	{
 		ReportId = Guid.NewGuid().ToString(),
 		CostFrom = DateTime.UtcNow.BeginningOfDay().AddDays(-2),
 		CostTo = DateTime.UtcNow.BeginningOfDay().AddDays(-1)
 	};
-	private static CostReportRequest ReportRequest = costReportRequest;
+
 	private static string? _reportSubject = string.Empty;
 	private static string? _fromEmail = string.Empty;
 	private static string? _toEmail = string.Empty;
@@ -49,11 +38,15 @@ public class TenantWorkflowTests
 		/* the path matches two repos side by side checkout and running tests under standard bin/{config}/{netx.y}
 		 * this is the expected directory structure in local dev as well as the setup in CI/CD pipelines
 		 */
+
+		var costCentreFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "../../../../../../costcentre-definitions/costCentreRules.json");
+
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
-			new(Consts.CostCentreRuleEngineFilePathConfigKey, "../../../../../../costcentre-definitions/costCentreRules.json")
+			new(Consts.CostCentreRuleEngineFilePathConfigKey, costCentreFile)
 		};
 
-		HostApplicationBuilder builder = new HostApplicationBuilder();
+		HostApplicationBuilder builder = new();
+
 		var policy = HttpPolicyExtensions
 		.HandleTransientHttpError() // HttpRequestException, 5XX and 408
 		.OrResult(response => (int)response.StatusCode == 429) // RetryAfter
@@ -61,7 +54,7 @@ public class TenantWorkflowTests
 
 		builder.Services
 			.AddTransient<AzureAuthHandler>()
-			.AddHttpClient("costRetrieval")
+			.AddHttpClient("costRetrievalHttpClient")
 			.AddHttpMessageHandler<AzureAuthHandler>()
 			.AddPolicyHandler(policy);
 
@@ -95,7 +88,7 @@ public class TenantWorkflowTests
 
 		var httpClientFactory = _host.Services.GetRequiredService<IHttpClientFactory>();
 		
-		_costRetrievalService = new(new ArmClient(defaultAzureCredential), httpClientFactory.CreateClient("costRetrieval"), Mock.Of<ILogger<CostRetrievalService>>(), config);
+		_costRetrievalService = new(new ArmClient(defaultAzureCredential), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>(), config);
 
 		var _adxHostAddress = config["AzureDataExplorer:HostAddress"];
 
@@ -115,13 +108,13 @@ public class TenantWorkflowTests
 		{
 			Body = BinaryData.FromObjectAsJson(new
 			{
-				data = ReportRequest
+				data = _reportRequest
 			}),
 			ContentType = "application/json",
 		});
 
 		//wait for ADX to record email produced
-		string expectedSubject = string.Format(_reportSubject!, ReportRequest.ReportId);
+		string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
 
 		EmailData emailData = await _cslQueryProvider!
 			.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
@@ -147,7 +140,7 @@ public class TenantWorkflowTests
 		decimal.Round(apiTotal, 2).Should().Be(decimal.Round(total, 2));			
 	}
 
-	private async Task<decimal> ComputeCostAPITotalAsync()
+	private static async Task<decimal> ComputeCostAPITotalAsync()
 	{
 		decimal total = 0m;
 
@@ -156,7 +149,7 @@ public class TenantWorkflowTests
 			var request = new CostReportSubscriptionRequest
 			{
 				SubscriptionName = subscription,
-				ReportRequest = ReportRequest,
+				ReportRequest = _reportRequest,
 				GroupingMode = GroupingMode.Subscription
 			};
 
@@ -167,7 +160,7 @@ public class TenantWorkflowTests
 		return total;
 	}
 
-	private async Task<decimal> ComputeCSVReportTotalAsync(string uri)
+	private static async Task<decimal> ComputeCSVReportTotalAsync(string uri)
 	{
 		Uri blobUri = new(uri);
 		var blobName = blobUri.Segments.Last();
