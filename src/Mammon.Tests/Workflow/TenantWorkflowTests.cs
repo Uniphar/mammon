@@ -97,7 +97,7 @@ public class TenantWorkflowTests
 
 		var _adxHostAddress = config["AzureDataExplorer:HostAddress"];
 
-		var kcsb = new KustoConnectionStringBuilder(_adxHostAddress, "devops")
+		var kcsb = new KustoConnectionStringBuilder(_adxHostAddress, "devops")		
 			.WithAadTokenProviderAuthentication(async () =>
 				(await azureCredential.GetTokenAsync(new(["https://kusto.kusto.windows.net/.default"]), cancellationToken: _cancellationToken)).Token);
 
@@ -109,20 +109,19 @@ public class TenantWorkflowTests
 	{
 		//send report request to SB Topic to wake up Mammon instance
 
-		//await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
-		//{
-		//	Body = BinaryData.FromObjectAsJson(new
-		//	{
-		//		data = _reportRequest
-		//	}),
-		//	ContentType = "application/json",
-		//});
+		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
+		{
+			Body = BinaryData.FromObjectAsJson(new
+			{
+				data = _reportRequest
+			}),
+			ContentType = "application/json",
+		});
 
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
-		expectedSubject = "Uniphar Cost Report - 2e88e8ee-1139-45cc-a503-b7a8890289d9";
 	
-			EmailData emailData = await _cslQueryProvider!
+		EmailData emailData = await _cslQueryProvider!
 			.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
 
 		//assertions
@@ -139,12 +138,11 @@ public class TenantWorkflowTests
 		emailData.AttachmentsList.Should().ContainSingle();
 		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
 	
-			//retrieve content and compute total
-			var apiTotal = await ComputeCostAPITotalAsync();
-			var total = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
-			decimal.Round(222m, 2).Should().Be(decimal.Round(total, 2));
-			_testContext.WriteLine("Total cost from API: {0}", apiTotal);
-	
+		//retrieve content and compute total
+		var apiTotal = await ComputeCostAPITotalAsync();
+		var csvTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
+		
+		decimal.Round(apiTotal, 2).Should().Be(decimal.Round(csvTotal, 2));	
 	}
 
 	private static async Task<decimal> ComputeCostAPITotalAsync()
