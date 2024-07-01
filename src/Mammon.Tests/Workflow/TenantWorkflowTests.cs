@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using Azure.Storage.Blobs;
+using System.Diagnostics;
 using System.Net.Http;
 
 namespace Mammon.Tests.Workflow;
@@ -86,6 +87,7 @@ public class TenantWorkflowTests
 
 		var BlobStorageContainerName = _config[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
 		_blobContainerClient = _blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
+
 		_costCentreRuleEngine = new(_config);
 		
 		var _adxHostAddress = _config["AzureDataExplorer:HostAddress"];
@@ -100,8 +102,13 @@ public class TenantWorkflowTests
 	[TestMethod]
 	public async Task WorkflowFinishesAndSendsEmailAsync()
 	{
+
 		//send report request to SB Topic to wake up Mammon instance
 
+		///workaround for https://github.com/Azure/azure-cli/issues/28708#issuecomment-2047256166
+		///preaccess some things upfront
+
+		await _blobContainerClient!.ExistsAsync();
 		var apiTotal = await ComputeCostAPITotalAsync();
 
 		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
