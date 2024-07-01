@@ -49,7 +49,7 @@ jobs:
       applicationName: ${{ inputs.applicationName }}
 
   app_deployment_dev:
-    needs: app_package
+    #needs: app_package
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     if: false
     secrets:
