@@ -95,4 +95,4 @@ jobs:
 
       - name: run integration tests
         working-directory: ./mammon/src/${{ inputs.applicationFolder }}.Tests
-        run: dotnet test --filter TestCategory=IntegrationTest dotnet test --logger "console;verbosity=normal"
+        run: dotnet test --filter TestCategory=IntegrationTest --logger "console;verbosity=normal"
