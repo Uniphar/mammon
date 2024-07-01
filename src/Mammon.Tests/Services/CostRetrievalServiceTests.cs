@@ -80,7 +80,7 @@ public class CostRetrievalServiceTests
     class TestCostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger, IConfiguration configuration) : CostRetrievalService(armClient, httpClient, logger, configuration)
     {
         //we need this as the GetSubscriptions() of the ArmClient is not mockable
-        public override string? GetSubscriptionId(string subscriptionName)
+        public override string? GetSubscriptionFullResourceId(string subscriptionName)
         {
             return "/subscriptions/subId";
         }

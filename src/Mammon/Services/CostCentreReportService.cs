@@ -154,7 +154,11 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 		{
 			Body = BinaryData.FromObjectAsJson(dotFlyerRequest),
 			ContentType = "application/json",
+#if (DEBUG)
+			MessageId = $"MammonEmailReport{Guid.NewGuid()}"
+#else
 			MessageId = $"MammonEmailReport{reportRequest.ReportId}"
+#endif
 		});
 	}
 

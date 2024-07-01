@@ -64,6 +64,11 @@ public class CostCentreRuleEngine
 		CostCentres = list.Distinct();
 	}
 
+	public string FindCostCentre(string resourceId, IDictionary<string, string> tags)
+	{
+		return FindCostCentreRule(resourceId, tags).CostCentre;
+	}
+
 	/// <summary>
 	/// find the best matching rule
 	/// 

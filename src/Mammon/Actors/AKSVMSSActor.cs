@@ -4,14 +4,15 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 {
 	private const string CostStateName = "aksVMSSCentreState";
 
-	public async Task SplitCost(string reportId, string resourceId, ResourceCost totalCost, IEnumerable<AKSVMSSUsageResponseItem> data)
+	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<AKSVMSSUsageResponseItem> data)
 	{
 		try
 		{
-			ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
-			ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
-			ArgumentNullException.ThrowIfNull(data);
-			ArgumentNullException.ThrowIfNull(totalCost);
+			ArgumentNullException.ThrowIfNull(request);
+
+			var totalCost = request.Resource.Cost;
+			var resourceId = request.Resource.ResourceId;
+			var reportId = request.ReportRequest.ReportId;
 
 			Dictionary<string, NamespaceMetrics> nsMetrics = [];
 
@@ -46,7 +47,7 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, nsMetric.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, cost));
 			}
 
-			//assumption here of at least one namespace ("default") so no unallocated cost should exist
+			//assumption here of at least one namespace ("default") with usage so no unallocated cost should exist
 		}
 		catch (Exception ex)
 		{

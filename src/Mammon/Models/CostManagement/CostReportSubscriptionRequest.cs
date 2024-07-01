@@ -4,6 +4,13 @@ public record CostReportSubscriptionRequest
 {    
     public required string SubscriptionName { get; set; }
     public required CostReportRequest ReportRequest { get; set; }
+    public GroupingMode GroupingMode { get; set; } = GroupingMode.Resource;
+}
+
+public enum GroupingMode
+{
+	Resource,
+	Subscription
 }
 
 public class CostReportSubscriptionRequestValidator : AbstractValidator<CostReportSubscriptionRequest>

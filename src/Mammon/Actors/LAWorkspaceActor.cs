@@ -1,54 +1,66 @@
-﻿namespace Mammon.Actors;
+﻿using Azure.ResourceManager.Resources.Models;
+
+namespace Mammon.Actors;
 
 public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : ActorBase<CoreResourceActorState>(actorHost), ILAWorkspaceActor
 {
 	private static readonly string CostStateName = "laWorkspaceCostState";
 
-	public async Task SplitCost(string reportId, string resourceId, ResourceCost totalCost, IEnumerable<LAWorkspaceQueryResponseItem> data)
+	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<LAWorkspaceQueryResponseItem> data)
 	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(resourceId);
-		ArgumentException.ThrowIfNullOrWhiteSpace(reportId);
-		ArgumentNullException.ThrowIfNull(data);
-		ArgumentNullException.ThrowIfNull(totalCost);
+		ArgumentNullException.ThrowIfNull(request);
+
+		var totalCost = request.Resource.Cost;
+		var resourceId = request.Resource.ResourceId;
+		var tags = request.Resource.Tags;
+		var reportId = request.ReportRequest.ReportId;
 
 		var costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportId);
 
 		try
 		{			
 			var totalSize = data.Sum(x => x.SizeSum);
-			Dictionary<string, ResourceCost> costCentreCosts = [];
-
-			foreach (var item in data)
+			if (totalSize > 0)
 			{
-				string costCentre;
-				if (item.SelectorType == Consts.ResourceIdLAWorkspaceSelectorType)
-				{
-					//map via resource id
-					///TODO: consider mapping by simply running the selector through the cost centre rule engine (however no tags at this level)
-					///but tags can be retrieved either via resource actor or Azure SDK
-					///this removes the need for large payload to be passed around and simplifies the code as no need to identity/process gaps (previous unseen resource ids) first
+				Dictionary<string, ResourceCost> costCentreCosts = [];
 
-					costCentre = costCentreStates.First(x => x.Value?.ResourceCosts != null && x.Value.ResourceCosts.ContainsKey(item.Selector.ToParentResourceId())).Key;
-				}
-				else
+				foreach (var item in data)
 				{
-					//map via cost centre namespace mapping
-					costCentre = costCentreRuleEngine.GetCostCentreForAKSNamespace(item.Selector);
+					string costCentre;
+					if (item.SelectorType == Consts.ResourceIdLAWorkspaceSelectorType)
+					{
+						//map via resource id
+						///TODO: consider mapping by simply running the selector through the cost centre rule engine (however no tags at this level)
+						///but tags can be retrieved either via resource actor or Azure SDK
+						///this removes the need for large payload to be passed around and simplifies the code as no need to identity/process gaps (previous unseen resource ids) first
+
+						costCentre = costCentreStates.First(x => x.Value?.ResourceCosts != null && x.Value.ResourceCosts.ContainsKey(item.Selector.ToParentResourceId())).Key;
+					}
+					else
+					{
+						//map via cost centre namespace mapping
+						costCentre = costCentreRuleEngine.GetCostCentreForAKSNamespace(item.Selector);
+					}
+
+					if (!costCentreCosts.TryGetValue(costCentre, out var cost))
+					{
+						cost = new ResourceCost(0, totalCost.Currency);
+						costCentreCosts.Add(costCentre, cost);
+					}
+
+					cost.Cost += ((decimal)item.SizeSum / totalSize) * totalCost.Cost;
 				}
 
-				if (!costCentreCosts.TryGetValue(costCentre, out var cost))
+				foreach (var costCentreCost in costCentreCosts)
 				{
-					cost = new ResourceCost(0, totalCost.Currency);
-					costCentreCosts.Add(costCentre, cost);
+					//send them to cost centre actors
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreCost.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, costCentreCost.Value));
 				}
-
-				cost.Cost += ((decimal)item.SizeSum / totalSize) * totalCost.Cost;
 			}
-
-			foreach (var costCentreCost in costCentreCosts)
+			else
 			{
-				//send them to cost centre actors
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreCost.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, costCentreCost.Value));
+				//no usage, assign to LA workspace cost centre - likely a default one
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, new ResourceCost(totalCost.Cost, totalCost.Currency)));
 			}
 
 			var state = await GetStateAsync(CostStateName);

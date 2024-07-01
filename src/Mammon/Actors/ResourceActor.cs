@@ -36,11 +36,9 @@ public class ResourceActor(ActorHost host, CostCentreRuleEngine costCentreRuleEn
 		{
 			var state = await GetStateAsync(CostStateName);
 
-			var rule = costCentreRuleEngine.FindCostCentreRule(state.ResourceId, state.Tags!);
+			state.CostCentre = costCentreRuleEngine.FindCostCentre(state.ResourceId, state.Tags!);
 
-			state.CostCentre = rule.CostCentre;
-
-			return (rule.CostCentre, state.TotalCost);
+			return (state.CostCentre, state.TotalCost);
 		}
 		catch (Exception ex)
 		{
