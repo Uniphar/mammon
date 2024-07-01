@@ -36,14 +36,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v3
         with:
-          path: mammon
-
-      - name: azure login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          path: mammon     
 
       - name: gh-app-install token
         id: gh-app
@@ -73,7 +66,6 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
 
       - name: compute environment variables
         uses: azure/powershell@v1

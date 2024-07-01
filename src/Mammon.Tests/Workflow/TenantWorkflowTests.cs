@@ -1,8 +1,4 @@
-﻿using Azure.Storage.Blobs;
-using System.Diagnostics;
-using System.Net.Http;
-
-namespace Mammon.Tests.Workflow;
+﻿namespace Mammon.Tests.Workflow;
 
 [TestClass, TestCategory("IntegrationTest")]
 public class TenantWorkflowTests
@@ -106,7 +102,7 @@ public class TenantWorkflowTests
 		//send report request to SB Topic to wake up Mammon instance
 
 		///workaround for https://github.com/Azure/azure-cli/issues/28708#issuecomment-2047256166
-		///preaccess some things upfront
+		///pre-access some things upfront
 
 		await _blobContainerClient!.ExistsAsync();
 		var apiTotal = await ComputeCostAPITotalAsync();
@@ -160,7 +156,7 @@ public class TenantWorkflowTests
 			};
 
 			var httpClientFactory = _host!.Services.GetRequiredService<IHttpClientFactory>();
-			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>(), _config);
+			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>(), _config!);
 
 			var response = await _costRetrievalService!.QueryForSubAsync(request);
 			total += response.TotalCost;

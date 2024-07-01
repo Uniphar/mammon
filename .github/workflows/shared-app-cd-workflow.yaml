@@ -36,7 +36,6 @@ on:
       
 jobs:
   app_package:
-    if: false
     uses: ./.github/workflows/shared-app-package-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -51,7 +50,6 @@ jobs:
   app_deployment_dev:
     needs: app_package
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
-    if: false
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -65,7 +63,7 @@ jobs:
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
 
   app_integration_tests_dev:
-    #needs: app_deployment_dev
+    needs: app_deployment_dev
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
