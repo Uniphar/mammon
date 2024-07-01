@@ -24,11 +24,13 @@ public class TenantWorkflowTests
 	private static string? _fromEmail = string.Empty;
 	private static string? _toEmail = string.Empty;
 	private static CancellationToken _cancellationToken;
+	private static TestContext _testContext;
 
 
 	[ClassInitialize]
 	public static void Initialize(TestContext testContext)
 	{
+		_testContext = testContext;
 		_cancellationToken = testContext.CancellationTokenSource.Token;
 
 		DefaultAzureCredential defaultAzureCredential = new();
@@ -145,7 +147,7 @@ public class TenantWorkflowTests
 		}
 		catch (Exception ex)
 		{
-			Console.WriteLine(ex.Message);
+			_testContext.WriteLine(ex.Message);
 		}
 	}
 
