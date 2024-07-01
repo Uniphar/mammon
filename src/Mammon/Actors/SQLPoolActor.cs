@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
-using static Mammon.Actors.AKSVMSSActor;
-
-namespace Mammon.Actors;
+﻿namespace Mammon.Actors;
 
 public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<SQLPoolActor> logger) : ActorBase<CoreResourceActorState>(actorHost), ISQLPoolActor
 {
