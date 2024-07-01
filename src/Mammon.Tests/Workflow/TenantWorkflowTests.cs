@@ -121,8 +121,7 @@ public class TenantWorkflowTests
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
 		expectedSubject = "Uniphar Cost Report - 2e88e8ee-1139-45cc-a503-b7a8890289d9";
-		try
-		{
+	
 			EmailData emailData = await _cslQueryProvider!
 			.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
 
@@ -145,13 +144,7 @@ public class TenantWorkflowTests
 			var total = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 			decimal.Round(apiTotal, 2).Should().Be(decimal.Round(total, 2));
 			_testContext.WriteLine("Total cost from API: {0}", apiTotal);
-		}
-		catch (Exception ex)
-		{
-			Debug.WriteLine(ex.Message);
-			Console.WriteLine(ex.Message);
-			_testContext.WriteLine(ex.Message);
-		}
+	
 	}
 
 	private static async Task<decimal> ComputeCostAPITotalAsync()
