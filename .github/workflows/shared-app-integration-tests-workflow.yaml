@@ -35,6 +35,8 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v1
+        with:
+          path: mammon
 
       - name: azure login
         uses: azure/login@v2
@@ -92,5 +94,5 @@ jobs:
             }
 
       - name: run integration tests
-        working-directory: ./src/${{ inputs.applicationFolder }}.Tests
+        working-directory: ./mammon/src/${{ inputs.applicationFolder }}.Tests
         run: dotnet test --filter TestCategory=IntegrationTest
