@@ -21,15 +21,14 @@ public class TenantWorkflowTests
 	private static ICslQueryProvider? _cslQueryProvider;
 	private static CostCentreRuleEngine? _costCentreRuleEngine;
 	private static CostRetrievalService? _costRetrievalService;
-	private static IHost _host;
-
-	private static CostReportRequest ReportRequest = new()
+	private static IHost? _host;
+	private static readonly CostReportRequest costReportRequest = new()
 	{
 		ReportId = Guid.NewGuid().ToString(),
 		CostFrom = DateTime.UtcNow.BeginningOfDay().AddDays(-2),
 		CostTo = DateTime.UtcNow.BeginningOfDay().AddDays(-1)
 	};
-
+	private static CostReportRequest ReportRequest = costReportRequest;
 	private static string? _reportSubject = string.Empty;
 	private static string? _fromEmail = string.Empty;
 	private static string? _toEmail = string.Empty;
@@ -47,7 +46,9 @@ public class TenantWorkflowTests
 
 		DefaultAzureCredential azureCredential = new();
 
-
+		/* the path matches two repos side by side checkout and running tests under standard bin/{config}/{netx.y}
+		 * this is the expected directory structure in local dev as well as the setup in CI/CD pipelines
+		 */
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
 			new(Consts.CostCentreRuleEngineFilePathConfigKey, "../../../../../../costcentre-definitions/costCentreRules.json")
 		};
@@ -110,38 +111,40 @@ public class TenantWorkflowTests
 	{
 		//send report request to SB Topic to wake up Mammon instance
 
-		//await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
-		//{
-		//	Body = BinaryData.FromObjectAsJson(new
-		//	{
-		//		data = ReportRequest
-		//	}),
-		//	ContentType = "application/json",
-		//});
+		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
+		{
+			Body = BinaryData.FromObjectAsJson(new
+			{
+				data = ReportRequest
+			}),
+			ContentType = "application/json",
+		});
 
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, ReportRequest.ReportId);
-		expectedSubject = "Uniphar Cost Report - d1f552b2-63ab-4f30-a108-5349592d3078";
+
 		EmailData emailData = await _cslQueryProvider!
 			.WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
+
+		//assertions
+		var expectedToContacts = _toEmail!
+			.SplitEmailContacts()
+			.Select(e => new Contact { Name = e, Email = e });
+
+		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
 
 		emailData.Should().NotBeNull();
 		emailData.FromEmail.Should().Be(_fromEmail);
 		emailData.FromName.Should().Be(_fromEmail);
 		emailData.Attachments.Should().NotBeEmpty();
 		emailData.AttachmentsList.Should().ContainSingle();
+		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
 
 		//retrieve content and compute total
-
 		var apiTotal = await ComputeCostAPITotalAsync();
 		var total = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 
-		Decimal.Round(apiTotal, 2).Should().Be(Decimal.Round(total, 2));
-		var expectedToContacts = _toEmail!
-			.SplitEmailContacts()
-			.Select(e => new Contact { Name = e, Email = e });
-
-		//emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
+		decimal.Round(apiTotal, 2).Should().Be(decimal.Round(total, 2));			
 	}
 
 	private async Task<decimal> ComputeCostAPITotalAsync()

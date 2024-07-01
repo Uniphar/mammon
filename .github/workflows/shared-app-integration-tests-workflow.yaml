@@ -57,6 +57,14 @@ jobs:
           repository: Uniphar/devops-azure
           token: ${{ steps.gh-app.outputs.token }}
 
+      - name: checkout cost centre definition repo
+        uses: actions/checkout@v3
+        with:
+          path: costcentre-definitions
+          repository: Uniphar/costcentre-definitions
+          ref: main
+          token: ${{ steps.gh-app.outputs.token }}
+
       - name: azure login
         uses: azure/login@v2
         with:
