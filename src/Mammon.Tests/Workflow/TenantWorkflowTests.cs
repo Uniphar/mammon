@@ -144,6 +144,7 @@ public class TenantWorkflowTests
 			var apiTotal = await ComputeCostAPITotalAsync();
 			var total = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 			decimal.Round(apiTotal, 2).Should().Be(decimal.Round(total, 2));
+			_testContext.WriteLine("Total cost from API: {0}", apiTotal);
 		}
 		catch (Exception ex)
 		{
