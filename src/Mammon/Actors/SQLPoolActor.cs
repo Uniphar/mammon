@@ -37,16 +37,16 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 					ResourceIdentifier dbRID = new(db.ResourceId);
 
 					var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(dbRID.Name);
-					if (!nsMetrics.TryGetValue(costCentre, out NSSQLCost? value))
+					if (nsMetrics.TryGetValue(costCentre, out NSSQLCost? value))
+					{
+						value.Cost.Cost += cost.Cost;
+					}
+					else
 					{
 						value = new NSSQLCost { Cost = cost };
 
 						nsMetrics.Add(costCentre, value);
-					}
-					else
-					{
-						value.Cost.Cost += cost.Cost;
-					}					
+					}															
 				}
 
 				foreach (var nsMetric in nsMetrics)
