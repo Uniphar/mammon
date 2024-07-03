@@ -12,7 +12,8 @@ public class CostRetrievalService
 
     private const string costColumnName = "Cost";
     private const string resourceIdColumnName = "ResourceId";
-    private const string currencyColumnName = "Currency";
+	private const string subscriptionIdColumnName = "SubscriptionId";
+	private const string currencyColumnName = "Currency";
     private const string tagsColumnName = "Tags";
 
     public CostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger, IConfiguration configuration)
@@ -24,7 +25,7 @@ public class CostRetrievalService
         jsonSerializerOptions.Converters.Add(new ObjectToInferredTypesConverter());
     }
 
-    public virtual string? GetSubscriptionId(string subscriptionName)
+    public virtual string? GetSubscriptionFullResourceId(string subscriptionName)
     {
         var subByName = armClient.GetSubscriptions().FirstOrDefault((s) => s.Data.DisplayName == subscriptionName);
 
@@ -35,11 +36,13 @@ public class CostRetrievalService
     {
         new CostReportSubscriptionRequestValidator().ValidateAndThrow(request);
 
-        var subId = GetSubscriptionId(request.SubscriptionName);
+        var subId = GetSubscriptionFullResourceId(request.SubscriptionName);
         if (string.IsNullOrWhiteSpace(subId))
             throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
-        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"ResourceId\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.ReportRequest.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.ReportRequest.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
+        var groupingProperty = request.GroupingMode==GroupingMode.Resource ? "ResourceId" : "SubscriptionId";
+
+        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"{groupingProperty}\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.ReportRequest.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.ReportRequest.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
         HttpResponseMessage response;
@@ -61,7 +64,7 @@ public class CostRetrievalService
                 && File.Exists(mockApiResponsePath))
             {
                 var mockResponse = File.ReadAllText(mockApiResponsePath);
-                (nextLink, costs) = ParseRawJson(mockResponse);
+                (nextLink, costs) = ParseRawJson(mockResponse, subId, GroupingMode.Resource); //mock only supports resource grouping at the moment
             }
             else
             {
@@ -72,7 +75,7 @@ public class CostRetrievalService
 
                 response.EnsureSuccessStatusCode();
 
-                (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync());
+                (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync(), subId, request.GroupingMode);
 #if (DEBUG)
             }
 #endif
@@ -88,7 +91,7 @@ public class CostRetrievalService
         return responseData;
     }
 
-    private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content)
+    private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content, string subId, GroupingMode groupingMode)
     {
         //ugly workaround to deal with invalid cost api response, alternatives are to write potentially some low level json.text code or scan resources for tags in a separate sub process
         content = content
@@ -98,13 +101,13 @@ public class CostRetrievalService
         var intermediateData = JsonSerializer.Deserialize<IntermediateUsageQueryResult>(content, jsonSerializerOptions) ?? throw new InvalidOperationException("failed to deserialize cost management api");
 
         var costIndex = intermediateData.Properties!.Columns!.FindIndex(x => x.Name == costColumnName);
-        var resourceIdIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == resourceIdColumnName);
+        var resourceIdIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name ==  (groupingMode==GroupingMode.Resource ? resourceIdColumnName : subscriptionIdColumnName));
         var currencyIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == currencyColumnName);
         var tagsId = intermediateData.Properties.Columns.FindIndex(x => x.Name == tagsColumnName);
 
         List<ResourceCostResponse> costs = [];
 
-        foreach (var row in intermediateData.Properties!.Rows!.Where((r) => !string.IsNullOrWhiteSpace((string)r[resourceIdIndex])))
+        foreach (var row in intermediateData.Properties!.Rows!)
         {
             Dictionary<string, string> tags = [];
 
@@ -118,10 +121,18 @@ public class CostRetrievalService
                 }
 
             }
-            costs.Add(new ResourceCostResponse
+
+            var rID = (string)row[resourceIdIndex];
+
+            ///handle edge case of missing resource id (often external marketplace)
+            ///assign virtual one
+            if (string.IsNullOrWhiteSpace(rID))
+                rID = $"{subId}/resourceGroups/unknown/providers/unknown/unknown/{Guid.NewGuid()}";
+
+			costs.Add(new ResourceCostResponse
             {
                 Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
-				ResourceId = (string)row[resourceIdIndex],
+				ResourceId = rID,
                 Tags = tags
             });
         }

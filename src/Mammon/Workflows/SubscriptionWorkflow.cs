@@ -26,9 +26,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(AKSVMSSWorkflow), new SplittableResourceRequest
 			{
-				ResourceId = aksScaleSet.ResourceId,
+				Resource = aksScaleSet,
 				ReportRequest = input.ReportRequest,
-				TotalCost = aksScaleSet.Cost
 			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{aksScaleSet.ResourceIdentifier.Name}" });
 		}
 
@@ -38,9 +37,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(SQLPoolWorkflow), new SplittableResourceRequest
 			{
-				ResourceId = sqlPool.ResourceId,
-				ReportRequest = input.ReportRequest,
-				TotalCost = sqlPool.Cost
+				Resource = sqlPool,
+				ReportRequest = input.ReportRequest
 			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SQLPoolWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{sqlPool.ResourceIdentifier.Name}" });
 		}
 
@@ -53,9 +51,9 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(LAWorkspaceWorkflow), new SplittableResourceRequest
 			{
-				ResourceId = laWorkspace.ResourceId,
-				ReportRequest = input.ReportRequest,
-				TotalCost = laWorkspace.Cost
+				Resource = laWorkspace,
+				ReportRequest = input.ReportRequest
+
 			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{laWorkspace.ResourceIdentifier.Name}" });
 		}
 

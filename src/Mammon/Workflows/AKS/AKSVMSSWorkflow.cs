@@ -12,18 +12,16 @@ public class AKSVMSSWorkflow : Workflow<SplittableResourceRequest, bool>
 			await context.CallActivityAsync<bool>(nameof(AKSSplitUsageCostActivity),
 				new SplitUsageActivityRequest<AKSVMSSUsageResponseItem>
 				{
-					ReportId = request.ReportRequest.ReportId,
-					Data = usage,
-					ResourceId = request.ResourceId,
-					TotalCost = request.TotalCost
+					Request = request,
+					Data = usage
 				});
 		}
 		else
 		{
-			ResourceIdentifier rId = new(request.ResourceId);
+			ResourceIdentifier rId = new(request.Resource.ResourceId);
 
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [new ResourceCostResponse { Cost = request.TotalCost, ResourceId = request.ResourceId, Tags = [] }] },
+				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource] },
 				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
 		}
 

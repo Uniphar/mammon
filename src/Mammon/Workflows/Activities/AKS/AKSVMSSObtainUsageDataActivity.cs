@@ -4,6 +4,6 @@ public class AKSVMSSObtainUsageDataActivity(AKSService aKSService) : WorkflowAct
 {
 	public override async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> RunAsync(WorkflowActivityContext context, SplittableResourceRequest request)
 	{
-		return await aKSService.QueryUsage(request.ResourceId, request.ReportRequest.CostFrom, request.ReportRequest.CostTo);
+		return await aKSService.QueryUsage(request.Resource.ResourceId, request.ReportRequest.CostFrom, request.ReportRequest.CostTo);
 	}
 }

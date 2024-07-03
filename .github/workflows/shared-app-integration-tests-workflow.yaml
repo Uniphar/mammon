@@ -34,14 +34,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo
-        uses: actions/checkout@v1
-
-      - name: azure login
-        uses: azure/login@v2
+        uses: actions/checkout@v3
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          path: mammon     
 
       - name: gh-app-install token
         id: gh-app
@@ -57,13 +52,20 @@ jobs:
           repository: Uniphar/devops-azure
           token: ${{ steps.gh-app.outputs.token }}
 
+      - name: checkout cost centre definition repo
+        uses: actions/checkout@v3
+        with:
+          path: costcentre-definitions
+          repository: Uniphar/costcentre-definitions
+          ref: main
+          token: ${{ steps.gh-app.outputs.token }}
+
       - name: azure login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          enable-AzPSSession: true
 
       - name: compute environment variables
         uses: azure/powershell@v1
@@ -72,7 +74,7 @@ jobs:
           failOnStandardError: true
           inlineScript: |
             try{
-              Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
+              Import-Module ./devops-azure/src/Uniphar.DevOps.psd1 -ErrorAction Stop -Force
 
               $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
 
@@ -84,5 +86,5 @@ jobs:
             }
 
       - name: run integration tests
-        working-directory: ./src/${{ inputs.applicationFolder }}.Tests
-        run: dotnet test --filter TestCategory=IntegrationTest
+        working-directory: ./mammon/src/${{ inputs.applicationFolder }}.Tests
+        run: dotnet test --filter TestCategory=IntegrationTest --logger "console;verbosity=normal"
