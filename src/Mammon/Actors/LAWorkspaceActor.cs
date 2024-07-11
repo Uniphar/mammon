@@ -1,10 +1,8 @@
-﻿using Azure.ResourceManager.Resources.Models;
-
-namespace Mammon.Actors;
+﻿namespace Mammon.Actors;
 
 public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : ActorBase<CoreResourceActorState>(actorHost), ILAWorkspaceActor
 {
-	private static readonly string CostStateName = "laWorkspaceCostState";
+	private static readonly string CostStateName = "LAWorkspaceActorState";
 
 	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<LAWorkspaceQueryResponseItem> data)
 	{
@@ -60,7 +58,7 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 			else
 			{
 				//no usage, assign to LA workspace cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, new ResourceCost(totalCost.Cost, totalCost.Currency)));
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, totalCost));
 			}
 
 			var state = await GetStateAsync(CostStateName);

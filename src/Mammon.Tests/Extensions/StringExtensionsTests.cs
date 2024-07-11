@@ -1,4 +1,4 @@
-﻿namespace Mammon.UnitTests.Extensions;
+﻿namespace Mammon.Tests.Extensions;
 
 [TestClass, TestCategory("UnitTest")]
 public class StringExtensionsTests

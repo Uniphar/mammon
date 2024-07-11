@@ -19,9 +19,16 @@
     "tokenA": "classA"
   },
   "SpecialModes": [
-    "DevBoxPoolNameGrouping"
+    { "Name": "DevBoxPoolNameGrouping" },
+    {
+      "Name": "VDISplit",
+      "ResourceGroupFilter": [
+        "vdi-sample-(dev|test|prod)"
+      ]
+    }
+
   ],
-  "DefaultCostCentre": "DefaultRuleMatch",
+  "DefaultCostCentre": "DefaultCostCentre",
   "Rules": [
     {
       "CostCentre": "FullMatchMultiTag",
@@ -77,5 +84,16 @@
       "CostCentre": "RegExpResourceTypeNameMatch",
       "ResourceTypeMatchPattern": "microsoft.regexptest\/(.)+"
     }
-  ]
+  ],
+  "GroupIDMapping": {
+    "8ce21b7c-0173-4852-a94c-eb3a5cd43dc2": "CostCentreA",
+    "265ba43f-5775-4cc2-b2e1-f80dff1c74b9": "CostCentreB"
+  },
+  "AKSNamespaceMapping": {
+    "NSA": "CostCentreA",
+    "NSB": "CostCentreB"
+  },
+  "SQLDatabaseMapping": {
+    "(?i)sampledb-(dev|test|prod)-db": "CostCentreA"
+  }
 }

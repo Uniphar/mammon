@@ -24,6 +24,8 @@ public static class Consts
 	public const string ResourceIdLAWorkspaceSelectorType = "ResourceId";
 	public const string AKSCPUMetricName = "cpuUsageNanoCores";
 
+	public const string MammonSplittablePrefix = "MammonSplittable";
+
 #if (DEBUG)        
 	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
 #endif

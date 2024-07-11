@@ -1,9 +1,16 @@
 ﻿namespace Mammon.Workflows.Activities;
 
-public class ObtainCostsActivity(CostRetrievalService costService) : WorkflowActivity<CostReportSubscriptionRequest, AzureCostResponse>
+public class ObtainCostsActivity(CostRetrievalService costService, CostCentreRuleEngine costCentreRuleEngine) : WorkflowActivity<CostReportSubscriptionRequest, AzureCostResponse>
 {
     public override async Task<AzureCostResponse> RunAsync(WorkflowActivityContext context, CostReportSubscriptionRequest request)
     {
-        return await costService.QueryForSubAsync(request);
+        var result= await costService.QueryForSubAsync(request);
+        
+        foreach(var item in result)
+        {
+            costCentreRuleEngine.ProjectModes(item);
+        }
+
+        return result;
     }
 }

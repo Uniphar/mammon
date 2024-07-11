@@ -15,13 +15,16 @@ public class CostCentreRuleEngine
 	public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
 	public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
 	public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
-	public IList<string> SpecialModes { get; set; } = [];
+	public IList<SpecialModeDefinition> SpecialModes { get; set; } = [];
 	public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+	public IDictionary<string, string> GroupIDMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 	public IDictionary<Regex, string> SQLDatabaseMapping { get; set; } = new Dictionary<Regex, string>();
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
 	private const string DevBoxSpecialMode = "DevBoxPoolNameGrouping";
+
+	private const string RGRegexpFormat = ".+\\/resourceGroups\\/{0}\\/.+";
 
 	public CostCentreRuleEngine(IConfiguration configuration)
 	{
@@ -50,6 +53,7 @@ public class CostCentreRuleEngine
 		SubscriptionNames = Subscriptions.Select(x => x.SubscriptionName);
 		SpecialModes = definition.SpecialModes;
 		SQLDatabaseMapping = definition.SQLDatabaseMapping.ToDictionary(x => new Regex(x.Key), x=> x.Value);
+		GroupIDMapping = definition.GroupIDMapping;
 		ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
 
 		InitializeCostCentres();
@@ -109,6 +113,13 @@ public class CostCentreRuleEngine
 		return DefaultCostCentre;
 	}
 
+	public string GetCostCentreForGroupID(string groupId)
+	{
+		ArgumentException.ThrowIfNullOrWhiteSpace(groupId);
+
+		return GroupIDMapping.TryGetValue(groupId, out string? value) ? value : DefaultCostCentre;
+	}
+
 	public CostReportPivotEntry ProjectCostReportPivotEntry(string resourceId, ResourceCost cost)
 	{
 		var rId = new ResourceIdentifier(resourceId);
@@ -126,10 +137,37 @@ public class CostCentreRuleEngine
 		return new CostReportPivotEntry() { PivotName = pivotName, ResourceId = resourceId, SubscriptionId = subId, Cost = cost };
 	}
 
-	private bool IsModeEnabled(string modeName)
+	public bool IsModeEnabled(string modeName)
 	{
-		return SpecialModes.Contains(modeName, StringComparer.OrdinalIgnoreCase);
+		return SpecialModes.Any(x=>x.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
 	}
+
+	public void ProjectModes(ResourceCostResponse resource)
+	{
+		foreach (var mode in SpecialModes)
+		{
+			if (IsModeEnabled(mode.Name, resource.ResourceIdentifier))
+				resource.EnabledModes.Add(mode.Name);
+		}
+	}
+
+	public bool IsModeEnabled(string modeName, ResourceIdentifier resourceIdentifier)
+	{
+		var mode = SpecialModes.FirstOrDefault(x => x.Name.Equals(modeName, StringComparison.OrdinalIgnoreCase));
+		if (mode == null) return false;
+		
+		if (!mode.ResourceGroupFilter.Any())
+			return true;
+		else
+		{
+			return mode.ResourceGroupFilter.Any(x => 
+			{
+				Regex r = new(string.Format(RGRegexpFormat, x));
+				return r.IsMatch(resourceIdentifier.ToString());
+			});
+		}	
+	}
+
 	public string? ClassifyPivot(CostReportPivotEntry pivotDefinition)
 	{
 		ArgumentNullException.ThrowIfNull(pivotDefinition);
