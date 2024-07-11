@@ -8,6 +8,7 @@ public class VDIWorkflow : Workflow<SplittableResourceGroupRequest, bool>
 		
 		if (dataAvailable)
 		{
+			//TODO: consider retroactively spliting cost PER resource using the data above - at resource level rather than RG level (implications to Log Analytics splitting)
 			await context.CallActivityAsync<bool>(nameof(VDIGroupSplitUsageActivity),
 				new SplitUsageActivityGroupRequest<VDIQueryUsageResponseItem>
 				{
