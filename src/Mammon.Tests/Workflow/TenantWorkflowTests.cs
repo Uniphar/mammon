@@ -96,7 +96,7 @@ public class TenantWorkflowTests
 	}
 
 	[TestMethod]
-	public async Task WorkflowFinishesAndSendsEmailAsync()
+	public async Task WorkflowFinishesEmailSentTotalsMatch()
 	{
 
 		//send report request to SB Topic to wake up Mammon instance

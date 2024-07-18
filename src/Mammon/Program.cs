@@ -28,6 +28,7 @@ builder.Services
         config.RegisterWorkflow<LAWorkspaceWorkflow>();
         config.RegisterWorkflow<AKSVMSSWorkflow>();
         config.RegisterWorkflow<SQLPoolWorkflow>();
+        config.RegisterWorkflow<VDIWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
@@ -40,6 +41,8 @@ builder.Services
         config.RegisterActivity<AKSSplitUsageCostActivity>();
         config.RegisterActivity<SQLPoolObtainUsageDataActivity>();
         config.RegisterActivity<SQLPoolSplitUsageActivity>();
+        config.RegisterActivity<VDIGroupSplitObtainUsageActivity>();
+        config.RegisterActivity<VDIGroupSplitUsageActivity>();
     })
     .AddActors(options => {
         options.Actors.RegisterActor<ResourceActor>();
@@ -47,6 +50,7 @@ builder.Services
         options.Actors.RegisterActor<LAWorkspaceActor>();
         options.Actors.RegisterActor<AKSVMSSActor>();
         options.Actors.RegisterActor<SQLPoolActor>();
+        options.Actors.RegisterActor<SplittableVDIPoolActor>();
 
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {
@@ -64,6 +68,7 @@ builder.Services
     .AddSingleton<LogAnalyticsService>()
     .AddSingleton<AKSService>()
     .AddSingleton<SQLPoolService>()
+    .AddSingleton<VDIService>()
     .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {

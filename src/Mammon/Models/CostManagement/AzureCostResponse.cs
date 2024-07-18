@@ -11,6 +11,7 @@ public class ResourceCostResponse
 	public ResourceIdentifier ResourceIdentifier => new(ResourceId);
 	public required ResourceCost Cost { get; set; }
 	public required Dictionary<string, string> Tags { get; set; }
+	public List<string> EnabledModes { get; set; } = [];
 
 	public bool IsLogAnalyticsWorkspace() => ResourceIdentifier.IsLogAnalyticsWorkspace();
 
@@ -18,7 +19,11 @@ public class ResourceCostResponse
 
 	public bool IsSQLPool() => ResourceIdentifier.ResourceType == "microsoft.Sql/servers/elasticpools";
 
-	public bool IsSplittable() => IsAKSVMSS() || IsLogAnalyticsWorkspace() || IsSQLPool();
+	public bool IsSplitableVDI() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachines" && Tags.Any(x => x.Key.StartsWith(Consts.MammonSplittablePrefix, StringComparison.OrdinalIgnoreCase));
+
+	public bool IsSplittableAsResource() => IsAKSVMSS() || IsLogAnalyticsWorkspace() || IsSQLPool();
+
+	public bool IsSplittableAsGroup() => IsSplitableVDI();
 }
 
 public record ResourceCost

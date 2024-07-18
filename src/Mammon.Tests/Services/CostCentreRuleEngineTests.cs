@@ -103,7 +103,7 @@ public class CostCentreRuleEngineTests
 
         //assert
         result.Should().NotBeNull();
-        result.CostCentre.Should().Be("DefaultRuleMatch");
+        result.CostCentre.Should().Be("DefaultCostCentre");
         result.IsDefault.Should().BeTrue();
     }
 
@@ -123,11 +123,49 @@ public class CostCentreRuleEngineTests
 	[DataRow("N/A", "unspecified")]
 	public void LookupEnvironmentTests(string resourceId, string expectedEnvironment)
     {
-        //act+assert
-        GetInstance().LookupEnvironment(resourceId).Should().Be(expectedEnvironment);
+		//act+assert
+		GetInstance().LookupEnvironment(resourceId).Should().Be(expectedEnvironment);
     }
 
-	private CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
+    [TestMethod]
+    [DataRow("/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourceGroups/vdi-sample-dev/providers/Microsoft.Compute/virtualMachines/vm-sample-dev1", true)]
+    public void IsModeEnabledTest(string resourceId, bool expected)
+    {
+        //act+assert
+        GetInstance().IsModeEnabled("VDISplit", new ResourceIdentifier(resourceId)).Should().Be(expected);
+    }
+
+	[TestMethod]
+	[DataRow("8ce21b7c-0173-4852-a94c-eb3a5cd43dc2", "CostCentreA")]
+	[DataRow("265ba43f-5775-4cc2-b2e1-f80dff1c74b9", "CostCentreB")]
+	[DataRow("e71935e8-1bb8-4033-9884-1312b5ca2b56", "DefaultCostCentre")]
+	public void GetCostCentreForGroupIDTests(string groupID, string expectedCostCentre)
+	{
+		//act+assert
+		GetInstance().GetCostCentreForGroupID(groupID).Should().Be(expectedCostCentre);
+	}
+
+	[TestMethod]
+	[DataRow("NSA", "CostCentreA")]
+	[DataRow("NSB", "CostCentreB")]
+	[DataRow("NSC", "DefaultCostCentre")]
+	public void GetCostCentreForAKSNamespaceTests(string ns, string expectedCostCentre)
+	{
+		//act+assert
+		GetInstance().GetCostCentreForAKSNamespace(ns).Should().Be(expectedCostCentre);
+	}
+
+	[TestMethod]
+	[DataRow("SAMPLEdb-dev-db", "CostCentreA")]
+	[DataRow("sampledb-prod-db", "CostCentreA")]
+	[DataRow("other-db", "DefaultCostCentre")]
+	public void GetCostCentreForSQLDatabaseTests(string db, string expectedCostCentre)
+	{
+		//act+assert
+		GetInstance().GetCostCentreForSQLDatabase(db).Should().Be(expectedCostCentre);
+	}
+
+	private static CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
     {   
         //arrange       
         var ruleEngine = GetInstance();
@@ -138,7 +176,7 @@ public class CostCentreRuleEngineTests
             tags);
     }
 
-    private CostCentreRuleEngine GetInstance()
+    private static CostCentreRuleEngine GetInstance()
     {
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
 			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")

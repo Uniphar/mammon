@@ -29,7 +29,8 @@ public class SQLPoolService(ArmClient armClient, LogsQueryClient logsQueryClient
 
 			string query = @$"AzureMetrics 
 				| where MetricName=='dtu_used' and ResourceId in~ ({string.Join(",", dbs)})
-				| summarize DTUAverage=avg(Average) by ResourceId";
+				| summarize DTUAverage=avg(Average) by ResourceId
+				| where DTUAverage>0";
 
 			var result = await logsQueryClient.QueryWorkspaceAsync<SQLDatabaseUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 				query,

@@ -1,4 +1,4 @@
-﻿namespace Mammon.UnitTests.Services;
+﻿namespace Mammon.Tests.Services;
 
 [TestClass()]
 [TestCategory("UnitTest")]

@@ -2,7 +2,7 @@
 
 public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : ActorBase<CostCentreActorState>(host), ICostCentreActor
 {
-    private const string CostStateName = "costCentreState";
+    private const string CostStateName = "CostCentreActorState";
 
     public static string GetActorId(string reportId, string costCentreName) => $"{reportId}_{costCentreName}";
 
