@@ -1,8 +1,8 @@
 ﻿namespace Mammon.Workflows.Activities;
 
-public class ObtainCostsActivity(CostRetrievalService costService, CostCentreRuleEngine costCentreRuleEngine) : WorkflowActivity<CostReportSubscriptionRequest, AzureCostResponse>
+public class ObtainCostsActivity(CostRetrievalService costService, CostCentreRuleEngine costCentreRuleEngine) : WorkflowActivity<ObtainCostsActivityRequest, ObtainCostByPageWorkflowResult>
 {
-    public override async Task<AzureCostResponse> RunAsync(WorkflowActivityContext context, CostReportSubscriptionRequest request)
+    public override async Task<ObtainCostByPageWorkflowResult> RunAsync(WorkflowActivityContext context, ObtainCostsActivityRequest request)
     {
         var result= await costService.QueryForSubAsync(request);
         
@@ -11,6 +11,6 @@ public class ObtainCostsActivity(CostRetrievalService costService, CostCentreRul
             costCentreRuleEngine.ProjectModes(item);
         }
 
-        return result;
+        return new ObtainCostByPageWorkflowResult { Costs = result.ToArray(), nextPageAvailable = result.nextPageAvailable};
     }
 }

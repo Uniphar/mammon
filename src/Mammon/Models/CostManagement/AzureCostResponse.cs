@@ -2,17 +2,31 @@
 
 public class AzureCostResponse : List<ResourceCostResponse>
 {
+	public AzureCostResponse()
+	{
+	}
+
+	public AzureCostResponse(IEnumerable<ResourceCostResponse> items, int pageIndex, bool nextPageAvailable):base(items)
+    {       
+		this.pageIndex = pageIndex;
+		this.nextPageAvailable = nextPageAvailable;
+    }
+
+    public int pageIndex { get; set; }
+	public bool nextPageAvailable { get; set; }
 	public decimal TotalCost => this.Sum(x => x.Cost.Cost);
 }
 
 public class ResourceCostResponse
 {
 	public required string ResourceId { get; set; }
+
+	[JsonIgnore]
 	public ResourceIdentifier ResourceIdentifier => new(ResourceId);
+
 	public required ResourceCost Cost { get; set; }
 	public required Dictionary<string, string> Tags { get; set; }
 	public List<string> EnabledModes { get; set; } = [];
-
 	public bool IsLogAnalyticsWorkspace() => ResourceIdentifier.IsLogAnalyticsWorkspace();
 
 	public bool IsAKSVMSS() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachinescalesets" && Tags.ContainsKey("aks-managed-poolname");

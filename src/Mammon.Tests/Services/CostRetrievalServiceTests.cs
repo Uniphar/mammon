@@ -1,4 +1,6 @@
-﻿namespace Mammon.Tests.Services;
+﻿using Mammon.Models.Workflows.Activities;
+
+namespace Mammon.Tests.Services;
 
 [TestClass()]
 [TestCategory("UnitTest")]
@@ -27,15 +29,13 @@ public class CostRetrievalServiceTests
 
         //test
         var result = await service.QueryForSubAsync(
-            new CostReportSubscriptionRequest
-            {
-                SubscriptionName = "blah",
-                ReportRequest = new CostReportRequest
-                {
-                    CostFrom = DateTime.UtcNow.AddDays(-1),
-                    CostTo = DateTime.UtcNow,
-                    ReportId = Guid.NewGuid().ToString()
-                }
+            new ObtainCostsActivityRequest
+			{
+                SubscriptionName = "blah",               
+                CostFrom = DateTime.UtcNow.AddDays(-1),
+                CostTo = DateTime.UtcNow,
+                PageIndex = 0,
+                GroupingMode = GroupingMode.Resource
             });
 
         //assert

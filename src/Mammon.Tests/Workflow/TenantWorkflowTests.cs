@@ -1,4 +1,6 @@
-﻿namespace Mammon.Tests.Workflow;
+﻿using Mammon.Models.Workflows.Activities;
+
+namespace Mammon.Tests.Workflow;
 
 [TestClass, TestCategory("IntegrationTest")]
 public class TenantWorkflowTests
@@ -148,10 +150,12 @@ public class TenantWorkflowTests
 
 		foreach (var subscription in _costCentreRuleEngine!.SubscriptionNames)
 		{
-			var request = new CostReportSubscriptionRequest
+			var request = new ObtainCostsActivityRequest
 			{
 				SubscriptionName = subscription,
-				ReportRequest = _reportRequest,
+				CostFrom = _reportRequest.CostFrom,
+				CostTo = _reportRequest.CostTo,
+				PageIndex = 0,
 				GroupingMode = GroupingMode.Subscription
 			};
 

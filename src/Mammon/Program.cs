@@ -29,6 +29,7 @@ builder.Services
         config.RegisterWorkflow<AKSVMSSWorkflow>();
         config.RegisterWorkflow<SQLPoolWorkflow>();
         config.RegisterWorkflow<VDIWorkflow>();
+        config.RegisterWorkflow<ObtainCostByPageWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();

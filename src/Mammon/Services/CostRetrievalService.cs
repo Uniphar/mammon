@@ -16,6 +16,8 @@ public class CostRetrievalService
 	private const string currencyColumnName = "Currency";
     private const string tagsColumnName = "Tags";
 
+    private const int PageSize = 1000; //TODO: make configurable?
+
     public CostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger, IConfiguration configuration)
     {
         this.armClient = armClient;
@@ -32,9 +34,9 @@ public class CostRetrievalService
         return subByName?.Id ?? string.Empty;
     }
 
-    public async Task<AzureCostResponse> QueryForSubAsync(CostReportSubscriptionRequest request)
+    public async Task<AzureCostResponse> QueryForSubAsync(ObtainCostsActivityRequest request)
     {
-        new CostReportSubscriptionRequestValidator().ValidateAndThrow(request);
+        //new CostReportSubscriptionRequestValidator().ValidateAndThrow(request);
 
         var subId = GetSubscriptionFullResourceId(request.SubscriptionName);
         if (string.IsNullOrWhiteSpace(subId))
@@ -42,7 +44,7 @@ public class CostRetrievalService
 
         var groupingProperty = request.GroupingMode==GroupingMode.Resource ? "ResourceId" : "SubscriptionId";
 
-        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"{groupingProperty}\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.ReportRequest.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.ReportRequest.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
+        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"{groupingProperty}\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
         HttpResponseMessage response;
@@ -50,7 +52,7 @@ public class CostRetrievalService
         string? url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
         bool nextPageAvailable;
 
-        AzureCostResponse responseData = [];
+        List<ResourceCostResponse> responseData = [];
 
         do
         {           
@@ -88,7 +90,13 @@ public class CostRetrievalService
         }
         while (nextPageAvailable);
 
-        return responseData;
+        //extract sub page
+        int startIndex = request.PageIndex * PageSize;
+        int endIndex = startIndex + PageSize;
+
+        var records = responseData.GetRange(startIndex, responseData.Count<endIndex? responseData.Count-startIndex : PageSize);
+
+        return new AzureCostResponse(records, request.PageIndex, responseData.Count > (endIndex + 1));		
     }
 
     private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content, string subId, GroupingMode groupingMode)

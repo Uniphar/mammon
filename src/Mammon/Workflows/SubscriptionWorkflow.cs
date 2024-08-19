@@ -4,14 +4,36 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 {
     public async override Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
     {
-		//obtain cost items from Cost API
-		var costs = await context.CallActivityAsync<AzureCostResponse>(nameof(ObtainCostsActivity), input);
+		List<ResourceCostResponse> costs = [];
+
+		ObtainCostByPageWorkflowResult pageResponse;
+		int pageIndex = 0;
+		do
+		{
+			//obtain cost items from Cost API
+			var costRequest = new ObtainCostsActivityRequest
+			{
+				CostFrom = input.ReportRequest.CostFrom,
+				CostTo = input.ReportRequest.CostTo,
+				GroupingMode = input.GroupingMode,
+				PageIndex = pageIndex,
+				SubscriptionName = input.SubscriptionName
+			};
+
+			pageResponse = await context.CallChildWorkflowAsync<ObtainCostByPageWorkflowResult>(nameof(ObtainCostByPageWorkflow),
+					costRequest,
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainCostByPageWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{costRequest.PageIndex}" });
+
+			costs.AddRange(pageResponse.Costs);
+
+			pageIndex++;
+		}
+		while (pageResponse.nextPageAvailable);
 
 		//splittable resources are processed separately
 		var rgGroups = costs
 			.Where(x => !x.IsSplittableAsResource())
-			.GroupBy(x => x.ResourceIdentifier.ResourceGroupName
-		);
+			.GroupBy(x => x.ResourceIdentifier.ResourceGroupName);
 
 		foreach (var group in rgGroups)
 		{
@@ -26,7 +48,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
 			}
 			else
-			{
+			{				
 				await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
 					new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
 					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" });
