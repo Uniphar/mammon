@@ -27,7 +27,7 @@ public class SplittableVDIPoolActor(ActorHost host, CostCentreRuleEngine costCen
 
 				foreach (var item in data)
 				{
-					var cost = new ResourceCost(item.SessionCount / totalUsage * totalResourceCost.Cost, totalResourceCost.Currency);
+					var cost = new ResourceCost((decimal) item.SessionCount / totalUsage * totalResourceCost.Cost, totalResourceCost.Currency);
 					var costCentre = costCentreRuleEngine.GetCostCentreForGroupID(item.GroupID);
 
 					if (nsMetrics.TryGetValue(costCentre, out ResourceCost? value))
