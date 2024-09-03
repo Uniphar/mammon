@@ -34,26 +34,33 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		var rgGroups = costs
 			.Where(x => !x.IsSplittableAsResource())
 			.GroupBy(x => x.ResourceIdentifier.ResourceGroupName);
+	
 
-		foreach (var group in rgGroups)
+		foreach (var chunk in rgGroups.Chunk(10))		
 		{
+			List<Task> tasks = [];
+
+			foreach (var group in chunk)
 			//any resource group with splittable resource as a group gets special treatment
 			if (group.Any(x => x.IsSplitableVDI()))
 			{
 				var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
 
-				await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
+				tasks.Add(context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
 					new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString()},
-					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}" });
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}" }));
 
 			}
 			else
 			{				
-				await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
+				tasks.Add(context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
 					new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
-					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" });
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" }));
 			}
+
+			await Task.WhenAll(tasks);
 		}
+		
 
 		//AKS VMSS splitting
 		var aksScaleSets = costs.Where(x => x.IsAKSVMSS());
