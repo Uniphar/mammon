@@ -95,7 +95,7 @@ jobs:
             $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
             $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
             $cronDayOfMonth = (ConvertFrom-SecureString $cronDayOfMonthSecret.SecretValue -AsPlainText)
-            $cronDayOfMonth = [int]$cronDayOfMonth+1
+            
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
