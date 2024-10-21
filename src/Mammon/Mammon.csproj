@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="*" />
-    <PackageReference Include="Azure.Identity" Version="*" />
+    <PackageReference Include="Azure.Identity" Version="1.12.1" />
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="*" />
     <PackageReference Include="Azure.Monitor.Query" Version="*" />
     <PackageReference Include="Azure.ResourceManager.ApiManagement" Version="*" />
