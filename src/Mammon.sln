@@ -8,6 +8,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LocalComponents\actorStateStore.yaml = LocalComponents\actorStateStore.yaml
 		LocalComponents\cron.yaml = LocalComponents\cron.yaml
 		LocalComponents\pubsub.yaml = LocalComponents\pubsub.yaml
+		scheduler.yaml = scheduler.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mammon", "Mammon\Mammon.csproj", "{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}"
