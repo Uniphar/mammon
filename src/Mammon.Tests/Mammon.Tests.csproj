@@ -12,7 +12,7 @@
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="*" />
     <PackageReference Include="FluentAssertions" Version="*-*" />
-    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="*" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="8.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="Moq" Version="*" />
     <PackageReference Include="MSTest.TestAdapter" Version="*" />
@@ -20,8 +20,8 @@
     <PackageReference Include="RichardSzalay.MockHttp" Version="*" />
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="*" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="*" />
-    <PackageReference Include="System.Formats.Asn1" Version="*" />
-    <PackageReference Include="System.Text.Json" Version="*" />
+    <PackageReference Include="System.Formats.Asn1" Version="8.*" />
+    <PackageReference Include="System.Text.Json" Version="8.*" />
   </ItemGroup>
 
   <ItemGroup>
