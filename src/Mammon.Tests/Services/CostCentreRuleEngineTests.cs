@@ -79,6 +79,7 @@ public class CostCentreRuleEngineTests
 	[DataRow("/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/blah/providers/microsoft.storage/storageaccounts/regexpResource-prod", "RegExpResourceNameMatch")]
 	[DataRow("/subscriptions/030dc63d-963c-47bf-996e-cc0c32fc46ae/resourcegroups/regexpRG-prod/providers/microsoft.storage/storageaccounts/blah", "RegExpResourceGroupNameMatch")]
 	[DataRow("/subscriptions/030dc63d-963c-47bf-996e-cc0c32fc46ae/resourcegroups/blah/providers/microsoft.regexptest/storageaccounts/blah", "RegExpResourceTypeNameMatch")]
+	[DataRow("/subscriptions/6a46ea4f-c676-437a-9298-41a1aacd7a51/resourcegroups/blah/providers/microsoft.devcenter/projects/testDevBoxProject/pools/poolA", "RegExpFullIdMatch")]
 	public void ShouldMatchRegExpRule(string resourceId, string expectedRuleName)
 	{
 
