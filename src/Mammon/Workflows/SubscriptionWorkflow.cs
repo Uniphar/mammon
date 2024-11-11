@@ -37,7 +37,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
 		foreach (var group in rgGroups)
 		{
-			//any resource group with splittable resource as a group gets special treatment
+			//any resource group with splitable resource as a group gets special treatment
 			if (group.Any(x => x.IsSplitableVDI()))
 			{
 				var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
