@@ -14,7 +14,8 @@ public class CostCentreRule
 	public string? ResourceGroupNameMatchPattern { get; set; }
 	public string? SubscriptionId { get; set; }
 	public string? ResourceTypeMatchPattern { get; set; }
-	public bool IsDefault { get; set; }
+	public string? FullIdMatchPattern { get; set; }
+	public bool IsDefault { get; internal set; }
 
 	private Regex? _resourceGroupNameRegExp;
 	public Regex? ResourceGroupNameRegExp => GetRegExp(ResourceGroupNameMatchPattern, ref _resourceGroupNameRegExp);
@@ -25,6 +26,9 @@ public class CostCentreRule
 	public Regex? _resourceTypeRegExp;
 	public Regex? ResourceTypeRegExp => GetRegExp(ResourceTypeMatchPattern, ref _resourceTypeRegExp);
 
+	public Regex? FullIdRegExp => GetRegExp(FullIdMatchPattern, ref _fullIdRegExp);
+	private Regex? _fullIdRegExp;
+
 	/// <summary>
 	/// evaluate match level of available rules to a given resource id and tags
 	/// 
@@ -34,6 +38,7 @@ public class CostCentreRule
 	///  - subscription - 4
 	///  - resource group - 8
 	///  - resource name - 16
+	///  - full id - 32
 	///  
 	/// the more specific match, the higher the score
 	/// (i.e. in the case of resource type level rule or subscription level rule, subscription rule wins)
@@ -59,12 +64,15 @@ public class CostCentreRule
 		var subscriptionIdMatch = string.IsNullOrWhiteSpace(SubscriptionId) || (parsedResourceId.SubscriptionId != null && parsedResourceId.SubscriptionId.Equals(SubscriptionId, StringComparison.OrdinalIgnoreCase));
 		var resourceTypeMatch = ResourceTypeRegExp == null || ResourceTypeRegExp.IsMatch(parsedResourceId.ResourceType.ToString());
 		var tagMatch = MatchTags(resourceTags);
+		var fullIdMatch = FullIdRegExp==null || FullIdRegExp.IsMatch(resourceId);
 
 		int scoreMatch = 0;
 
 		//there has to be no mismatch at resource level for score to be affected (e.g. different sub for matching resource name)
-		if (resourceNameMatch && resourceGroupNameMatch && subscriptionIdMatch && resourceTypeMatch && tagMatch)
+		if (resourceNameMatch && resourceGroupNameMatch && subscriptionIdMatch && resourceTypeMatch && tagMatch && fullIdMatch)
 		{
+			if (fullIdMatch && FullIdRegExp!=null)
+				scoreMatch += 32;
 			if (resourceNameMatch && ResourceNameRegExp != null)
 				scoreMatch += 16;
 			if (resourceGroupNameMatch && ResourceGroupNameRegExp != null)
@@ -108,7 +116,7 @@ public class CostCentreRuleValidator : AbstractValidator<CostCentreRule>
 	{
 		RuleFor(x => x.CostCentre).NotEmpty().WithMessage("Cost Centre must be assigned");
 		RuleFor(x => x).Must(i => !i.IsDefault && (!string.IsNullOrWhiteSpace(i.SubscriptionId) || !string.IsNullOrWhiteSpace(i.ResourceNameMatchPattern) || !string.IsNullOrWhiteSpace(i.ResourceGroupNameMatchPattern)
-			|| !string.IsNullOrWhiteSpace(i.ResourceTypeMatchPattern) || (i.Tags != null && i.Tags.Count > 0)))
+			|| !string.IsNullOrWhiteSpace(i.ResourceTypeMatchPattern) || (i.Tags != null && i.Tags.Count > 0) || !string.IsNullOrWhiteSpace(i.FullIdMatchPattern)))
 			.WithMessage("At least one differentiator must be set");
 
 		RuleFor(x => x.ResourceGroupNameMatchPattern).Must((s) =>
@@ -116,21 +124,28 @@ public class CostCentreRuleValidator : AbstractValidator<CostCentreRule>
 			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); }
 			return true;
 		})
-			.WithMessage("ResourceGroupNameMatchPattern must a string or regexp expression");
+			.WithMessage("ResourceGroupNameMatchPattern must be a string or regexp expression");
 
 		RuleFor(x => x.ResourceNameMatchPattern).Must((s) =>
 		{
 			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); }
 			return true;
 		})
-			.WithMessage("ResourceNameMatchPattern must a string or regexp expression");
+			.WithMessage("ResourceNameMatchPattern must be a string or regexp expression");
 
 		RuleFor(x => x.ResourceTypeMatchPattern).Must((s) =>
 		{
 			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); }
 			return true;
 		})
-			.WithMessage("ResourceTypeMatchPattern must a string or regexp expression");
+			.WithMessage("ResourceTypeMatchPattern must be a string or regexp expression");
+
+		RuleFor(x => x.FullIdMatchPattern).Must((s) =>
+		{
+			if (!string.IsNullOrWhiteSpace(s)) { _ = new Regex(s); }
+			return true;
+		})
+			.WithMessage("FullIdMatchPattern must be a string or regexp expression");
 
 	}
 }

@@ -1,6 +1,4 @@
-﻿using Mammon.Models.Workflows.Activities;
-
-namespace Mammon.Tests.Workflow;
+﻿namespace Mammon.Tests.Workflow;
 
 [TestClass, TestCategory("IntegrationTest")]
 public class TenantWorkflowTests
@@ -107,6 +105,7 @@ public class TenantWorkflowTests
 		///pre-access some things upfront
 
 		await _blobContainerClient!.ExistsAsync();
+
 		var apiTotal = await ComputeCostAPITotalAsync();
 
 		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
@@ -137,11 +136,15 @@ public class TenantWorkflowTests
 		emailData.Attachments.Should().NotBeEmpty();
 		emailData.AttachmentsList.Should().ContainSingle();
 		emailData.ToList.Should().BeEquivalentTo(expectedToContacts);
-	
+
 		//retrieve content and compute total
 		var csvTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 
-		(decimal.Round(apiTotal, 2) - decimal.Round(csvTotal, 2)).Should().BeLessThan(1m); // this is to cover rounding issues
+		// this is to cover rounding issues
+		var apiTotalRound = decimal.Round(apiTotal, 2);
+		var csvTotalRound = decimal.Round(csvTotal, 2);
+
+		(apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
 	}
 
 	private static async Task<decimal> ComputeCostAPITotalAsync()
@@ -193,10 +196,10 @@ public class TenantWorkflowTests
 		csvReader.GetRecord<object>(); //comment row to be read
 
 		decimal total = 0m;
+
 		while (csvReader.Read())
 		{
 			var lineCost = Convert.ToDecimal(csvReader.GetField(2), CultureInfo.InvariantCulture);
-
 			total += lineCost;
 		}
 

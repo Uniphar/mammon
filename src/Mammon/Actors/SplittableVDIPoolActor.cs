@@ -49,7 +49,7 @@ public class SplittableVDIPoolActor(ActorHost host, CostCentreRuleEngine costCen
 			}
 			else
 			{
-				//no usage, assign to sql pool cost centre - likely a default one
+				//no usage, assign to RG cost centre - likely a default one
 				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, new Dictionary<string, string>())), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, totalResourceCost));
 			}
 

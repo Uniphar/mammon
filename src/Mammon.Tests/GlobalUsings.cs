@@ -14,6 +14,7 @@ global using Kusto.Data.Net.Client;
 global using Mammon.Extensions;
 global using Mammon.Models.Actors;
 global using Mammon.Models.CostManagement;
+global using Mammon.Models.Workflows.Activities;
 global using Mammon.Services;
 global using Mammon.Tests.Extensions;
 global using Mammon.Utils;
