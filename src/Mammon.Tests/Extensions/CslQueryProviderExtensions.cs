@@ -12,7 +12,7 @@ public static class CslQueryProviderExtensions
 		TData? result = null;
 
 		await Policy.HandleResult<TData?>(r => r == null && !cancellationToken.IsCancellationRequested)
-					.WaitAndRetryAsync((int)timeout.TotalSeconds, _ => TimeSpan.FromSeconds(1))
+					.WaitAndRetryAsync((int)timeout.TotalSeconds, _ => TimeSpan.FromMinutes(1))
 					.ExecuteAsync(async () =>
 					{
 						using var readerStream = await queryProvider!

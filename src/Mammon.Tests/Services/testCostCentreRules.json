@@ -39,7 +39,7 @@
       },
       "ResourceGroupNameMatchPattern": "rgName",
       "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695",
-      "ResourceTypeMatchPattern": "microsoft.storage/storageaccounts"
+      "ResourceTypeMatchPattern": "microsoft.storage\/storageaccounts"
     },
     {
       "CostCentre": "FullMatchSingleTag",
@@ -49,7 +49,7 @@
       },
       "ResourceGroupNameMatchPattern": "rgName",
       "SubscriptionId": "21a25c3f-776a-408f-b319-f43e54634695",
-      "ResourceTypeMatchPattern": "microsoft.storage/storageaccounts"
+      "ResourceTypeMatchPattern": "microsoft.storage\/storageaccounts"
     },
     {
       "CostCentre": "RGLevelMatch",
@@ -83,7 +83,12 @@
     {
       "CostCentre": "RegExpResourceTypeNameMatch",
       "ResourceTypeMatchPattern": "microsoft.regexptest\/(.)+"
+    },
+    {
+      "CostCentre": "RegExpFullIdMatch",
+      "FullIdMatchPattern": ".+\/microsoft\\.devcenter\/projects\/testDevBoxProject\/"
     }
+
   ],
   "GroupIDMapping": {
     "8ce21b7c-0173-4852-a94c-eb3a5cd43dc2": "CostCentreA",
