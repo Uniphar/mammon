@@ -16,7 +16,7 @@ public class AKSService(ArmClient armClient, LogsQueryClient logsQueryClient, IL
 			var clusterName = rgTags.Value.Data.TagValues["aks-managed-cluster-name"];
 
 			ResourceIdentifier sID = new($"/subscriptions/{rID.SubscriptionId}");
-			var sub = await armClient.GetSubscriptionResource(sID).GetAsync();
+			//var sub = await armClient.GetSubscriptionResource(sID).GetAsync();
 
 			var rgResponse = await armClient.GetSubscriptionResource(sID).GetResourceGroups().GetAsync(clusterRG);
 			var clusterResponse = await rgResponse.Value.GetContainerServiceManagedClusterAsync(clusterName);

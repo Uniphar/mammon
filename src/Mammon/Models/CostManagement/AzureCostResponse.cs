@@ -35,7 +35,9 @@ public class ResourceCostResponse
 
 	public bool IsSplitableVDI() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachines" && Tags.Any(x => x.Key.StartsWith(Consts.MammonSplittablePrefix, StringComparison.OrdinalIgnoreCase));
 
-	public bool IsSplittableAsResource() => IsAKSVMSS() || IsLogAnalyticsWorkspace() || IsSQLPool();
+	public bool IsMySQL() => ResourceIdentifier.ResourceType == "Microsoft.DBforMySQL/flexibleServers";
+
+	public bool IsSplittableAsResource() => IsAKSVMSS() || IsLogAnalyticsWorkspace() || IsSQLPool() || IsMySQL();
 
 	public bool IsSplittableAsGroup() => IsSplitableVDI();
 }

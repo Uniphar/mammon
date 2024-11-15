@@ -55,26 +55,25 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			}
 		}
 
+		//MySQL splitting
+		var mySQLServers = costs.Where(x => x.IsMySQL());
+		foreach (var mySQL in mySQLServers)
+		{
+			await TriggerSplittableWorkflowAsync<MySQLWorkflow>(context, input, mySQL);
+		}
+
 		//AKS VMSS splitting
 		var aksScaleSets = costs.Where(x => x.IsAKSVMSS());
 		foreach (var aksScaleSet in aksScaleSets)
 		{
-			await context.CallChildWorkflowAsync<bool>(nameof(AKSVMSSWorkflow), new SplittableResourceRequest
-			{
-				Resource = aksScaleSet,
-				ReportRequest = input.ReportRequest,
-			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{aksScaleSet.ResourceIdentifier.Name}" });
+			await TriggerSplittableWorkflowAsync<AKSVMSSWorkflow>(context, input, aksScaleSet);
 		}
 
 		//SQL Pool splitting
 		var sqlPools = costs.Where(x => x.IsSQLPool());
 		foreach (var sqlPool in sqlPools)
-		{
-			await context.CallChildWorkflowAsync<bool>(nameof(SQLPoolWorkflow), new SplittableResourceRequest
-			{
-				Resource = sqlPool,
-				ReportRequest = input.ReportRequest
-			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SQLPoolWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{sqlPool.ResourceIdentifier.Name}" });
+		{			
+			await TriggerSplittableWorkflowAsync<SQLPoolWorkflow>(context, input, sqlPool);
 		}
 
 		//Log Analytics workspace splitting
@@ -84,14 +83,18 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		var laWorkspaces = costs.Where(x => x.IsLogAnalyticsWorkspace());
 		foreach (var laWorkspace in laWorkspaces)
 		{
-			await context.CallChildWorkflowAsync<bool>(nameof(LAWorkspaceWorkflow), new SplittableResourceRequest
-			{
-				Resource = laWorkspace,
-				ReportRequest = input.ReportRequest
-
-			}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{laWorkspace.ResourceIdentifier.Name}" });
+			await TriggerSplittableWorkflowAsync<LAWorkspaceWorkflow>(context, input, laWorkspace);			
 		}
 
 		return true;
     }
+
+	private static async Task TriggerSplittableWorkflowAsync<T>(WorkflowContext context, CostReportSubscriptionRequest input, ResourceCostResponse resourceToSplit) where T: Workflow<SplittableResourceRequest,bool>
+	{
+		await context.CallChildWorkflowAsync<bool>(nameof(T), new SplittableResourceRequest
+		{
+			Resource = resourceToSplit,
+			ReportRequest = input.ReportRequest
+		}, new ChildWorkflowTaskOptions { InstanceId = $"{nameof(T)}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.Name}" });
+	}
 }

@@ -171,7 +171,7 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 			httpContext.Request.Scheme = currentUri.Scheme;
 			httpContext.Request.Host = HostString.FromUriComponent(currentUri);
 			httpContext.RequestServices = sp;
-			var actionContext = new ActionContext(httpContext, new RouteData(), new ControllerActionDescriptor());
+			var actionContext = new ActionContext(httpContext, new Microsoft.AspNetCore.Routing.RouteData(), new ControllerActionDescriptor());
 			var ctx = new ControllerContext(actionContext);
 
 			return ctx;
