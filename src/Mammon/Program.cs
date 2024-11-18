@@ -114,7 +114,9 @@ builder.Services
         config.RegisterActivity<SQLPoolSplitUsageActivity>();
         config.RegisterActivity<VDIGroupSplitObtainUsageActivity>();
         config.RegisterActivity<VDIGroupSplitUsageActivity>();
-        config.RegisterActivity<MySQLObtainUsageDataActivity>();
+        config.RegisterActivity<MySQLServerObtainUsageDataActivity>();
+        config.RegisterActivity<MySQLServerSplitUsageActivity>();
+
     })
     .AddActors(options => {
         options.Actors.RegisterActor<ResourceActor>();
@@ -123,6 +125,7 @@ builder.Services
         options.Actors.RegisterActor<AKSVMSSActor>();
         options.Actors.RegisterActor<SQLPoolActor>();
         options.Actors.RegisterActor<SplittableVDIPoolActor>();
+        options.Actors.RegisterActor<MySQLServerActor>();
 
         options.ReentrancyConfig = new ActorReentrancyConfig()
         {

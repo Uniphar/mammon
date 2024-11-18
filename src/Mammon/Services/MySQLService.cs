@@ -15,8 +15,23 @@ public class MySQLService(ArmClient armClient, DefaultAzureCredential credential
 			if (!connection.State.HasFlag(ConnectionState.Open))
 				await connection.OpenAsync();
 
+			MySqlCommand cmd = connection.CreateCommand();
+			cmd.CommandText = "SELECT table_schema AS DBName, SUM(data_length + index_length) AS DBSize FROM information_schema.tables WHERE table_schema NOT IN ('mysql', 'information_schema', 'performance_schema') GROUP BY table_schema";
+			MySqlDataReader reader = await cmd.ExecuteReaderAsync();
+		
+			List<MySQLUsageResponseItem> result = [];
 
-			return ([], false);
+			while (await reader.ReadAsync())
+			{
+				result.Add(new MySQLUsageResponseItem
+				{
+					DBName = reader.GetString(0),
+					DBSize = reader.GetInt64(1),
+				});
+			}
+		
+
+			return (result, true);
 		}
 		catch (Exception ex)
 		{
@@ -41,24 +56,22 @@ public class MySQLService(ArmClient armClient, DefaultAzureCredential credential
 		}
 		else
 		{
-#pragma warning disable CA1826 // Do not use Enumerable methods on indexable collections
 			var privateEndpoint = server.Value.Data.PrivateEndpointConnections.FirstOrDefault();
-#pragma warning restore CA1826 // Do not use Enumerable methods on indexable collections
 			if (privateEndpoint==null || privateEndpoint.ConnectionState.Status!= MySqlFlexibleServersPrivateEndpointServiceConnectionStatus.Approved)
 			{
 				return (null, false);
 			}
 			else
 			{
-				var privateEndpointResource = await armClient.GetPrivateEndpointResource(privateEndpoint.Id).GetAsync();
+				var privateEndpointResource = await armClient.GetPrivateEndpointResource(privateEndpoint.PrivateEndpointId).GetAsync();
 
-				var ipConfiguration = privateEndpointResource?.Value?.Data.IPConfigurations.FirstOrDefault();
+				var ipConfiguration = privateEndpointResource?.Value?.Data.CustomDnsConfigs?.FirstOrDefault()?.IPAddresses?.FirstOrDefault();
 				if (ipConfiguration == null)
 				{
 					return (null, false);
 				}
 
-				serverUrl = ipConfiguration?.PrivateIPAddress.ToString();
+				serverUrl = ipConfiguration;
 			}
 		}
 

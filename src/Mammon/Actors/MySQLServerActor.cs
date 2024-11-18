@@ -1,10 +1,10 @@
 ﻿namespace Mammon.Actors;
 
-public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<SQLPoolActor> logger) : ActorBase<CoreResourceActorState>(actorHost), ISQLPoolActor
+public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<MySQLServerActor> logger) : ActorBase<CoreResourceActorState>(actorHost), IMySQLServerActor
 {
-	private const string CostStateName = "sqlPoolActorState";
+	private const string CostStateName = "mySQLServerActorState";
 
-	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<SQLDatabaseUsageResponseItem> data)
+	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<MySQLUsageResponseItem> data)
 	{
 		try
 		{
@@ -19,19 +19,17 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 			state.TotalCost = totalCost;
 			await SaveStateAsync(CostStateName, state);
 
-			var totalDTU = data.Sum(x => x.DTUAverage);			
+			var totalSize = data.Sum(x => x.DBSize);
 
-			if (totalDTU > 0)
+			if (totalSize > 0)
 			{
 				Dictionary<string, ResourceCost> nsMetrics = [];
 
 				foreach (var db in data)
 				{
-					var cost = new ResourceCost((decimal)(db.DTUAverage / totalDTU) * totalCost.Cost, totalCost.Currency);
-			
-					ResourceIdentifier dbRID = new(db.ResourceId);
+					var cost = new ResourceCost((db.DBSize / totalSize) * totalCost.Cost, totalCost.Currency);				
 
-					var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(dbRID.Name);
+					var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(db.DBName);
 					if (nsMetrics.TryGetValue(costCentre, out ResourceCost? value))
 					{
 						value.Cost += cost.Cost;
@@ -41,7 +39,7 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 						value = cost;
 
 						nsMetrics.Add(costCentre, value);
-					}															
+					}
 				}
 
 				foreach (var nsMetric in nsMetrics)
@@ -56,7 +54,7 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 			}
 
 		}
-		catch (Exception ex) 
+		catch (Exception ex)
 		{
 			logger.LogError(ex, $"Failure in SQLPoolActor.SplitCost (ActorId:{Id})");
 			throw;

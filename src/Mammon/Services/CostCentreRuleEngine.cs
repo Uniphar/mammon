@@ -19,6 +19,7 @@ public class CostCentreRuleEngine
 	public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 	public IDictionary<string, string> GroupIDMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 	public IDictionary<Regex, string> SQLDatabaseMapping { get; set; } = new Dictionary<Regex, string>();
+	public IDictionary<string, double> StaticMySQLMapping { get; set; } = new Dictionary<string, double>();
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
