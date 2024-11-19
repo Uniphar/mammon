@@ -40,11 +40,11 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			//any resource group with splitable resource as a group gets special treatment
 			if (group.Any(x => x.IsSplitableVDI()))
 			{
-				//var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
+				var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
 
-				//await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
-				//	new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
-				//	new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}" });
+				await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
+					new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}" });
 
 			}
 			else
