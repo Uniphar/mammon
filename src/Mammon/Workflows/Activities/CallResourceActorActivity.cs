@@ -15,7 +15,7 @@ public class CallResourceActorActivity(DaprClient client, IConfiguration configu
         ///we now resort to computing hash
         var stateKeyHash = stateKey.ToSHA256();
 
-		var actorIdStateEntry = await client.GetStateAsync<string>(storeName, stateKeyHash);
+	    var actorIdStateEntry = await client.GetStateAsync<string>(storeName, stateKeyHash);
         
         var actorGuid = string.Empty;
 
