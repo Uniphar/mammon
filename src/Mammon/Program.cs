@@ -7,9 +7,6 @@ global using Azure.ResourceManager;
 global using Azure.ResourceManager.ContainerService;
 global using Azure.ResourceManager.DesktopVirtualization;
 global using Azure.ResourceManager.Monitor;
-global using Azure.ResourceManager.MySql.FlexibleServers;
-global using Azure.ResourceManager.MySql.FlexibleServers.Models;
-global using Azure.ResourceManager.Network;
 global using Azure.ResourceManager.OperationalInsights;
 global using Azure.ResourceManager.Resources;
 global using Azure.ResourceManager.Sql;
@@ -52,7 +49,6 @@ global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Microsoft.Extensions.Azure;
-global using MySqlConnector;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
@@ -61,6 +57,7 @@ global using System.Diagnostics;
 global using System.Diagnostics.CodeAnalysis;
 global using System.Globalization;
 global using System.Net;
+global using System.Security.Cryptography;
 global using System.Text;
 global using System.Text.Json;
 global using System.Text.Json.Serialization;
@@ -114,7 +111,6 @@ builder.Services
         config.RegisterActivity<SQLPoolSplitUsageActivity>();
         config.RegisterActivity<VDIGroupSplitObtainUsageActivity>();
         config.RegisterActivity<VDIGroupSplitUsageActivity>();
-        config.RegisterActivity<MySQLServerObtainUsageDataActivity>();
         config.RegisterActivity<MySQLServerSplitUsageActivity>();
 
     })
@@ -144,7 +140,6 @@ builder.Services
     .AddSingleton<AKSService>()
     .AddSingleton<SQLPoolService>()
     .AddSingleton<VDIService>()
-    .AddSingleton<MySQLService>()
 	.AddSingleton((sp) => TimeProvider.System)    
     .AddAzureClients(clientBuilder =>
     {

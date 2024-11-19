@@ -1,10 +1,11 @@
 ﻿namespace Mammon.Actors;
 
+//TODO: consider abstract pro rata implementation
 public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<MySQLServerActor> logger) : ActorBase<CoreResourceActorState>(actorHost), IMySQLServerActor
 {
 	private const string CostStateName = "mySQLServerActorState";
 
-	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<MySQLUsageResponseItem> data)
+	public async Task SplitCost(SplittableResourceRequest request, IDictionary<string, double> proRata)
 	{
 		try
 		{
@@ -19,18 +20,17 @@ public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCent
 			state.TotalCost = totalCost;
 			await SaveStateAsync(CostStateName, state);
 
-			var totalSize = data.Sum(x => x.DBSize);
-
-			if (totalSize > 0)
+			if (proRata != null && proRata.Count > 0)
 			{
-				Dictionary<string, ResourceCost> nsMetrics = [];
+				Dictionary<string, ResourceCost> proRataCosts = [];
 
-				foreach (var db in data)
+				foreach (var proRataElement in proRata)
 				{
-					var cost = new ResourceCost((db.DBSize / totalSize) * totalCost.Cost, totalCost.Currency);				
+					var cost = new ResourceCost((decimal)(proRataElement.Value / 100) * totalCost.Cost, totalCost.Currency);
 
-					var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(db.DBName);
-					if (nsMetrics.TryGetValue(costCentre, out ResourceCost? value))
+					ResourceIdentifier dbRID = new(request.Resource.ResourceId);
+
+					if (proRataCosts.TryGetValue(proRataElement.Key, out ResourceCost? value))
 					{
 						value.Cost += cost.Cost;
 					}
@@ -38,18 +38,18 @@ public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCent
 					{
 						value = cost;
 
-						nsMetrics.Add(costCentre, value);
+						proRataCosts.Add(proRataElement.Key, value);
 					}
 				}
 
-				foreach (var nsMetric in nsMetrics)
+				foreach (var proRataCost in proRataCosts)
 				{
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, nsMetric.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, nsMetric.Value));
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, proRataCost.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, proRataCost.Value));
 				}
 			}
 			else
 			{
-				//no usage, assign to sql pool cost centre - likely a default one
+				//no pro rata, assign to mysql server cost centre - likely a default one
 				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, totalCost));
 			}
 

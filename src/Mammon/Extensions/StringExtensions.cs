@@ -24,6 +24,28 @@ public static class StringExtensions
 		return value;
 	}
 
+	public static string ToSHA256(this string value)
+	{
+		// Check if the input string is null or empty
+		if (string.IsNullOrEmpty(value))
+		{
+			return value;
+		}
+
+		// Create a SHA256 instance
+		// Compute the hash as a byte array
+		byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+
+		// Convert the byte array to a string
+		StringBuilder builder = new();
+		foreach (byte b in bytes)
+		{
+			builder.Append(b.ToString("x2"));
+		}
+
+		return builder.ToString();
+	}
+
 	public static string RemoveSuffixes(this string value, IEnumerable<string> suffixes)
 	{
 		if (string.IsNullOrWhiteSpace(value) || suffixes == null || !suffixes.Any())

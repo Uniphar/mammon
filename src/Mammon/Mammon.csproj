@@ -18,8 +18,6 @@
     <PackageReference Include="Azure.ResourceManager.Monitor" Version="*" />
     <PackageReference Include="Azure.ResourceManager.ContainerService" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
-    <PackageReference Include="Azure.ResourceManager.MySql" Version="*" />
-    <PackageReference Include="Azure.ResourceManager.Network" Version="*" />
     <PackageReference Include="Azure.ResourceManager.OperationalInsights" Version="*" />
     <PackageReference Include="Azure.ResourceManager.Sql" Version="*" />    
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />

@@ -11,15 +11,15 @@ public class CostCentreRuleEngine
 	private IList<CostCentreRule> CostCentreRules { get; set; } = [];
 	public IList<SubscriptionDefinition> Subscriptions { get; internal set; } = [];
 	public IEnumerable<string> CostCentres { get; internal set; } = [];
-	public string DefaultCostCentre { get; set; } = string.Empty;
+	public string DefaultCostCentre { get; internal set; } = string.Empty;
 	public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
 	public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
 	public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
-	public IList<SpecialModeDefinition> SpecialModes { get; set; } = [];
-	public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-	public IDictionary<string, string> GroupIDMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-	public IDictionary<Regex, string> SQLDatabaseMapping { get; set; } = new Dictionary<Regex, string>();
-	public IDictionary<string, double> StaticMySQLMapping { get; set; } = new Dictionary<string, double>();
+	public IList<SpecialModeDefinition> SpecialModes { get; internal set; } = [];
+	public IDictionary<string, string> AKSNamespaceMapping { get; internal set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+	public IDictionary<string, string> GroupIDMapping { get; internal set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+	public IDictionary<Regex, string> SQLDatabaseMapping { get; internal set; } = new Dictionary<Regex, string>();
+	public IDictionary<string, double> StaticMySQLMapping { get; internal set; } = new Dictionary<string, double>();
 
 	private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -56,6 +56,7 @@ public class CostCentreRuleEngine
 		SQLDatabaseMapping = definition.SQLDatabaseMapping.ToDictionary(x => new Regex(x.Key), x=> x.Value);
 		GroupIDMapping = definition.GroupIDMapping;
 		ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
+		StaticMySQLMapping = definition.StaticMySQLMapping ?? new Dictionary<string, double>();
 
 		InitializeCostCentres();
 	}

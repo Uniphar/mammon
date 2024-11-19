@@ -2,5 +2,5 @@
 
 public interface IMySQLServerActor : IActor
 {
-	Task SplitCost(SplittableResourceRequest request, IEnumerable<MySQLUsageResponseItem> data);
+	Task SplitCost(SplittableResourceRequest request, IDictionary<string, double> proRata);
 }
