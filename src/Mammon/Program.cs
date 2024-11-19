@@ -140,7 +140,7 @@ builder.Services
     .AddSingleton<AKSService>()
     .AddSingleton<SQLPoolService>()
     .AddSingleton<VDIService>()
-	.AddSingleton((sp) => TimeProvider.System)    
+    .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {
         var blobServiceConnectionString = builder.Configuration[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey] 
