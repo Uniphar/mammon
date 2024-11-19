@@ -8,7 +8,6 @@ public static class Consts
 	public const string MammonPubSubCRDName = "mammon-pub-sub";
 
 	public const string ConfigKeyVaultConfigEnvironmentVariable = "MAMMON_CONFIG_KEYVAULT_URL";
-	public const string ConfigKeyWorkloadIdentityServiceAccountName = "MAMMON_CONFIG_SERVICEACCOUNTNAME";
 	public const string CostCentreRuleEngineFilePathConfigKey = "Mammon:CostCentreRuleEngineFilePath";
 
 	public const string ReportBillingPeriodStartDayInMonthConfigKey = "Mammon:ReportSettings:BillingPeriodStartDayInMonth";
