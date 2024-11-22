@@ -1,0 +1,31 @@
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: {{ .Values.CSI.ProviderClassName }}
+spec:
+  provider: azure
+  secretObjects:
+  {{- range $kvsecret := .Values.kvSecrets }}
+  - data:
+    {{- range $kvName :=  $kvsecret.kvNames }}
+    - key: {{ $kvName.k8sKey }}
+      objectName: {{ $kvName.name }}
+    {{- end }}
+    secretName:  {{ $kvsecret.k8Name }}
+    type: Opaque  
+  {{- end }}
+  parameters:
+    usePodIdentity: "false"
+    useVMManagedIdentity: "false"
+    clientID: {{ .Values.AKSClusterServiceAccountClientId }}
+    keyvaultName: "uni-devops-app-{{ .Values.environment }}-kv"
+    objects:  |
+      array:
+      {{- range $kvsecret := .Values.kvSecrets }}
+      {{- range $kvName := $kvsecret.kvNames }}
+        - |
+          objectName: {{ $kvName.name }}
+          objectType: secret
+      {{- end }}
+      {{- end }}
+    tenantID: {{ .Values.tenantId }}

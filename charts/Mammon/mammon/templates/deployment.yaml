@@ -40,6 +40,16 @@ spec:
             value: /app/costCentreRules.json
           - name: "Mammon__StateStoreName"
             value: {{ .Chart.Name }}-actor-state-store
-          
+          volumeMounts:
+          - name: {{ .Values.CSI.VolumeName }}
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
+      volumes:
+      - name: {{ .Values.CSI.VolumeName }}
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: {{ .Values.CSI.ProviderClassName }}  
       nodeSelector:
         agentpool: platform
