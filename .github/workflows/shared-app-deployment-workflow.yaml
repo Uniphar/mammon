@@ -86,6 +86,7 @@ jobs:
           inlineScript: |
             Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
 
+            $Environment = '${{ inputs.environment }}'
             $ACRName = Resolve-UniResourceName 'acr' $p_computeProject -Context $app_AKS
             $AKSClusterResourceGroup = Resolve-UniResourceName 'resource-group' $p_computeProject -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
             $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
@@ -96,6 +97,7 @@ jobs:
             $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
             $cronDayOfMonth = (ConvertFrom-SecureString $cronDayOfMonthSecret.SecretValue -AsPlainText)
             
+            echo "ENVIRONMENT=$Environment" >> $env:GITHUB_ENV
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
@@ -160,6 +162,7 @@ jobs:
           ${{ env.APPLICATION_NAME }}-$APPLICATION_VERSION.tgz
           -i
           --set reason="Upgrade to $APPLICATION_VERSION"
+          --set environment="$ENVIRONMENT"
           --set-string ACRName="$ACR_NAME"
           --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
           --set-string AKSClusterServiceAccountClientId="$AKS_CLUSTER_SERVICE_ACCOUNT_ID"
