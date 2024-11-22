@@ -9,3 +9,5 @@ cron:
 
 dapr:
   port: 8082
+  stateStore:
+    cosmosUrl: "https://uni-devops-{env}-cosmos.documents.azure.com:443/"
