@@ -18,7 +18,7 @@ spec:
         azure.workload.identity/use: "true"
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: mammon
+        dapr.io/app-id: {{ .Chart.Name }}
         dapr.io/app-port: "{{ .Values.dapr.port }}"
         dapr.io/enable-api-logging: "true"
     spec:
