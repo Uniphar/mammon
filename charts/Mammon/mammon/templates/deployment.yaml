@@ -18,7 +18,7 @@ spec:
         azure.workload.identity/use: "true"
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: mammon
+        dapr.io/app-id: {{ .Chart.Name }}
         dapr.io/app-port: "{{ .Values.dapr.port }}"
         dapr.io/enable-api-logging: "true"
     spec:
@@ -39,7 +39,17 @@ spec:
           - name: "Mammon__CostCentreRuleEngineFilePath"
             value: /app/costCentreRules.json
           - name: "Mammon__StateStoreName"
-            value: actor-state-store
-          
+            value: {{ .Chart.Name }}-actor-state-store
+          volumeMounts:
+          - name: {{ .Values.CSI.VolumeName }}
+            mountPath: "/mnt/secrets-store"
+            readOnly: true
+      volumes:
+      - name: {{ .Values.CSI.VolumeName }}
+        csi:
+          driver: secrets-store.csi.k8s.io
+          readOnly: true
+          volumeAttributes:
+            secretProviderClass: {{ .Values.CSI.ProviderClassName }}  
       nodeSelector:
         agentpool: platform

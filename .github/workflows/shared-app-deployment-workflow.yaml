@@ -86,21 +86,25 @@ jobs:
           inlineScript: |
             Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
 
+            $Environment = '${{ inputs.environment }}'
             $ACRName = Resolve-UniResourceName 'acr' $p_computeProject -Context $app_AKS
             $AKSClusterResourceGroup = Resolve-UniResourceName 'resource-group' $p_computeProject -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
             $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
             $AKSClusterSAName = Resolve-UniComputeDomainSAName '${{ inputs.environment }}' $p_devopsDomain
             $AKSClusterSAID = Get-AzADServicePrincipal -DisplayName $AKSClusterSAName | Select-Object -ExpandProperty Id
+            $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'devops' '${{ inputs.environment }}').AppId
             $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
             $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
             $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
             $cronDayOfMonth = (ConvertFrom-SecureString $cronDayOfMonthSecret.SecretValue -AsPlainText)
             
+            echo "ENVIRONMENT=$Environment" >> $env:GITHUB_ENV
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_NAME=$AKSClusterSAName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_ID=$AKSClusterSAID" >> $env:GITHUB_ENV
+            echo "AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID=$AKSClusterServiceAccountClientId" >> $env:GITHUB_ENV
             echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
             echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
             echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
@@ -160,8 +164,10 @@ jobs:
           ${{ env.APPLICATION_NAME }}-$APPLICATION_VERSION.tgz
           -i
           --set reason="Upgrade to $APPLICATION_VERSION"
+          --set environment="$ENVIRONMENT"
           --set-string ACRName="$ACR_NAME"
           --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
+          --set-string AKSClusterServiceAccountClientId="$AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID"
           --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
           --set-string SBNamespaceName="$SB_NAMESPACE"
           --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}

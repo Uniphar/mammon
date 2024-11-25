@@ -9,3 +9,18 @@ cron:
 
 dapr:
   port: 8082
+  stateStore:
+    cosmosUrl: "https://uni-devops-{env}-cosmos.documents.azure.com:443/"
+
+kvSecrets:
+  daprStateStore:
+    kvNames:
+      - name: COSMOS--MASTERKEY
+        k8sKey: COSMOS--MASTERKEY
+    k8Name: mammon-statestoremasterkey
+
+tenantId: "8421dd92-337e-4405-8cfc-16118ffc5715"
+
+CSI:
+  VolumeName: "secrets-store-inline"
+  ProviderClassName: "devops-azure-kv-provider-mammon"
