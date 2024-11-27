@@ -2,7 +2,7 @@
 
 public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<SQLPoolActor> logger) : ActorBase<CoreResourceActorState>(actorHost), ISQLPoolActor
 {
-	private const string CostStateName = "sqlPoolCState";
+	private const string CostStateName = "sqlPoolActorState";
 
 	public async Task SplitCost(SplittableResourceRequest request, IEnumerable<SQLDatabaseUsageResponseItem> data)
 	{

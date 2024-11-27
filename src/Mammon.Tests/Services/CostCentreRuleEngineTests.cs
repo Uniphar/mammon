@@ -166,6 +166,18 @@ public class CostCentreRuleEngineTests
 		GetInstance().GetCostCentreForSQLDatabase(db).Should().Be(expectedCostCentre);
 	}
 
+    [TestMethod]
+    public void StaticMySQLMappingTest()
+    {
+        //act
+        var split = GetInstance().StaticMySQLMapping;
+
+        //assert
+        split.Should().NotBeNull();
+        split.Should().HaveCount(2);
+        split.Should().Contain(split => split.Key == "CostCentreA" && split.Value == 20);
+		split.Should().Contain(split => split.Key == "CostCentreB" && split.Value == 80);
+	}
 	private static CostCentreRule InnerTest(string resourceId, Dictionary<string, string> tags)
     {   
         //arrange       

@@ -100,5 +100,9 @@
   },
   "SQLDatabaseMapping": {
     "(?i)sampledb-(dev|test|prod)-db": "CostCentreA"
+  },
+  "StaticMySQLMapping": {
+    "CostCentreA": 20,
+    "CostCentreB": 80
   }
 }

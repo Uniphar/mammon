@@ -11,11 +11,11 @@ public class GroupSubWorkflow : Workflow<GroupSubWorkflowRequest, bool>
         //assign them to target resource and aggregate costs for each given resource
         foreach (var cost in input.Resources)
         {
-			CallResourceActorActivityResponse result = await context.CallActivityAsync<CallResourceActorActivityResponse>(nameof(CallResourceActorActivity),
+            CallResourceActorActivityResponse result = await context.CallActivityAsync<CallResourceActorActivityResponse>(nameof(CallResourceActorActivity),
                 new CallResourceActorActivityRequest { ReportId = input.ReportId, Cost = cost });
 
             resourceActors.TryAdd(result.ResourceActorId, result.ResourceId);
-        }
+		}
 
         //with aggregated costs, assign cost centres
         foreach (var resourceActor in resourceActors.Distinct())

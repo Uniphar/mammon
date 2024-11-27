@@ -11,6 +11,7 @@ public record CostCentreDefinition
 	public IDictionary<string, string> AKSNamespaceMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 	public IDictionary<string, string> SQLDatabaseMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 	public IDictionary<string, string> GroupIDMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    public IDictionary<string, double>? StaticMySQLMapping { get; set; } = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 }
 
 public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinition>
@@ -26,6 +27,22 @@ public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinit
         RuleForEach(x => x.AKSNamespaceMapping).Must(x => !string.IsNullOrWhiteSpace(x.Key) && !string.IsNullOrWhiteSpace(x.Value)).WithMessage("AKS Namespace Mapping must have both key and value");
 		RuleForEach(x => x.SQLDatabaseMapping).Must(x => !string.IsNullOrWhiteSpace(x.Key) && !string.IsNullOrWhiteSpace(x.Value)).WithMessage("SQL Database Mapping must have both key and value");
 		RuleForEach(x => x.GroupIDMapping).Must(x => !string.IsNullOrWhiteSpace(x.Key) && !string.IsNullOrWhiteSpace(x.Value)).WithMessage("Group ID Mapping must have both key and value");
+        RuleFor(x => x.StaticMySQLMapping).SetValidator(x => new StaticMySQLMappingValidator());
+	}
+}
+
+public class StaticMySQLMappingValidator : AbstractValidator<IDictionary<string, double>?>
+{
+    public StaticMySQLMappingValidator()
+    {
+        RuleForEach(x => x).Must(x => !string.IsNullOrWhiteSpace(x.Key) && x.Value > 0).WithMessage("Static MySQL Mapping must have both key and value");
+        RuleFor(x => x).Must(HaveUniqueKeys).WithMessage("Static MySQL Mapping must have unique keys");
+		RuleFor(x => x).Must(x => x==null || x.Count==0 || x.Values.Sum() == 100d).WithMessage("Split ratios must add up to 100% if specified");
+    }
+
+	private static bool HaveUniqueKeys<TKey, TValue>(IDictionary<TKey, TValue>? dictionary)
+	{
+		return dictionary == null || dictionary.Keys.Distinct().Count() == dictionary.Count;
 	}
 }
 
