@@ -1,23 +1,23 @@
-apiVersion: dapr.io/v1alpha1
-kind: Component
-metadata:
-  name: {{ .Chart.Name }}-actor-state-store
-spec:
-  type: state.azure.cosmosdb
-  version: v1
-  initTimeout: 5m
-  metadata:
-  - name: url
-    value: {{ .Values.dapr.stateStore.cosmosUrl | replace "{env}" .Values.environment }}
-  - name: masterKey
-    secretKeyRef:
-      name: {{ .Values.kvSecrets.daprStateStore.k8Name }}
-      key: {{ (first .Values.kvSecrets.daprStateStore.kvNames).name }}
-  - name: database
-    value: devops
-  - name: collection
-    value: {{ .Chart.Name }}-dapr-actor-state
-  - name: actorStateStore
-    value: "true"
-scopes:
-- {{ .Chart.Name }}
+# apiVersion: dapr.io/v1alpha1
+# kind: Component
+# metadata:
+#   name: {{ .Chart.Name }}-actor-state-store
+# spec:
+#   type: state.azure.cosmosdb
+#   version: v1
+#   initTimeout: 5m
+#   metadata:
+#   - name: url
+#     value: {{ .Values.dapr.stateStore.cosmosUrl | replace "{env}" .Values.environment }}
+#   - name: masterKey
+#     secretKeyRef:
+#       name: {{ .Values.kvSecrets.daprStateStore.k8Name }}
+#       key: {{ (first .Values.kvSecrets.daprStateStore.kvNames).name }}
+#   - name: database
+#     value: devops
+#   - name: collection
+#     value: {{ .Chart.Name }}-dapr-actor-state
+#   - name: actorStateStore
+#     value: "true"
+# scopes:
+# - {{ .Chart.Name }}
