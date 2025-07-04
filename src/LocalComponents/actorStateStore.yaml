@@ -8,7 +8,7 @@ spec:
   initTimeout: 1m
   metadata:
   - name: redisHost
-    value: "localhost:6379" # assuming local dapr deploy in docker and dcoker configured to enable host networking
+    value: "localhost:6379" # assuming local dapr deploy in docker and docker configured to enable host networking
   - name: redisPassword
     value: ""
   - name: actorStateStore
