@@ -115,13 +115,14 @@ jobs:
           errorActionPreference: 'stop'
           failOnStandardError: true  
 
-      - name: deploy Sub RBAC
+      - name: Powershell
         uses: azure/powershell@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
         with: 
           inlineScript: |
-           . ./devops/Initialize-SubscriptionsRBAC.ps1
+            . ./devops/Initialize-SubscriptionsRBAC.ps1
+            . ./devops/Initialize-MammonWorkload.ps1 '${{ env.Environment }}'
             Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json ${{ env.AKS_CLUSTER_SERVICE_ACCOUNT_ID }}
           azPSVersion: "latest"
           errorActionPreference: 'stop'
