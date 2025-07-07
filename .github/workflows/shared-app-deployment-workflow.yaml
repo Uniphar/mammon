@@ -123,7 +123,7 @@ jobs:
           inlineScript: |
             . ./devops/Initialize-SubscriptionsRBAC.ps1
             . ./devops/Initialize-MammonWorkload.ps1
-            Initialize-MammonWorkload.ps1 '${{ env.Environment }}'
+            Initialize-MammonWorkload '${{ env.Environment }}'
             Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json ${{ env.AKS_CLUSTER_SERVICE_ACCOUNT_ID }}
           azPSVersion: "latest"
           errorActionPreference: 'stop'
