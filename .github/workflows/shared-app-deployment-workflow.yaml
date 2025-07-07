@@ -121,6 +121,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
         with: 
           inlineScript: |
+            Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
             . ./devops/Initialize-SubscriptionsRBAC.ps1
             . ./devops/Initialize-MammonWorkload.ps1
             Initialize-MammonWorkload '${{ inputs.environment }}'
