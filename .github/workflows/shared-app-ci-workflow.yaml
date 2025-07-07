@@ -30,7 +30,14 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
-
+      
+      - name: gh-app-install token
+        id: gh-app
+        uses: getsentry/action-github-app-token@v2
+        with:
+          app_id: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+          private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+          
       - name: checkout devops-azure repo
         uses: actions/checkout@v3
         with:
