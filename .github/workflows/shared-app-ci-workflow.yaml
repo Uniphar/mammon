@@ -90,7 +90,10 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
         with: 
           inlineScript: |
-           . ./devops/Initialize-SubscriptionsRBAC.ps1
+            Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
+            . ./devops/Initialize-SubscriptionsRBAC.ps1
+            . ./devops/Initialize-MammonWorkload.ps1
+            Initialize-MammonWorkload 'dev' -WhatIf
             Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json test -WhatIf
           azPSVersion: "latest"
           errorActionPreference: 'stop'
