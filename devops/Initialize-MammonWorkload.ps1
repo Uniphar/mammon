@@ -45,7 +45,7 @@ function Initialize-MammonWorkload {
                                       -ResourceGroupName $devopsDomainRgName `
                                       -TemplateFile $templateFile `
                                       -kvName $devopsAppKeyVault `
-                                      -redisConnectionString "$($redis.HostName):$($redis.SslPortc)" `
+                                      -redisConnectionString "$($redis.HostName):$($redis.SslPort)" `
                                       -redisSecret $redisKeys.PrimaryKey `
                                       -Verbose:$PSCmdlet.MyInvocation.BoundParameters['Verbose'].IsPresent
      }
@@ -54,7 +54,7 @@ function Initialize-MammonWorkload {
                                                      -ResourceGroupName $devopsDomainRgName `
                                                      -TemplateFile $templateFile `
                                                      -kvName $devopsAppKeyVault `
-                                                     -redisConnectionString "$($redis.HostName):$($redis.SslPortc)" `
+                                                     -redisConnectionString "$($redis.HostName):$($redis.SslPort)" `
                                                      -redisSecret $redisKeys.PrimaryKey `
                                                      -Verbose:$PSCmdlet.MyInvocation.BoundParameters['Verbose'].IsPresent
 
