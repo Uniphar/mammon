@@ -1,0 +1,16 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:  
+  name: {{ .Chart.Name }}-featureconfig
+spec:
+  features:
+    - enabled: false
+      name: SchedulerReminders
+  metric:
+    enabled: true
+  metrics:
+    enabled: true
+  tracing:
+    samplingRate: '1'
+    zipkin:
+      endpointAddress: http://zipkin.devops.svc.cluster.local:9411/api/v2/spans

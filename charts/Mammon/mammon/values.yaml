@@ -13,11 +13,16 @@ dapr:
     cosmosUrl: "https://uni-devops-{env}-cosmos.documents.azure.com:443/"
 
 kvSecrets:
-  daprStateStore:
+  daprStateStoreKey:
     kvNames:
-      - name: COSMOS--MASTERKEY
-        k8sKey: COSMOS--MASTERKEY
+      - name: REDIS--KEY
+        k8sKey: REDIS--KEY
     k8Name: mammon-statestoremasterkey
+  daprStateStoreConnectionString:
+    kvNames:
+      - name: REDIS--CONNECTIONSTRING
+        k8sKey: REDIS--CONNECTIONSTRING
+    k8Name: mammon-statestoreconnectionstring   
 
 tenantId: "8421dd92-337e-4405-8cfc-16118ffc5715"
 

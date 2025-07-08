@@ -3,16 +3,13 @@ kind: Component
 metadata:
   name: actor-state-store
 spec:
-  type: state.azure.cosmosdb
+  type: state.redis
   version: v1
+  initTimeout: 1m
   metadata:
-  - name: url
-    value: https://localhost:8081/
-  - name: masterKey
-    value: C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==
-  - name: database
-    value: mammon
-  - name: collection
-    value: actor-state-store
+  - name: redisHost
+    value: "localhost:6379" # assuming local dapr deploy in docker and docker configured to enable host networking
+  - name: redisPassword
+    value: ""
   - name: actorStateStore
     value: "true"

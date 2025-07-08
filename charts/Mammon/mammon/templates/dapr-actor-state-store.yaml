@@ -3,20 +3,22 @@ kind: Component
 metadata:
   name: {{ .Chart.Name }}-actor-state-store
 spec:
-  type: state.azure.cosmosdb
+  type: state.redis
   version: v1
   initTimeout: 5m
   metadata:
-  - name: url
-    value: {{ .Values.dapr.stateStore.cosmosUrl | replace "{env}" .Values.environment }}
-  - name: masterKey
+  - name: redisHost
     secretKeyRef:
-      name: {{ .Values.kvSecrets.daprStateStore.k8Name }}
-      key: {{ (first .Values.kvSecrets.daprStateStore.kvNames).name }}
-  - name: database
-    value: devops
-  - name: collection
-    value: {{ .Chart.Name }}-dapr-actor-state
+     name: {{ .Values.kvSecrets.daprStateStoreConnectionString.k8Name }}
+     key: {{ (first .Values.kvSecrets.daprStateStoreConnectionString.kvNames).name }}
+  - name: redisPassword
+    secretKeyRef:
+      name: {{ .Values.kvSecrets.daprStateStoreKey.k8Name }}
+      key: {{ (first .Values.kvSecrets.daprStateStoreKey.kvNames).name }}
+  - name: enableTLS
+    value: "true"
+  - name: redisDB
+    value: "6"
   - name: actorStateStore
     value: "true"
 scopes:
