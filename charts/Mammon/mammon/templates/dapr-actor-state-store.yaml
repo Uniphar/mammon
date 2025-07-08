@@ -15,6 +15,10 @@ spec:
     secretKeyRef:
       name: {{ .Values.kvSecrets.daprStateStoreKey.k8Name }}
       key: {{ (first .Values.kvSecrets.daprStateStoreKey.kvNames).name }}
+  - name: enableTLS
+    value: "true"
+  - name: redisDB
+    value: "6"
   - name: actorStateStore
     value: "true"
 scopes:
