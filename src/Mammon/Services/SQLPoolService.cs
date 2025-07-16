@@ -20,6 +20,12 @@ public class SQLPoolService(ArmClient armClient, LogsQueryClient logsQueryClient
 				dbs.Add($"'{db.Id}'");
 			}
 
+			if (dbs.Count == 0)
+			{
+				logger.LogInformation($"No databases found in SQL Pool {poolResourceId}");
+				return ([], false);
+			}
+
 			var diagSetttings = armClient.GetDiagnosticSettings(pool.Value.Id);
 			if (diagSetttings == null || !diagSetttings.Any())
 				return ([], false);
