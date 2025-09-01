@@ -61,7 +61,7 @@ public class CostRetrievalServiceTests
         mockHttp.VerifyNoOutstandingExpectation();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("\"ms-resource-usage\":\"azure-cloud-shell\"", "ms-resource-usage", "azure-cloud-shell")]
     [DataRow("\"ms-resource-usage\":\"", "ms-resource-usage", "")]
     [DataRow("\"key1:key2\":\"s\"", "key1:key2", "s")]

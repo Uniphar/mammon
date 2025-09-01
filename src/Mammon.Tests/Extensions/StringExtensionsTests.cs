@@ -3,7 +3,7 @@
 [TestClass, TestCategory("UnitTest")]
 public class StringExtensionsTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("/subscriptions/blah/resourceGroups/rgName/providers/Microsoft.ContainerService/managedClusters/resourceAKS/providers/blah", "/subscriptions/blah/resourceGroups/rgName/providers/Microsoft.ContainerService/managedClusters/resourceAKS")]
 	[DataRow("/subscriptions/blah/resourceGroups/rgName/providers/Microsoft.ContainerService/managedClusters/resourceAKS/extensions/blah", "/subscriptions/blah/resourceGroups/rgName/providers/Microsoft.ContainerService/managedClusters/resourceAKS")]
 	public void ToResourceActorIdTests(string input, string expected)
@@ -11,7 +11,7 @@ public class StringExtensionsTests
 		input.ToParentResourceId().Should().Be(expected);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("CoreSuffix", "Core", "Suffix")]
 	[DataRow("CoreSuffix", "CoreSuffix", "blah")]
 	[DataRow("CoreSuffix-NE", "Core", "Suffix-NE", "Suffix")]
@@ -25,7 +25,7 @@ public class StringExtensionsTests
 		ret.Should().Be(expected);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("a@b.c, d@e.f ", "a@b.c", "d@e.f")]
 	[DataRow("a@b.c, ", "a@b.c")]
 	[DataRow("")]
