@@ -4,7 +4,7 @@ public class ObtainCostsActivity(CostRetrievalService costService, CostCentreRul
 {
     public override async Task<ObtainCostByPageWorkflowResult> RunAsync(WorkflowActivityContext context, ObtainCostsActivityRequest request)
     {
-        var result= await costService.QueryForSubAsync(request);
+        var result = await costService.QueryForSubAsync(request);
         
         foreach(var item in result)
         {
