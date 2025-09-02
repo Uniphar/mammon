@@ -2,7 +2,7 @@
 
 public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool>
 {
-    public async override Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
+    public override async Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
     {
 		List<ResourceCostResponse> costs = [];
 

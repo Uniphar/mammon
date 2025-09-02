@@ -19,14 +19,14 @@ public class AzureCostResponse : List<ResourceCostResponse>
 
 public class ResourceCostResponse
 {
-    public required string ResourceId { get; set; }
+    public required string ResourceId { get; init; }
 
 	[JsonIgnore]
 	public ResourceIdentifier ResourceIdentifier => new(ResourceId);
 
-    public required ResourceCost Cost { get; set; }
-    public required Dictionary<string, string> Tags { get; set; }
-    public List<string> EnabledModes { get; set; } = [];
+    public required ResourceCost Cost { get; init; }
+    public required Dictionary<string, string> Tags { get; init; }
+    public List<string> EnabledModes { get; } = [];
     public bool IsLogAnalyticsWorkspace() => ResourceIdentifier.IsLogAnalyticsWorkspace();
 
     public bool IsAKSVMSS() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachinescalesets" && Tags.ContainsKey("aks-managed-poolname");
@@ -34,7 +34,7 @@ public class ResourceCostResponse
     public bool IsSQLPool() => ResourceIdentifier.ResourceType == "microsoft.Sql/servers/elasticpools";
 
     public bool IsSplitableVDI() => ResourceIdentifier.ResourceType == "microsoft.compute/virtualmachines" &&
-                                    Tags.Any(x => x.Key.StartsWith(Consts.MammonSplittablePrefix, StringComparison.OrdinalIgnoreCase));
+                                     Tags.Any(x => x.Key.StartsWith(Consts.MammonSplittablePrefix, StringComparison.OrdinalIgnoreCase));
 
     public bool IsMySQL() => ResourceIdentifier.ResourceType == "Microsoft.DBforMySQL/flexibleServers";
 
@@ -67,7 +67,7 @@ public record ResourceCost
     }
 
     public required decimal Cost { get; set; }
-    public required string Currency { get; set; }
+    public required string Currency { get; init; }
 
     public override string ToString()
     {

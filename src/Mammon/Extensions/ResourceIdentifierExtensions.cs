@@ -21,7 +21,6 @@ public static class ResourceIdentifierExtensions
 		return value.ResourceType == "microsoft.operationalinsights/workspaces";
 	}
 
-
 	public static bool IsDevBoxPool(this ResourceIdentifier resourceIdentifier)
 	{
 		return resourceIdentifier.ResourceType.Type == "projects/pools" && resourceIdentifier.ResourceType.Namespace == "microsoft.devcenter";
@@ -36,6 +35,5 @@ public static class ResourceIdentifierExtensions
 			return resourceIdentifier;
 
 		return new ResourceIdentifier(rIDString[..providerIndex]);
-
 	}
 }

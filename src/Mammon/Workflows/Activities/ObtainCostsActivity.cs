@@ -11,6 +11,6 @@ public class ObtainCostsActivity(CostRetrievalService costService, CostCentreRul
             costCentreRuleEngine.ProjectModes(item);
         }
 
-        return new ObtainCostByPageWorkflowResult { Costs = result.ToArray(), nextPageAvailable = result.nextPageAvailable};
+        return new ObtainCostByPageWorkflowResult { Costs = result.ToArray(), NextPageAvailable = result.nextPageAvailable};
     }
 }

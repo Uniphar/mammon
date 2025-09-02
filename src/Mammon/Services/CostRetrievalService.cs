@@ -27,7 +27,7 @@ public class CostRetrievalService
         jsonSerializerOptions.Converters.Add(new ObjectToInferredTypesConverter());
     }
 
-    public virtual string? GetSubscriptionFullResourceId(string subscriptionName)
+    protected virtual string? GetSubscriptionFullResourceId(string subscriptionName)
     {
         var subByName = armClient.GetSubscriptions().FirstOrDefault((s) => s.Data.DisplayName == subscriptionName);
 
@@ -36,7 +36,7 @@ public class CostRetrievalService
 
     public async Task<AzureCostResponse> QueryForSubAsync(ObtainCostsActivityRequest request)
     {
-        //new CostReportSubscriptionRequestValidator().ValidateAndThrow(request);
+        await new ObtainCostsActivityRequestValidator().ValidateAndThrowAsync(request);
 
         var subId = GetSubscriptionFullResourceId(request.SubscriptionName);
         if (string.IsNullOrWhiteSpace(subId))

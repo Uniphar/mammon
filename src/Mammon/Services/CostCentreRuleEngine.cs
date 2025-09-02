@@ -160,14 +160,12 @@ public class CostCentreRuleEngine
 		
 		if (!mode.ResourceGroupFilter.Any())
 			return true;
-		else
+		
+		return mode.ResourceGroupFilter.Any(x => 
 		{
-			return mode.ResourceGroupFilter.Any(x => 
-			{
-				Regex r = new(string.Format(RGRegexpFormat, x));
-				return r.IsMatch(resourceIdentifier.ToString());
-			});
-		}	
+			Regex r = new(string.Format(RGRegexpFormat, x));
+			return r.IsMatch(resourceIdentifier.ToString());
+		});
 	}
 
 	public string? ClassifyPivot(CostReportPivotEntry pivotDefinition)

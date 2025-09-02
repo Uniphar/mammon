@@ -2,6 +2,6 @@
 
 public record ObtainCostByPageWorkflowResult
 {
-	public required ResourceCostResponse[] Costs { get; set; }
-	public required bool nextPageAvailable { get; set; }
+	public required ResourceCostResponse[] Costs { get; init; }
+	public required bool NextPageAvailable { get; init; }
 }
