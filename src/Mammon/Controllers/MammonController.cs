@@ -4,8 +4,8 @@
 [ApiController]
 public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine, CostCentreReportService costCentreReportService ) : Controller
 {	
-	[HttpGet()]
-    [HttpPost()]
+	[HttpGet]
+    [HttpPost]
     [Topic(Consts.MammonPubSubCRDName, Consts.MammonServiceBusTopicName)]
     public async Task<StatusCodeResult> Invoke(CloudEvent<CostReportRequest> @event)
     {
