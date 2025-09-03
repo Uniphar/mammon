@@ -186,7 +186,6 @@ public class CostRetrievalService
         public List<Column>? Columns { get; set; }
         public List<Row>? Rows { get; set; }
         public string NextLink { get; set; } = string.Empty;
-
     }
 
     public class Column
