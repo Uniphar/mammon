@@ -119,7 +119,7 @@ public class TenantWorkflowTests
         });
 
         //wait for ADX to record email produced
-        string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
+        var expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
 
         EmailData emailData = await _cslQueryProvider!
             .WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
@@ -164,10 +164,10 @@ public class TenantWorkflowTests
             };
 
             var httpClientFactory = _host!.Services.GetRequiredService<IHttpClientFactory>();
-            CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"),
+            CostRetrievalService costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"),
                 Mock.Of<ILogger<CostRetrievalService>>(), _config!);
 
-            var response = await _costRetrievalService!.QueryForSubAsync(request);
+            var response = await costRetrievalService!.QueryForSubAsync(request);
             total += response.TotalCost;
         }
 
@@ -192,14 +192,14 @@ public class TenantWorkflowTests
         };
 
         CsvReader csvReader = new(new StreamReader(fileName), csvConfiguration);
-        csvReader.Read();
-        var headerRead = csvReader.ReadHeader();
-        csvReader.Read();
+        await csvReader.ReadAsync();
+        csvReader.ReadHeader();
+        await csvReader.ReadAsync();
         csvReader.GetRecord<object>(); //comment row to be read
 
         decimal total = 0m;
 
-        while (csvReader.Read())
+        while (await csvReader.ReadAsync())
         {
             var lineCost = Convert.ToDecimal(csvReader.GetField(2), CultureInfo.InvariantCulture);
             total += lineCost;

@@ -36,6 +36,6 @@ public class ResourceIdentifierTests
 		ResourceIdentifier rID = new(input);
 
 		//act+assert
-		rID.GetResourceGroupIdentifier().Should().Be(new(expected));
+		rID.GetResourceGroupIdentifier().Should().Be(new ResourceIdentifier(expected));
 	}
 }
