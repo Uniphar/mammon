@@ -1,9 +1,9 @@
 ﻿namespace Mammon.Actors;
 
 public class LAWorkspaceActor(
-    ActorHost actorHost, 
-    ILogger<LAWorkspaceActor> logger, 
-    ICostCentreService costCentreService, 
+    ActorHost actorHost,
+    ILogger<LAWorkspaceActor> logger,
+    ICostCentreService costCentreService,
     CostCentreRuleEngine costCentreRuleEngine,
     StateManagerService stateManager,
     IActorCaller actorCaller)
@@ -60,8 +60,8 @@ public class LAWorkspaceActor(
                 {
                     //send them to cost centre actors
                     await actorCaller.CallAsync<ICostCentreActor>(
-                        CostCentreActor.GetActorId(reportId, costCentreCost.Key), 
-                        nameof(CostCentreActor), 
+                        CostCentreActor.GetActorId(reportId, costCentreCost.Key),
+                        nameof(CostCentreActor),
                         async (p) => await p.AddCostAsync(resourceId, costCentreCost.Value));
                 }
             }
