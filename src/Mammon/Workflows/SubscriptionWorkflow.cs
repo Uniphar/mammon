@@ -28,7 +28,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
 			pageIndex++;
 		}
-		while (pageResponse.nextPageAvailable);
+		while (pageResponse.NextPageAvailable);
 
 		//splittable resources are processed separately
 		var rgGroups = costs

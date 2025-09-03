@@ -42,14 +42,15 @@ public class CostRetrievalService
         if (string.IsNullOrWhiteSpace(subId))
             throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
 
-        var groupingProperty = request.GroupingMode==GroupingMode.Resource ? "ResourceId" : "SubscriptionId";
+        var groupingProperty = request.GroupingMode == GroupingMode.Resource ? "ResourceId" : "SubscriptionId";
 
-        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"{groupingProperty}\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
+        var costApirequest =
+            $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"{groupingProperty}\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
         HttpResponseMessage response;
         
-        string? url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
+        var url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
         bool nextPageAvailable;
 
         List<ResourceCostResponse> responseData = [];
@@ -73,7 +74,7 @@ public class CostRetrievalService
 #endif
                 var requestContent = new StringContent(costApirequest, Encoding.UTF8, "application/json");
 
-                response = await httpClient.PostAsync(url, requestContent);
+            var response = await httpClient.PostAsync(url, requestContent);
 
                 response.EnsureSuccessStatusCode();
 
@@ -86,15 +87,13 @@ public class CostRetrievalService
 
             nextPageAvailable = !string.IsNullOrWhiteSpace(nextLink);
             url = nextLink;
-
-        }
-        while (nextPageAvailable);
+        } while (nextPageAvailable);
 
         //extract sub page
         int startIndex = request.PageIndex * PageSize;
         int endIndex = startIndex + PageSize;
 
-        var records = responseData.GetRange(startIndex, responseData.Count<endIndex? responseData.Count-startIndex : PageSize);
+        var records = responseData.GetRange(startIndex, responseData.Count < endIndex ? responseData.Count - startIndex : PageSize);
 
         return new AzureCostResponse(records, request.PageIndex, responseData.Count > (endIndex + 1));		
     }
@@ -106,10 +105,12 @@ public class CostRetrievalService
             .Replace("'\"", "{\"")
             .Replace("\"'", "\"}");
 
-        var intermediateData = JsonSerializer.Deserialize<IntermediateUsageQueryResult>(content, jsonSerializerOptions) ?? throw new InvalidOperationException("failed to deserialize cost management api");
+        var intermediateData = JsonSerializer.Deserialize<IntermediateUsageQueryResult>(content, jsonSerializerOptions) ??
+                               throw new InvalidOperationException("failed to deserialize cost management api");
 
         var costIndex = intermediateData.Properties!.Columns!.FindIndex(x => x.Name == costColumnName);
-        var resourceIdIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name ==  (groupingMode==GroupingMode.Resource ? resourceIdColumnName : subscriptionIdColumnName));
+        var resourceIdIndex =
+            intermediateData.Properties.Columns.FindIndex(x => x.Name == (groupingMode == GroupingMode.Resource ? resourceIdColumnName : subscriptionIdColumnName));
         var currencyIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == currencyColumnName);
         var tagsId = intermediateData.Properties.Columns.FindIndex(x => x.Name == tagsColumnName);
 
@@ -119,7 +120,7 @@ public class CostRetrievalService
         {
             Dictionary<string, string> tags = [];
 
-            foreach (var item in ((JsonElement) row[tagsId]).EnumerateArray())
+            foreach (var item in ((JsonElement)row[tagsId]).EnumerateArray())
             {
                 string value = item.ToString();
                 var tag = ParseOutTag(value);
@@ -145,7 +146,7 @@ public class CostRetrievalService
             });
         }
 
-        return (intermediateData.Properties?.NextLink,  costs);
+        return (intermediateData.Properties?.NextLink, costs);
     }
 
     public static KeyValuePair<string, string>? ParseOutTag(string? value)
@@ -163,12 +164,12 @@ public class CostRetrievalService
         int keyStartIndex = 1;
         int keyLength = index - 1;
         int valueStartIndex = index + splitter.Length;
-        int valueLength = value.Length-valueStartIndex-1;
+        int valueLength = value.Length - valueStartIndex - 1;
 
         if (valueLength < 0)
             valueLength = 0;
 
-        return new KeyValuePair<string, string>(value.Substring(keyStartIndex, keyLength), value.Substring(valueStartIndex,valueLength));
+        return new KeyValuePair<string, string>(value.Substring(keyStartIndex, keyLength), value.Substring(valueStartIndex, valueLength));
     }
 
     public class IntermediateUsageQueryResult
