@@ -33,7 +33,9 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
                 return ([], false);
             }
 
-            return (response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || !x.SelectorIdentifier!.IsLogAnalyticsWorkspace()), true);
+            var laWorkspaceQueryResponseItems = response.Value
+                .Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || !x.SelectorIdentifier!.IsLogAnalyticsWorkspace());
+            return (laWorkspaceQueryResponseItems, true);
         }
         catch (RequestFailedException e)
         {
