@@ -5,7 +5,7 @@ public class LAWorkspaceWorkflow : Workflow<SplittableResourceRequest, bool>
     public override async Task<bool> RunAsync(WorkflowContext context, SplittableResourceRequest request)
     {
         //get data per resource/namespace from workspace
-        var (elements, workspaceFound) = await context.CallActivityAsync<(IEnumerable<LAWorkspaceQueryResponseItem> elements, bool workspaceFound)>(
+        var (elements, workspaceFound) = await context.CallActivityAsync<(List<LAWorkspaceQueryResponseItem> elements, bool workspaceFound)>(
             nameof(ExecuteLAWorkspaceDataQueryActivity),
             request);
 
@@ -18,7 +18,7 @@ public class LAWorkspaceWorkflow : Workflow<SplittableResourceRequest, bool>
                 item.Selector = item.Selector.ToParentResourceId();
             }
 
-            var gaps = await context.CallActivityAsync<IEnumerable<string>>(nameof(IdenfityLAWorkspaceRefGapsActivity),
+            var gaps = await context.CallActivityAsync<List<string>>(nameof(IdenfityLAWorkspaceRefGapsActivity),
                 new IdentifyMissingLAWorkspaceReferencesRequest
                 {
                     ReportId = request.ReportRequest.ReportId,
@@ -38,7 +38,7 @@ public class LAWorkspaceWorkflow : Workflow<SplittableResourceRequest, bool>
                 new SplitUsageActivityRequest<LAWorkspaceQueryResponseItem>
                 {
                     Request = request,
-					Data = elements
+                    Data = elements
                 });
         }
         else

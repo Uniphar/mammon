@@ -2,7 +2,7 @@
 
 public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<LogAnalyticsService> logger)
 {
-    public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
+    public async Task<(List<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
 
@@ -34,7 +34,8 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
             }
 
             var laWorkspaceQueryResponseItems = response.Value
-                .Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || !x.SelectorIdentifier!.IsLogAnalyticsWorkspace());
+                .Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || !x.SelectorIdentifier!.IsLogAnalyticsWorkspace())
+                .ToList();
             return (laWorkspaceQueryResponseItems, true);
         }
         catch (RequestFailedException e)

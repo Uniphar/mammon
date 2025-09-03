@@ -4,7 +4,7 @@ public class SQLPoolWorkflow : Workflow<SplittableResourceRequest, bool>
 {
 	public override async Task<bool> RunAsync(WorkflowContext context, SplittableResourceRequest request)
 	{
-		(var usageData, bool usageDataAvailable) =  await context.CallActivityAsync<(IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool usageDataAvailable)>(nameof(SQLPoolObtainUsageDataActivity),
+		(var usageData, bool usageDataAvailable) =  await context.CallActivityAsync<(List<SQLDatabaseUsageResponseItem> usageData, bool usageDataAvailable)>(nameof(SQLPoolObtainUsageDataActivity),
 			request);
 
 		if (usageDataAvailable)

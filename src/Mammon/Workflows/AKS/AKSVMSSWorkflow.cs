@@ -4,7 +4,7 @@ public class AKSVMSSWorkflow : Workflow<SplittableResourceRequest, bool>
 {
 	public override async Task<bool> RunAsync(WorkflowContext context, SplittableResourceRequest request)
 	{
-		(var usage, bool success) = await context.CallActivityAsync<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)>(nameof(AKSVMSSObtainUsageDataActivity),
+		(var usage, bool success) = await context.CallActivityAsync<(List<AKSVMSSUsageResponseItem> usageElements, bool success)>(nameof(AKSVMSSObtainUsageDataActivity),
 			request);
 
 		if (success)
