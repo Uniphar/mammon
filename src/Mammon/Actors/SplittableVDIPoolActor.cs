@@ -1,6 +1,7 @@
 ﻿namespace Mammon.Actors;
 
-public class SplittableVDIPoolActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<SplittableVDIPoolActor> logger) : ActorBase<CoreResourceActorState>(host), ISplittableVDIPoolActor
+public class SplittableVDIPoolActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, StateManagerService stateManager, ILogger<SplittableVDIPoolActor> logger)
+	: ActorBase<CoreResourceActorState>(host, stateManager), ISplittableVDIPoolActor
 {
 	private const string CostStateName = "SplittableVDIPoolActorState";
 

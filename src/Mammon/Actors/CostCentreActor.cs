@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : ActorBase<CostCentreActorState>(host), ICostCentreActor
+public class CostCentreActor(ActorHost host, StateManagerService stateManager, ILogger<CostCentreActor> logger) : ActorBase<CostCentreActorState>(host, stateManager), ICostCentreActor
 {
     private const string CostStateName = "CostCentreActorState";
 

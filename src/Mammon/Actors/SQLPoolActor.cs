@@ -1,6 +1,7 @@
 ﻿namespace Mammon.Actors;
 
-public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<SQLPoolActor> logger) : ActorBase<CoreResourceActorState>(actorHost), ISQLPoolActor
+public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, StateManagerService stateManager, ILogger<SQLPoolActor> logger)
+	: ActorBase<CoreResourceActorState>(actorHost, stateManager), ISQLPoolActor
 {
 	private const string CostStateName = "sqlPoolActorState";
 

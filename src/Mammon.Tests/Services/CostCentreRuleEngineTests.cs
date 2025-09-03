@@ -1,8 +1,10 @@
-﻿namespace Mammon.Tests.Services;
+﻿using Mammon.Tests.Actors;
+
+namespace Mammon.Tests.Services;
 
 [TestClass]
 [TestCategory("UnitTest")]
-public class CostCentreRuleEngineTests
+public class CostCentreRuleEngineTests : BaseUnitTests
 {
     [TestMethod]
     public void ShouldMatchSingleSpecificMultiTagCostCentreRule()
@@ -188,17 +190,4 @@ public class CostCentreRuleEngineTests
             resourceId,
             tags);
     }
-
-    private static CostCentreRuleEngine GetInstance()
-    {
-		var inMemorySettings = new List<KeyValuePair<string, string>> {
-			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
-		};
-
-		IConfiguration configuration = new ConfigurationBuilder()
-			.AddInMemoryCollection(inMemorySettings!)
-			.Build();
-
-		return new CostCentreRuleEngine(configuration);
-	}
 }

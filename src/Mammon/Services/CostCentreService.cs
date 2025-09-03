@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreService(CostCentreRuleEngine costCentreRuleEngine)
+public class CostCentreService(CostCentreRuleEngine costCentreRuleEngine) : ICostCentreService
 {
     public async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId)
     {
@@ -12,9 +12,9 @@ public class CostCentreService(CostCentreRuleEngine costCentreRuleEngine)
         {
             var state = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor, CostCentreActorState>(
                 CostCentreActor.GetActorId(reportId, costCentre),
-                nameof(CostCentreActor), 
+                nameof(CostCentreActor),
                 async (p) => await p.GetCostsAsync());
-            
+
             if (state != null)
             {
                 costCentreStates.Add(costCentre, state);

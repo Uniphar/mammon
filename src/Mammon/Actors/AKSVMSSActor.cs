@@ -1,6 +1,7 @@
 ﻿namespace Mammon.Actors;
 
-public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger) : ActorBase<CoreResourceActorState>(host), IAKSVMSSActor
+public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, StateManagerService stateManager, ILogger<AKSVMSSActor> logger) 
+	: ActorBase<CoreResourceActorState>(host, stateManager), IAKSVMSSActor
 {
 	private const string CostStateName = "AKSVMSSActorState";
 

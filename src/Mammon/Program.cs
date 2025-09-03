@@ -135,11 +135,13 @@ builder.Services
     .AddSingleton(defaultAzureCredentials)
     .AddSingleton<CostCentreRuleEngine>()
     .AddSingleton<CostCentreReportService>()
-    .AddSingleton<CostCentreService>()
+    .AddSingleton<ICostCentreService, CostCentreService>()
     .AddSingleton<LogAnalyticsService>()
     .AddSingleton<AKSService>()
     .AddSingleton<SQLPoolService>()
     .AddSingleton<VDIService>()
+    .AddTransient<StateManagerService>()
+    .AddTransient<IActorCaller, ActorCaller>()
     .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {

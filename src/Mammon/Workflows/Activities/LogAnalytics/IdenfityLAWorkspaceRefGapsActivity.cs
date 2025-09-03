@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Workflows.Activities.LogAnalytics;
 
-public class IdenfityLAWorkspaceRefGapsActivity(CostCentreService costCentreService) : WorkflowActivity<IdentifyMissingLAWorkspaceReferencesRequest, List<string>>
+public class IdenfityLAWorkspaceRefGapsActivity(ICostCentreService costCentreService) : WorkflowActivity<IdentifyMissingLAWorkspaceReferencesRequest, List<string>>
 {
     public override async Task<List<string>> RunAsync(WorkflowActivityContext context, IdentifyMissingLAWorkspaceReferencesRequest request)
     {

@@ -1,7 +1,8 @@
 ﻿namespace Mammon.Actors;
 
 //TODO: consider abstract pro rata implementation
-public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<MySQLServerActor> logger) : ActorBase<CoreResourceActorState>(actorHost), IMySQLServerActor
+public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, StateManagerService stateManager, ILogger<MySQLServerActor> logger) 
+	: ActorBase<CoreResourceActorState>(actorHost, stateManager), IMySQLServerActor
 {
 	private const string CostStateName = "mySQLServerActorState";
 
