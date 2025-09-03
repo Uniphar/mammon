@@ -47,8 +47,8 @@ public class CostCentreRuleEngine
 
 		AKSNamespaceMapping = definition.AKSNamespaceMapping;
 		CostCentreRules = definition.Rules;
-		CostCentreRules.Add(new CostCentreRule { CostCentre = DefaultCostCentre, IsDefault = true });
 		DefaultCostCentre = definition.DefaultCostCentre;
+		CostCentreRules.Add(new CostCentreRule { CostCentre = DefaultCostCentre, IsDefault = true });
 		Subscriptions = definition.Subscriptions;
 		ResourceGroupSuffixRemoveList = definition.ResourceGroupSuffixRemoveList;		
 		SubscriptionNames = Subscriptions.Select(x => x.SubscriptionName);
