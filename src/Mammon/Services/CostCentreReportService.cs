@@ -1,244 +1,253 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreReportService (IConfiguration configuration, CostCentreRuleEngine costCentreRuleEngine, CostCentreService costCentreService, ServiceBusClient serviceBusClient, IServiceProvider sp, TimeProvider timeProvider, BlobServiceClient blobServiceClient)
+public class CostCentreReportService(
+    IConfiguration configuration,
+    CostCentreRuleEngine costCentreRuleEngine,
+    CostCentreService costCentreService,
+    ServiceBusClient serviceBusClient,
+    IServiceProvider sp,
+    TimeProvider timeProvider,
+    BlobServiceClient blobServiceClient)
 {
-	private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
-	private string BlobStorageContainerName => configuration[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
-	private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]!.SplitEmailContacts();
-	private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey]!;
-	private int ReportBillingPeriodStartDayInMonth => int.Parse(configuration[Consts.ReportBillingPeriodStartDayInMonthConfigKey]!);
+    private string EmailSubject => configuration[Consts.ReportSubjectConfigKey] ?? string.Empty;
+    private string BlobStorageContainerName => configuration[Consts.DotFlyerAttachmentsContainerNameConfigKey]!;
+    private IEnumerable<string> EmailToAddresses => configuration[Consts.ReportToAddressesConfigKey]!.SplitEmailContacts();
+    private string EmailFromAddress => configuration[Consts.ReportFromAddressConfigKey]!;
+    private int ReportBillingPeriodStartDayInMonth => int.Parse(configuration[Consts.ReportBillingPeriodStartDayInMonthConfigKey]!);
 
-	public async Task<(string reportBody, string attachmentUri)> GenerateReportAsync(CostReportRequest reportRequest)
-	{
-		ArgumentNullException.ThrowIfNull(reportRequest);
-		
-		Dictionary<string, CostCentreActorState> costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportRequest.ReportId);
+    public async Task<(string reportBody, string attachmentUri)> GenerateReportAsync(CostReportRequest reportRequest)
+    {
+        ArgumentNullException.ThrowIfNull(reportRequest);
 
-		var viewModel = BuildViewModel(reportRequest, costCentreStates);
+        Dictionary<string, CostCentreActorState> costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportRequest.ReportId);
 
-		//report body	
-		var reportBody = await ViewRenderer.RenderViewToStringAsync("EmailReport", viewModel, ControllerContext);
+        var viewModel = BuildViewModel(reportRequest, costCentreStates);
 
-		//attachment
-		var attachmentUri = await GenerateCSVAttachmentAsync(viewModel);
+        //report body	
+        var reportBody = await ViewRenderer.RenderViewToStringAsync("EmailReport", viewModel, ControllerContext);
 
-		return (reportBody, attachmentUri);
-	}
+        //attachment
+        var attachmentUri = await GenerateCSVAttachmentAsync(viewModel);
 
-	private async Task<string> GenerateCSVAttachmentAsync(CostCentreReportModel model)
-	{
-		ArgumentNullException.ThrowIfNull(model);
+        return (reportBody, attachmentUri);
+    }
 
-		using var stream = new MemoryStream();
-		using var streamWriter = new StreamWriter(stream);
+    private async Task<string> GenerateCSVAttachmentAsync(CostCentreReportModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
 
-		var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-		{
-			HasHeaderRecord = true,
-		};
+        using var stream = new MemoryStream();
+        await using var streamWriter = new StreamWriter(stream);
 
-		using var csvWriter = new CsvWriter(streamWriter, config);
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true,
+        };
 
-		csvWriter.WriteComment($"From : {model.ReportFromDateTime:dd/MM/yyyy} (inclusive) To: {model.ReportToDateTime:dd/MM/yyyy} (inclusive) ");
-		csvWriter.NextRecord();
-		csvWriter.NextRecord();
-		csvWriter.WriteHeader<CsvReportLine>();
-		csvWriter.NextRecord();
+        await using var csvWriter = new CsvWriter(streamWriter, config);
 
-		AppendNodeToCsv(model.Root, csvWriter);
+        csvWriter.WriteComment($"From : {model.ReportFromDateTime:dd/MM/yyyy} (inclusive) To: {model.ReportToDateTime:dd/MM/yyyy} (inclusive) ");
+        await csvWriter.NextRecordAsync();
+        await csvWriter.NextRecordAsync();
+        csvWriter.WriteHeader<CsvReportLine>();
+        await csvWriter.NextRecordAsync();
 
-		var blobClient = blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
-		streamWriter.Flush();
-		stream.Position = 0;
+        AppendNodeToCsv(model.Root, csvWriter);
 
-		var blobName = $"{model.ReportId}_{Guid.NewGuid()}.csv";
+        var blobClient = blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
+        await streamWriter.FlushAsync();
+        stream.Position = 0;
 
-		var response = await blobClient.UploadBlobAsync(blobName, BinaryData.FromStream(stream));
+        var blobName = $"{model.ReportId}_{Guid.NewGuid()}.csv";
 
-		return $"{blobClient.Uri.AbsoluteUri}/{blobName}";
-		
-	}
+        await blobClient.UploadBlobAsync(blobName, await BinaryData.FromStreamAsync(stream));
 
-	private static void AppendNodeToCsv(CostCentreReportNode node, CsvWriter csv)
-	{
-		foreach (var subNode in node.SubNodes)
-		{
-			AppendNodeToCsv(subNode.Value, csv);
-		}
+        return $"{blobClient.Uri.AbsoluteUri}/{blobName}";
+    }
 
-		foreach (var leaf in node.Leaves)
-		{
-			var leafNode = leaf.Value;
-			var parentNode = leafNode.Parent;
-			var nodeClass = GenerateGroupingStringForCSVRow(parentNode);
+    private static void AppendNodeToCsv(CostCentreReportNode node, CsvWriter csv)
+    {
+        foreach (var subNode in node.SubNodes)
+        {
+            AppendNodeToCsv(subNode.Value, csv);
+        }
 
-			csv.WriteRecord(new CsvReportLine { Resource = parentNode.Name, Environment = leafNode.Name, Cost = leafNode.Cost, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass});
-			csv.NextRecord();
-		}	
-	}
+        foreach (var leaf in node.Leaves)
+        {
+            var leafNode = leaf.Value;
+            var parentNode = leafNode.Parent;
+            var nodeClass = GenerateGroupingStringForCSVRow(parentNode);
 
-	private static string GenerateGroupingStringForCSVRow(CostCentreReportNode node)
-	{
-		if (node.Type == CostCentreReportNodeType.Root)
-			return "";
+            csv.WriteRecord(new CsvReportLine
+                { Resource = parentNode.Name, Environment = leafNode.Name, Cost = leafNode.Cost, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass });
+            csv.NextRecord();
+        }
+    }
 
-		StringBuilder sb = new();
+    private static string GenerateGroupingStringForCSVRow(CostCentreReportNode node)
+    {
+        if (node.Type == CostCentreReportNodeType.Root)
+            return "";
 
-		var processedNode = node;
-		bool first = true;
-		do
-		{
-			if (processedNode.Type == CostCentreReportNodeType.Group)
-			{
-				sb.Append($"{(!first ? "/": "")}{processedNode.Name}");
-				first = false;
-			}
-			processedNode = processedNode.Parent;
-		} while (processedNode!=null && processedNode.Type != CostCentreReportNodeType.Root);
+        StringBuilder sb = new();
 
-		return sb.ToString();
-	}
+        var processedNode = node;
+        bool first = true;
+        do
+        {
+            if (processedNode.Type == CostCentreReportNodeType.Group)
+            {
+                sb.Append($"{(!first ? "/" : "")}{processedNode.Name}");
+                first = false;
+            }
 
-	public static void ValidateConfiguration(IConfiguration configuration)
-	{
-		new CostCentreReportServiceConfigValidator().ValidateAndThrow(configuration);
-	}
+            processedNode = processedNode.Parent;
+        } while (processedNode != null && processedNode.Type != CostCentreReportNodeType.Root);
 
-	public CostCentreReportModel BuildViewModel(CostReportRequest reportRequest, IDictionary<string, CostCentreActorState> costCentreStates)
-	{
-		ArgumentNullException.ThrowIfNull(reportRequest);
-		ArgumentNullException.ThrowIfNull(costCentreStates);
+        return sb.ToString();
+    }
 
-		CostCentreReportModel emailReportModel = new() {ReportId = reportRequest.ReportId, ReportFromDateTime = reportRequest.CostFrom, ReportToDateTime = reportRequest.CostTo };
+    public static void ValidateConfiguration(IConfiguration configuration)
+    {
+        new CostCentreReportServiceConfigValidator().ValidateAndThrow(configuration);
+    }
 
-		foreach (var costCentre in costCentreStates)
-		{
-			var pivots = costCentre.Value.ResourceCosts?.Select(x => costCentreRuleEngine.ProjectCostReportPivotEntry(x.Key, x.Value));
-			if (pivots != null)
-			{
-				var pivotGroups = pivots.GroupBy(x => (x.PivotName, x.SubscriptionId)).ToList();
+    public CostCentreReportModel BuildViewModel(CostReportRequest reportRequest, IDictionary<string, CostCentreActorState> costCentreStates)
+    {
+        ArgumentNullException.ThrowIfNull(reportRequest);
+        ArgumentNullException.ThrowIfNull(costCentreStates);
 
-				pivotGroups.Sort(new PivotDefinitionComparer());
+        CostCentreReportModel emailReportModel = new() { ReportId = reportRequest.ReportId, ReportFromDateTime = reportRequest.CostFrom, ReportToDateTime = reportRequest.CostTo };
 
-				foreach (var pivotGroup in pivotGroups)
-				{
-					var pivotName = pivotGroup.Key.PivotName;
+        foreach (var costCentre in costCentreStates)
+        {
+            var pivots = costCentre.Value.ResourceCosts?.Select(x => costCentreRuleEngine.ProjectCostReportPivotEntry(x.Key, x.Value));
+            if (pivots != null)
+            {
+                var pivotGroups = pivots.GroupBy(x => (x.PivotName, x.SubscriptionId)).ToList();
 
-					var nodeClass = costCentreRuleEngine.ClassifyPivot(pivotGroup.First());
-					var environment = costCentreRuleEngine.LookupEnvironment(pivotGroup.Key.SubscriptionId);
+                pivotGroups.Sort(new PivotDefinitionComparer());
 
-					emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, new ResourceCost(pivotGroup.Select(x=>x.Cost)), nodeClass);
-				}
-			}
-		}
+                foreach (var pivotGroup in pivotGroups)
+                {
+                    var pivotName = pivotGroup.Key.PivotName;
 
-		return emailReportModel;
-	}
+                    var nodeClass = costCentreRuleEngine.ClassifyPivot(pivotGroup.First());
+                    var environment = costCentreRuleEngine.LookupEnvironment(pivotGroup.Key.SubscriptionId);
 
-	public async Task SendReportToDotFlyerAsync(CostReportRequest reportRequest)
-	{
-		//generate report body and its attachment
-		var (reportBody, attachmentUri) = await GenerateReportAsync(reportRequest);	
+                    emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, new ResourceCost(pivotGroup.Select(x => x.Cost)), nodeClass);
+                }
+            }
+        }
 
-		//send request to DotFlyer
-		var dotFlyerRequest = new EmailMessage
-		{
-			Body = reportBody,
-			From = new Contact { Email = EmailFromAddress , Name = EmailFromAddress },
-			Subject = string.Format(EmailSubject, reportRequest.ReportId),
-            To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
+        return emailReportModel;
+    }
+
+    public async Task SendReportToDotFlyerAsync(CostReportRequest reportRequest)
+    {
+        //generate report body and its attachment
+        var (reportBody, attachmentUri) = await GenerateReportAsync(reportRequest);
+
+        //send request to DotFlyer
+        var dotFlyerRequest = new EmailMessage
+        {
+            Body = reportBody,
+            From = new Contact { Email = EmailFromAddress, Name = EmailFromAddress },
+            Subject = string.Format(EmailSubject, reportRequest.ReportId),
+            To = [new Contact() { Email = "aandrei@uniphar.ie", Name = "aandrei@uniphar.ie" }],
             Attachments = [attachmentUri]
-		};
+        };
 
-		await serviceBusClient.CreateSender("dotflyer-email").SendMessageAsync(new ServiceBusMessage
-		{
-			Body = BinaryData.FromObjectAsJson(dotFlyerRequest),
-			ContentType = "application/json",
+        await serviceBusClient.CreateSender("dotflyer-email").SendMessageAsync(new ServiceBusMessage
+        {
+            Body = BinaryData.FromObjectAsJson(dotFlyerRequest),
+            ContentType = "application/json",
 #if (DEBUG)
-			MessageId = $"MammonEmailReport{Guid.NewGuid()}"
+            MessageId = $"MammonEmailReport{Guid.NewGuid()}"
 #else
 			MessageId = $"MammonEmailReport{reportRequest.ReportId}"
 #endif
-		});
-	}
+        });
+    }
 
-	private ControllerContext ControllerContext
-	{
-		get {
-			var httpContext = new DefaultHttpContext();
+    private ControllerContext ControllerContext
+    {
+        get
+        {
+            var httpContext = new DefaultHttpContext();
 
-			var currentUri = new Uri("http://localhost"); //we will not generate any external links
-			httpContext.Request.Scheme = currentUri.Scheme;
-			httpContext.Request.Host = HostString.FromUriComponent(currentUri);
-			httpContext.RequestServices = sp;
-			var actionContext = new ActionContext(httpContext, new RouteData(), new ControllerActionDescriptor());
-			var ctx = new ControllerContext(actionContext);
+            var currentUri = new Uri("http://localhost"); //we will not generate any external links
+            httpContext.Request.Scheme = currentUri.Scheme;
+            httpContext.Request.Host = HostString.FromUriComponent(currentUri);
+            httpContext.RequestServices = sp;
+            var actionContext = new ActionContext(httpContext, new RouteData(), new ControllerActionDescriptor());
+            var ctx = new ControllerContext(actionContext);
 
-			return ctx;
-		}
-	}
+            return ctx;
+        }
+    }
 
-	public CostReportRequest GenerateDefaultReportRequest()
-	{
-		var now = timeProvider.GetLocalNow();
+    public CostReportRequest GenerateDefaultReportRequest()
+    {
+        var now = timeProvider.GetLocalNow();
 
-		var first = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
-			.AddMonths(-1);
+        var first = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
+            .AddMonths(-1);
 
-		var last = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
-			.AddSeconds(-1);
+        var last = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
+            .AddSeconds(-1);
 
-		return new CostReportRequest { CostFrom = first, CostTo = last, ReportId = first.ToString("yyMM") };
-	}
+        return new CostReportRequest { CostFrom = first, CostTo = last, ReportId = first.ToString("yyMM") };
+    }
 
-	private class PivotDefinitionComparer : IComparer<IGrouping<(string pivotName,string subId), CostReportPivotEntry>>
-	{
-		public int Compare(IGrouping<(string pivotName, string subId), CostReportPivotEntry>? x, IGrouping<(string pivotName, string subId), CostReportPivotEntry>? y)
-		{
-			if (x == null && y == null)
-				return 0;
-			else if (x == null)
-				return -1;
-			else if (y == null)
-				return 1;
-			else
-				return string.CompareOrdinal(x.Key.pivotName, y.Key.pivotName);
-		}
-	}
+    private class PivotDefinitionComparer : IComparer<IGrouping<(string pivotName, string subId), CostReportPivotEntry>>
+    {
+        public int Compare(IGrouping<(string pivotName, string subId), CostReportPivotEntry>? x, IGrouping<(string pivotName, string subId), CostReportPivotEntry>? y)
+        {
+            if (x == null && y == null)
+                return 0;
+            if (x == null)
+                return -1;
+            if (y == null)
+                return 1;
+            
+            return string.CompareOrdinal(x.Key.pivotName, y.Key.pivotName);
+        }
+    }
 
-	public record CsvReportLine
-	{
-		public required string Resource { get; set; }
-		public required string Environment { get; set; }
-		public required ResourceCost Cost { get; set; }
-		public required string CostCentre { get; set; }
-		public required string Grouping { get; set; }
-	}
+    public record CsvReportLine
+    {
+        public required string Resource { get; set; }
+        public required string Environment { get; set; }
+        public required ResourceCost Cost { get; set; }
+        public required string CostCentre { get; set; }
+        public required string Grouping { get; set; }
+    }
 
-	internal class CostCentreReportServiceConfigValidator : AbstractValidator<IConfiguration>
-	{
-		public CostCentreReportServiceConfigValidator()
-		{
-			RuleFor(x => x[Consts.ReportToAddressesConfigKey]).NotEmpty()
-				.WithMessage("Cost Centre Report Service To Addresses list must not be empty");
+    internal class CostCentreReportServiceConfigValidator : AbstractValidator<IConfiguration>
+    {
+        public CostCentreReportServiceConfigValidator()
+        {
+            RuleFor(x => x[Consts.ReportToAddressesConfigKey]).NotEmpty()
+                .WithMessage("Cost Centre Report Service To Addresses list must not be empty");
 
-			RuleFor(x => x[Consts.ReportSubjectConfigKey]).NotEmpty()
-				.WithMessage("Cost Centre Report Service Subject must not be empty");
+            RuleFor(x => x[Consts.ReportSubjectConfigKey]).NotEmpty()
+                .WithMessage("Cost Centre Report Service Subject must not be empty");
 
-			RuleFor(x => x[Consts.ReportFromAddressConfigKey]).NotEmpty()
-				.WithMessage("Cost Centre Report Service From Address must not be empty");
+            RuleFor(x => x[Consts.ReportFromAddressConfigKey]).NotEmpty()
+                .WithMessage("Cost Centre Report Service From Address must not be empty");
 
-			RuleFor(x => x[Consts.DotFlyerSBConnectionStringConfigKey]).NotEmpty()
-				.WithMessage("Cost Centre Report Service Bus Uri must not be empty");
+            RuleFor(x => x[Consts.DotFlyerSBConnectionStringConfigKey]).NotEmpty()
+                .WithMessage("Cost Centre Report Service Bus Uri must not be empty");
 
-			RuleFor(x => x[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]).NotEmpty()
-				.WithMessage("DotFlyer blob storage connection string must not be empty");
+            RuleFor(x => x[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]).NotEmpty()
+                .WithMessage("DotFlyer blob storage connection string must not be empty");
 
-			RuleFor(x => x[Consts.DotFlyerAttachmentsContainerNameConfigKey]).NotEmpty()
-				.WithMessage("DotFlyer blob storage container name must not be empty");
+            RuleFor(x => x[Consts.DotFlyerAttachmentsContainerNameConfigKey]).NotEmpty()
+                .WithMessage("DotFlyer blob storage container name must not be empty");
 
-			RuleFor(x => x[Consts.ReportBillingPeriodStartDayInMonthConfigKey]).NotEmpty().Must(x => int.TryParse(x, out var parsed) && parsed>= 1 && parsed<=31)
-				.WithMessage("Cost Centre Report Billing Period Start Day In Month must be a number between 1 and 31 - inclusive");
-		}
-	}
+            RuleFor(x => x[Consts.ReportBillingPeriodStartDayInMonthConfigKey]).NotEmpty().Must(x => int.TryParse(x, out var parsed) && parsed >= 1 && parsed <= 31)
+                .WithMessage("Cost Centre Report Billing Period Start Day In Month must be a number between 1 and 31 - inclusive");
+        }
+    }
 }

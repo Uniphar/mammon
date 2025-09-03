@@ -12,8 +12,8 @@ public class CostRetrievalService
 
     private const string costColumnName = "Cost";
     private const string resourceIdColumnName = "ResourceId";
-	private const string subscriptionIdColumnName = "SubscriptionId";
-	private const string currencyColumnName = "Currency";
+    private const string subscriptionIdColumnName = "SubscriptionId";
+    private const string currencyColumnName = "Currency";
     private const string tagsColumnName = "Tags";
 
     private const int PageSize = 1000; //TODO: make configurable?
@@ -48,14 +48,14 @@ public class CostRetrievalService
             $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"{groupingProperty}\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
-        
+
         var url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
         bool nextPageAvailable;
 
         List<ResourceCostResponse> responseData = [];
 
         do
-        {           
+        {
             string? nextLink;
             List<ResourceCostResponse> costs;
 
@@ -71,13 +71,13 @@ public class CostRetrievalService
             else
             {
 #endif
-                var requestContent = new StringContent(costApirequest, Encoding.UTF8, "application/json");
+            var requestContent = new StringContent(costApirequest, Encoding.UTF8, "application/json");
 
             var response = await httpClient.PostAsync(url, requestContent);
 
-                response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
 
-                (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync(), subId, request.GroupingMode);
+            (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync(), subId, request.GroupingMode);
 #if (DEBUG)
             }
 #endif
@@ -94,7 +94,7 @@ public class CostRetrievalService
 
         var records = responseData.GetRange(startIndex, responseData.Count < endIndex ? responseData.Count - startIndex : PageSize);
 
-        return new AzureCostResponse(records, request.PageIndex, responseData.Count > (endIndex + 1));		
+        return new AzureCostResponse(records, request.PageIndex, responseData.Count > (endIndex + 1));
     }
 
     private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content, string subId, GroupingMode groupingMode)
@@ -127,7 +127,6 @@ public class CostRetrievalService
                 {
                     tags.TryAdd(tag.Value.Key, tag.Value.Value);
                 }
-
             }
 
             var rID = (string)row[resourceIdIndex];
@@ -137,10 +136,10 @@ public class CostRetrievalService
             if (string.IsNullOrWhiteSpace(rID))
                 rID = $"{subId}/resourceGroups/unknown/providers/unknown/unknown/{Guid.NewGuid()}";
 
-			costs.Add(new ResourceCostResponse
+            costs.Add(new ResourceCostResponse
             {
                 Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
-				ResourceId = rID,
+                ResourceId = rID,
                 Tags = tags
             });
         }
@@ -182,7 +181,7 @@ public class CostRetrievalService
     }
 
     public class PropertiesContext
-    {     
+    {
         public List<Column>? Columns { get; set; }
         public List<Row>? Rows { get; set; }
         public string NextLink { get; set; } = string.Empty;
