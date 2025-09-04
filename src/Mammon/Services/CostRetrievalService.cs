@@ -108,8 +108,7 @@ public class CostRetrievalService
                                throw new InvalidOperationException("failed to deserialize cost management api");
 
         var costIndex = intermediateData.Properties!.Columns!.FindIndex(x => x.Name == costColumnName);
-        var resourceIdIndex =
-            intermediateData.Properties.Columns.FindIndex(x => x.Name == (groupingMode == GroupingMode.Resource ? resourceIdColumnName : subscriptionIdColumnName));
+        var resourceIdIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == (groupingMode == GroupingMode.Resource ? resourceIdColumnName : subscriptionIdColumnName));
         var currencyIndex = intermediateData.Properties.Columns.FindIndex(x => x.Name == currencyColumnName);
         var tagsId = intermediateData.Properties.Columns.FindIndex(x => x.Name == tagsColumnName);
 
