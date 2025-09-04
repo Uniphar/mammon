@@ -3,7 +3,7 @@
 public class CostCentreReportService(
     IConfiguration configuration,
     CostCentreRuleEngine costCentreRuleEngine,
-    ICostCentreService costCentreService,
+    CostCentreService costCentreService,
     ServiceBusClient serviceBusClient,
     IServiceProvider sp,
     TimeProvider timeProvider,

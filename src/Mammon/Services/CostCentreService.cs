@@ -1,8 +1,8 @@
 ﻿namespace Mammon.Services;
 
-public class CostCentreService(CostCentreRuleEngine costCentreRuleEngine) : ICostCentreService
+public class CostCentreService(CostCentreRuleEngine costCentreRuleEngine)
 {
-    public async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId)
+    public virtual async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId)
     {
         var costCentres = costCentreRuleEngine.CostCentres;
 

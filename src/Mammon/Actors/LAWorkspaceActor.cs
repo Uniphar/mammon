@@ -3,10 +3,10 @@
 public class LAWorkspaceActor(
     ActorHost actorHost,
     ILogger<LAWorkspaceActor> logger,
-    ICostCentreService costCentreService,
+    CostCentreService costCentreService,
     CostCentreRuleEngine costCentreRuleEngine,
     StateManagerService stateManager,
-    IActorCaller actorCaller)
+    ActorCaller actorCaller)
     : ActorBase<CoreResourceActorState>(actorHost, stateManager), ILAWorkspaceActor
 {
     public static readonly string CostStateName = "LAWorkspaceActorState";
@@ -89,14 +89,9 @@ public class LAWorkspaceActor(
     }
 }
 
-public interface IActorCaller
+public class ActorCaller
 {
-    Task CallAsync<T>(string actorId, string actorType, Func<T, Task> action) where T : IActor;
-}
-
-public class ActorCaller : IActorCaller
-{
-    public async Task CallAsync<T>(string actorId, string actorType, Func<T, Task> action) where T : IActor
+    public virtual async Task CallAsync<T>(string actorId, string actorType, Func<T, Task> action) where T : IActor
     {
         await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout(actorId, actorType, action);
     }
