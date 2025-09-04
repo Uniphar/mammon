@@ -2,7 +2,7 @@
 
 public class VDIService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<VDIService> logger)
 {
-	public async Task<(List<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> ObtainQueryUsage(string resourceGroupId, DateTime from, DateTime to)
+	public async Task<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> ObtainQueryUsage(string resourceGroupId, DateTime from, DateTime to)
 	{
 		try
 		{
@@ -34,7 +34,7 @@ public class VDIService(ArmClient armClient, DefaultAzureCredential azureCredent
 					new QueryTimeRange(from, to));
 
 
-			return (response.Value.ToList(), true);
+			return (response.Value, true);
 		}
 		catch (Exception ex)
 		{

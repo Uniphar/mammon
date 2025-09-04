@@ -2,7 +2,7 @@
 
 public class SQLPoolService(ArmClient armClient, LogsQueryClient logsQueryClient, ILogger<SQLPoolService> logger)
 {
-	public async Task<(List<SQLDatabaseUsageResponseItem> usageData, bool successFlag)> ObtainQueryUsage(string poolResourceId, DateTime from, DateTime to)
+	public async Task<(IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool successFlag)> ObtainQueryUsage(string poolResourceId, DateTime from, DateTime to)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(poolResourceId);
 
@@ -46,7 +46,7 @@ public class SQLPoolService(ArmClient armClient, LogsQueryClient logsQueryClient
 				query,
 				new QueryTimeRange(from, to));
 
-			return (result.Value.ToList(), true);
+			return (result.Value, true);
 		}
 		catch (Exception ex) 
 		{

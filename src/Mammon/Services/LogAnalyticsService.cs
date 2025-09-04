@@ -2,7 +2,7 @@
 
 public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<LogAnalyticsService> logger)
 {
-    public async Task<(List<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
+    public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
 

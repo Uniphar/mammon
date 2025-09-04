@@ -2,7 +2,7 @@
 
 public class AKSService(ArmClient armClient, LogsQueryClient logsQueryClient, ILogger<AKSService> logger)
 {
-	public async Task<(List<AKSVMSSUsageResponseItem> usageElements, bool success)> QueryUsage(string vmssResourceId, DateTime from, DateTime to)
+	public async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> QueryUsage(string vmssResourceId, DateTime from, DateTime to)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(vmssResourceId);
 
@@ -46,7 +46,7 @@ public class AKSService(ArmClient armClient, LogsQueryClient logsQueryClient, IL
 				return ([], false);
 			}
 
-			return (response.Value.ToList(), true);		
+			return (response.Value, true);		
 		}
 		catch (Exception e)
 		{
