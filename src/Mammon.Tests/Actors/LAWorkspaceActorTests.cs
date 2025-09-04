@@ -27,9 +27,9 @@ public class LAWorkspaceActorTests : BaseUnitTests
 {
     private readonly ActorHost _actorHost = ActorHost.CreateForTest(typeof(LAWorkspaceActor), "id");
     private readonly ILogger<LAWorkspaceActor> _logger = Mock.Of<ILogger<LAWorkspaceActor>>();
-    private readonly Mock<ICostCentreService> _costCentreService = new();
+    private readonly Mock<CostCentreService> _costCentreService = new(MockBehavior.Strict, (CostCentreRuleEngine)null!);
     private readonly Mock<StateManagerService> _stateManagerService = new();
-    private readonly Mock<IActorCaller> _actorCaller = new();
+    private readonly Mock<ActorCaller> _actorCaller = new();
 
     private LAWorkspaceActor GetSut()
     {
