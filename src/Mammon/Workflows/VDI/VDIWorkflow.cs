@@ -4,7 +4,7 @@ public class VDIWorkflow : Workflow<SplittableResourceGroupRequest, bool>
 {
 	public override async Task<bool> RunAsync(WorkflowContext context, SplittableResourceGroupRequest request)
 	{
-		(var usageData, bool dataAvailable)= await context.CallActivityAsync<(List<VDIQueryUsageResponseItem> usageData, bool dataAvailable)>(nameof(VDIGroupSplitObtainUsageActivity), request);
+		(var usageData, bool dataAvailable)= await context.CallActivityAsync<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)>(nameof(VDIGroupSplitObtainUsageActivity), request);
 		
 		if (dataAvailable)
 		{
