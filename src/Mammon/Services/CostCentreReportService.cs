@@ -154,7 +154,7 @@ public class CostCentreReportService(
             Body = reportBody,
             From = new Contact { Email = EmailFromAddress, Name = EmailFromAddress },
             Subject = string.Format(EmailSubject, reportRequest.ReportId),
-            To = [new Contact() { Email = "aandrei@uniphar.ie", Name = "aandrei@uniphar.ie" }],
+            To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
             Attachments = [attachmentUri]
         };
 
