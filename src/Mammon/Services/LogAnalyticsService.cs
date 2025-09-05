@@ -1,6 +1,12 @@
-﻿namespace Mammon.Services;
+﻿using Mammon.Models;
 
-public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<LogAnalyticsService> logger)
+namespace Mammon.Services;
+
+public class LogAnalyticsService(
+	ArmClient armClient,
+	DefaultAzureCredential azureCredential,
+	IConfiguration configuration,
+	ILogger<LogAnalyticsService> logger)
 {
 	public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
 	{
@@ -18,7 +24,17 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 				return ([], false);
 			}
 
-			var response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+			Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
+
+#if (DEBUG || INTTEST)
+			var mockedResponse = await File.ReadAllTextAsync(configuration[Consts.MockLAQueryResponseFilePathConfigKey]!);
+            var items = JsonSerializer.Deserialize<List<LAWorkspaceQueryResponseItem>>(mockedResponse)!;
+            response = Response.FromValue<IReadOnlyList<LAWorkspaceQueryResponseItem>>(
+				items,
+				new MockResponse(200)
+			);
+#else
+			response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 				@$"search * 
 			| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
 			| project
@@ -28,8 +44,9 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 			| summarize SizeSum=sum(Size) by Selector, SelectorType
 			| order by Selector desc",
 				new QueryTimeRange(from, to));
+#endif
 
-			if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
+            if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
 			{
 				return ([], false);
 			}
@@ -43,3 +60,4 @@ public class LogAnalyticsService(ArmClient armClient, DefaultAzureCredential azu
 		}
 	}
 }
+

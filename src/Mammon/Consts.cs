@@ -26,7 +26,8 @@ public static class Consts
 
 	public const string MammonSplittablePrefix = "MammonSplittable";
 
-#if (DEBUG)        
+#if (DEBUG || INTTEST)      
 	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
+	public const string MockLAQueryResponseFilePathConfigKey = "Mammon:MockLAQueryResponseFilePath";
 #endif
 }

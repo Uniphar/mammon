@@ -17,15 +17,20 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		IntTest|Any CPU = IntTest|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.IntTest|Any CPU.ActiveCfg = IntTest|Any CPU
+		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.IntTest|Any CPU.Build.0 = IntTest|Any CPU
 		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E965A16-1EE2-456A-88BF-20D59A9A3AF6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.IntTest|Any CPU.ActiveCfg = IntTest|Any CPU
+		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.IntTest|Any CPU.Build.0 = IntTest|Any CPU
 		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D10F2E8D-3560-4B10-8416-BCF09ACCCF2D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
