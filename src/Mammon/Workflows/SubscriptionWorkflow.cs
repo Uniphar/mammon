@@ -2,7 +2,7 @@
 
 public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool>
 {
-    public async override Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
+    public override async Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
     {
 		List<ResourceCostResponse> costs = [];
 
@@ -28,7 +28,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
 			pageIndex++;
 		}
-		while (pageResponse.nextPageAvailable);
+		while (pageResponse.NextPageAvailable);
 
 		//splittable resources are processed separately
 		var rgGroups = costs
@@ -89,7 +89,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		return true;
     }
 
-	private static async Task TriggerSplittableWorkflowAsync<T>(WorkflowContext context, CostReportSubscriptionRequest input, ResourceCostResponse resourceToSplit) where T: Workflow<SplittableResourceRequest,bool>
+    private static async Task TriggerSplittableWorkflowAsync<T>(WorkflowContext context, CostReportSubscriptionRequest input, ResourceCostResponse resourceToSplit)
+	    where T : Workflow<SplittableResourceRequest, bool>
 	{
 		var workflowTypeName = typeof(T).Name;
 

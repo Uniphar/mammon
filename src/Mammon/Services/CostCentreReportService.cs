@@ -37,30 +37,30 @@ public class CostCentreReportService(
         ArgumentNullException.ThrowIfNull(model);
 
         using var stream = new MemoryStream();
-        using var streamWriter = new StreamWriter(stream);
+        await using var streamWriter = new StreamWriter(stream);
 
         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
         {
             HasHeaderRecord = true,
         };
 
-        using var csvWriter = new CsvWriter(streamWriter, config);
+        await using var csvWriter = new CsvWriter(streamWriter, config);
 
         csvWriter.WriteComment($"From : {model.ReportFromDateTime:dd/MM/yyyy} (inclusive) To: {model.ReportToDateTime:dd/MM/yyyy} (inclusive) ");
-        csvWriter.NextRecord();
-        csvWriter.NextRecord();
+        await csvWriter.NextRecordAsync();
+        await csvWriter.NextRecordAsync();
         csvWriter.WriteHeader<CsvReportLine>();
-        csvWriter.NextRecord();
+        await csvWriter.NextRecordAsync();
 
         AppendNodeToCsv(model.Root, csvWriter);
 
         var blobClient = blobServiceClient.GetBlobContainerClient(BlobStorageContainerName);
-        streamWriter.Flush();
+        await streamWriter.FlushAsync();
         stream.Position = 0;
 
         var blobName = $"{model.ReportId}_{Guid.NewGuid()}.csv";
 
-        var response = await blobClient.UploadBlobAsync(blobName, BinaryData.FromStream(stream));
+        await blobClient.UploadBlobAsync(blobName, await BinaryData.FromStreamAsync(stream));
 
         return $"{blobClient.Uri.AbsoluteUri}/{blobName}";
     }
@@ -78,7 +78,8 @@ public class CostCentreReportService(
             var parentNode = leafNode.Parent;
             var nodeClass = GenerateGroupingStringForCSVRow(parentNode);
 
-			csv.WriteRecord(new CsvReportLine { Resource = parentNode.Name, Environment = leafNode.Name, Cost = leafNode.Cost, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass});
+            csv.WriteRecord(new CsvReportLine
+                { Resource = parentNode.Name, Environment = leafNode.Name, Cost = leafNode.Cost, CostCentre = leafNode.CostCentreNode.Name, Grouping = nodeClass });
             csv.NextRecord();
         }
     }
@@ -205,12 +206,12 @@ public class CostCentreReportService(
         {
             if (x == null && y == null)
                 return 0;
-            else if (x == null)
+            if (x == null)
                 return -1;
-            else if (y == null)
+            if (y == null)
                 return 1;
-            else
-                return string.CompareOrdinal(x.Key.pivotName, y.Key.pivotName);
+            
+            return string.CompareOrdinal(x.Key.pivotName, y.Key.pivotName);
         }
     }
 

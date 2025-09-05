@@ -2,6 +2,6 @@
 
 public record TenantWorkflowRequest
 {
-    public required IEnumerable<string> Subscriptions { get; set; }
-    public required CostReportRequest ReportRequest { get; set; }
+    public required IEnumerable<string> Subscriptions { get; init; }
+    public required CostReportRequest ReportRequest { get; init; }
 }

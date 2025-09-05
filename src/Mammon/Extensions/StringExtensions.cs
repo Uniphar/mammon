@@ -11,7 +11,7 @@ public static class StringExtensions
 	{
 		const string provider = "/providers/";
 
-		string[] removals = { "/extensions/" };
+		string[] removals = ["/extensions/"];
 
 		//we want to extract only the top level provider
 		var firstIndex = value.IndexOf(provider, StringComparison.Ordinal);

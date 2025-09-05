@@ -2,9 +2,9 @@
 
 public record CostReportRequest
 {
-    public required string ReportId { get; set; }
-    public  DateTime CostFrom { get; set; }
-    public  DateTime CostTo { get; set; }
+    public required string ReportId { get; init; }
+    public DateTime CostFrom { get; init; }
+    public DateTime CostTo { get; init; }
 }
 
 public class CostReportRequestValidator : AbstractValidator<CostReportRequest>

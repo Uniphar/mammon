@@ -4,7 +4,7 @@
 [TestCategory("UnitTest")]
 public class ResourceIdentifierTests
 {
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox/providers/microsoft.devcenter/projects/customPool-dotnet/pools/custom-dotnet-vs2022ent", "customPool-dotnet")]
 	public void GetDevBoxProjectNameTests(string input, string expectedPoolName)
 	{
@@ -15,7 +15,7 @@ public class ResourceIdentifierTests
 		rid.GetDevBoxProjectName().Should().Be(expectedPoolName);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox/providers/microsoft.devcenter/projects/customPool-dotnet/pools/custom-dotnet-vs2022ent", false)]
 	[DataRow("/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/core-env-dev/providers/microsoft.operationalinsights/workspaces/test-logs", true)]
 	public void IsLogAnalyticsWorkspaceTests(string input, bool expected)
@@ -27,7 +27,7 @@ public class ResourceIdentifierTests
 		rID.IsLogAnalyticsWorkspace().Should().Be(expected);
 	}
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox/providers/microsoft.devcenter/projects/customPool-dotnet/pools/custom-dotnet-vs2022ent", "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox")]
 	[DataRow("/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox", "/subscriptions/21a25c3f-776a-408f-b319-f43e54634695/resourcegroups/testDevBox")]
 	public void GetResourceGroupIdentifierTest(string input, string expected)
@@ -36,6 +36,6 @@ public class ResourceIdentifierTests
 		ResourceIdentifier rID = new(input);
 
 		//act+assert
-		rID.GetResourceGroupIdentifier().Should().Be(new(expected));
+		rID.GetResourceGroupIdentifier().Should().Be(new ResourceIdentifier(expected));
 	}
 }

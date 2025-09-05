@@ -31,7 +31,7 @@ public class CostRetrievalService
         jsonSerializerOptions.Converters.Add(new ObjectToInferredTypesConverter());
     }
 
-    public virtual string? GetSubscriptionFullResourceId(string subscriptionName)
+    protected virtual string? GetSubscriptionFullResourceId(string subscriptionName)
     {
         var subByName = armClient.GetSubscriptions().FirstOrDefault((s) => s.Data.DisplayName == subscriptionName);
 
