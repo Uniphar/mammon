@@ -77,5 +77,145 @@
         ]
       ]
     }
+  },
+  "1620bff3-d3be-4da6-b073-b3b6c2001716": {
+    "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "type": "Microsoft.CostManagement/query",
+    "location": null,
+    "sku": null,
+    "eTag": null,
+    "properties": {
+      "nextLink": null,
+      "columns": [
+        {
+          "name": "Cost",
+          "type": "Number"
+        },
+        {
+          "name": "CostUSD",
+          "type": "Number"
+        },
+        {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        {
+          "name": "Tags",
+          "type": "Array"
+        },
+        {
+          "name": "Currency",
+          "type": "String"
+        }
+      ],
+      "rows": [
+        [
+          2375.05184270885,
+          1996.05184270885,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.operationalinsights/workspaces/core-platform-logs",
+          [
+            "\"environment\":\"platform\"",
+            "\"logtype\":\"main\""
+          ],
+          "EUR"
+        ],
+        [
+          260.293416611576,
+          223.9843947634,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/data-mysql-dev/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-platform-mysql",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          29.8892786129142,
+          24.8892786129142,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/p-storage/providers/microsoft.storage/storageaccounts/peunfileshare",
+          [
+          ],
+          "EUR"
+        ]
+      ]
+    }
+  },
+  "961b7071-1490-44c4-97b7-b4620c73aee5": {
+    "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "type": "Microsoft.CostManagement/query",
+    "location": null,
+    "sku": null,
+    "eTag": null,
+    "properties": {
+      "nextLink": null,
+      "columns": [
+        {
+          "name": "Cost",
+          "type": "Number"
+        },
+        {
+          "name": "CostUSD",
+          "type": "Number"
+        },
+        {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        {
+          "name": "Tags",
+          "type": "Array"
+        },
+        {
+          "name": "Currency",
+          "type": "String"
+        }
+      ],
+      "rows": [
+        [
+          4602.88930901704,
+          4042.88930901704,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/core-env-prod/providers/microsoft.operationalinsights/workspaces/core-env-prod-logs",
+          [
+            "\"environment\":\"prod\"",
+            "\"logtype\":\"main\""
+          ],
+          "EUR"
+        ],
+        [
+          25.2447606976206,
+          22.95487587263,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ap-eu-prod/providers/microsoft.compute/virtualmachines/vm-ap-eu-prod11",
+          [
+            "\"mammonsplittablevdi\":\"true\""
+          ],
+          "EUR"
+        ],
+        [
+          2382.98599248377,
+          1865.98599248377,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/datasql-prod/providers/microsoft.sql/servers/uni-datasql-prod-sql/elasticpools/datasql-prod-sql-pool",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          269.242935754742,
+          19.232382732,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/mc_compute-we-prod_compute-aks-we-prod-k8s_westeurope/providers/microsoft.compute/virtualmachinescalesets/aks-core-66019043-vmss",
+          [
+            "\"aks-managed-poolname\":\"core\""
+          ],
+          "EUR"
+        ],
+        [
+          31.1450557426874,
+          27.1450557426874,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/dawn-prod/providers/microsoft.storage/storageaccounts/unidawnprod",
+          [
+          ],
+          "EUR"
+        ]
+      ]
+    }
   }
 }
