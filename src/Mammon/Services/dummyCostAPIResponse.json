@@ -44,7 +44,7 @@
         [
           20.2447606976206,
           18.95487587263,
-          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-eu-test/providers/microsoft.compute/virtualmachines/vm-ap-eu-test0",
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-we-test/providers/microsoft.compute/virtualmachines/vm-ap-we-test1",
           [
             "\"mammonsplittablevdi\":\"true\""
           ],
@@ -71,6 +71,14 @@
           159.30907240676,
           132.30907240676,
           "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-test/providers/microsoft.storage/storageaccounts/uniwvdaicitest",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          450.709939507005,
+          450.709939507005,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/datasql-test/providers/microsoft.sql/servers/uni-datasql-test-sql/elasticpools/semarchy-test-sql-pool",
           [
           ],
           "EUR"
