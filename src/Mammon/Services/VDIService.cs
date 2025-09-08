@@ -1,6 +1,12 @@
-﻿namespace Mammon.Services;
+﻿using Mammon.Models;
 
-public class VDIService(ArmClient armClient, DefaultAzureCredential azureCredential, ILogger<VDIService> logger)
+namespace Mammon.Services;
+
+public class VDIService(
+	ArmClient armClient, 
+	DefaultAzureCredential azureCredential,
+	IConfiguration configuration,
+	ILogger<VDIService> logger)
 {
 	public async Task<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> ObtainQueryUsage(string resourceGroupId, DateTime from, DateTime to)
 	{
@@ -25,14 +31,33 @@ public class VDIService(ArmClient armClient, DefaultAzureCredential azureCredent
 			//query session usage
 			LogsQueryClient client = new(azureCredential);
 
-			var response = await client.QueryWorkspaceAsync<VDIQueryUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
-					@$"WVDConnections
+			Response<IReadOnlyList<VDIQueryUsageResponseItem>> response;
+
+#if (DEBUG || INTTEST)
+
+			string? mockApiResponsePath;
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockVDIResponseFilePathConfigKey])
+				&& File.Exists(mockApiResponsePath))
+			{
+				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+				var items = JsonSerializer.Deserialize<List<VDIQueryUsageResponseItem>>(mockedResponse)!;
+				response = Response.FromValue<IReadOnlyList<VDIQueryUsageResponseItem>>(
+					items,
+					new MockResponse(200));
+			}
+			else
+			{
+#endif
+				response = await client.QueryWorkspaceAsync<VDIQueryUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+						@$"WVDConnections
 					| where _ResourceId =~'{hostPool.Id}' and State == 'Completed' and ResourceAlias has '#'
 					| extend GroupID = tostring(split(ResourceAlias, '#', 0)[0])
 					| summarize SessionCount=count() by GroupID
 					| where SessionCount > 0",
-					new QueryTimeRange(from, to));
-
+						new QueryTimeRange(from, to));
+#if (DEBUG || INTTEST)
+            }
+#endif
 
 			return (response.Value, true);
 		}

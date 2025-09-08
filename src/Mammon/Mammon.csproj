@@ -49,6 +49,9 @@
     <Content Update="Services\dummySqlPoolQueryApiResponse.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="Services\dummyVDIQueryApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

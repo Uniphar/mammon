@@ -31,5 +31,6 @@ public static class Consts
 	public const string MockLAQueryResponseFilePathConfigKey = "Mammon:MockLAQueryResponseFilePath";
 	public const string MockAKSResponseFilePathConfigKey = "Mammon:MockAKSResponseFilePath";
 	public const string MockSqlPoolResponseFilePathConfigKey = "Mammon:MockSqlPoolResponseFilePath";
+	public const string MockVDIResponseFilePathConfigKey = "Mammon:MockVDIResponseFilePath";
 #endif
 }

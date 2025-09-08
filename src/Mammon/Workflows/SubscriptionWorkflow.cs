@@ -44,14 +44,14 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
 				await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
 					new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
-					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}" });
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}".Replace("$", string.Empty) });
 
 			}
 			else
 			{
 				await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
 					new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
-					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" });
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}".Replace("$", string.Empty) });
 			}
 		}
 

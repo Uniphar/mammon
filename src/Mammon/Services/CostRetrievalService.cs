@@ -60,9 +60,9 @@ public class CostRetrievalService
             List<ResourceCostResponse> costs;
 
 #if (DEBUG || INTTEST)
-			string? mockApiResponsePath;
+            string? mockApiResponsePath;
 
-			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePathConfigKey]) 
+            if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePathConfigKey])
                 && File.Exists(mockApiResponsePath))
             {
                 var mockResponse = File.ReadAllText(mockApiResponsePath);

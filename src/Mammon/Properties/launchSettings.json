@@ -12,6 +12,7 @@
         "Mammon__MockLAQueryResponseFilePath": "./Services/dummyLAQueryApiResponse.json",
         "Mammon__MockAKSResponseFilePath": "./Services/dummyAKSQueryApiResponse.json",
         "Mammon__MockSqlPoolResponseFilePath": "./Services/dummySqlPoolQueryApiResponse.json",
+        "Mammon__MockVDIResponseFilePath": "./Services/dummyVDIQueryApiResponse.json",
         "Mammon__CostCentreRuleEngineFilePath": "../../costCentreRules.json",
         "Mammon__StateStoreName": "actor-state-store"
       },
