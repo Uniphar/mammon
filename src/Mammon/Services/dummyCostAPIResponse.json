@@ -137,9 +137,17 @@
           "EUR"
         ],
         [
-          29.8892786129142,
-          24.8892786129142,
-          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/p-storage/providers/microsoft.storage/storageaccounts/peunfileshare",
+          34.4753006887598,
+          34.4753006887598,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/p-epod/providers/microsoft.storage/storageaccounts/peununiepod01archive",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          136.31793918234,
+          136.31793918234,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/ict/providers/microsoft.compute/virtualmachines/uniappaz01",
           [
           ],
           "EUR"
