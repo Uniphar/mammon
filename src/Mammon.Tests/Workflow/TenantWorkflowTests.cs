@@ -95,7 +95,44 @@ public class TenantWorkflowTests
 		_cslQueryProvider = KustoClientFactory.CreateCslQueryProvider(kcsb);
 	}
 
-	[TestMethod]
+    [TestMethod]
+    public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
+	{
+		decimal apiTotal = 10700;
+
+        await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
+        {
+            Body = BinaryData.FromObjectAsJson(new
+            {
+                data = _reportRequest
+            }),
+            ContentType = "application/json",
+        });
+
+        //wait for ADX to record email produced
+        string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
+
+        EmailData emailData = await _cslQueryProvider!
+            .WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
+
+        //assertions
+
+        emailData.Should().NotBeNull();
+        emailData.FromEmail.Should().Be(_fromEmail);
+        emailData.FromName.Should().Be(_fromEmail);
+        emailData.Attachments.Should().NotBeEmpty();
+        emailData.AttachmentsList.Should().ContainSingle();
+
+        //retrieve content and compute total
+        var csvTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
+
+        // this is to cover rounding issues
+        var apiTotalRound = decimal.Round(apiTotal, 2);
+        var csvTotalRound = decimal.Round(csvTotal, 2);
+
+        (apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
+    }
+
 	public async Task WorkflowFinishesEmailSentTotalsMatch()
 	{
 
