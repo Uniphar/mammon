@@ -31,43 +31,43 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		while (pageResponse.nextPageAvailable);
 
 		//splittable resources are processed separately
-		//var rgGroups = costs
-		//	.Where(x => !x.IsSplittableAsResource())
-		//	.GroupBy(x => x.ResourceIdentifier.ResourceGroupName);
+		var rgGroups = costs
+			.Where(x => !x.IsSplittableAsResource())
+			.GroupBy(x => x.ResourceIdentifier.ResourceGroupName);
 
-		//foreach (var group in rgGroups)
-		//{
-		//	//any resource group with splitable resource as a group gets special treatment
-		//	if (group.Any(x => x.IsSplitableVDI()))
-		//	{
-		//		var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
+		foreach (var group in rgGroups)
+		{
+			//any resource group with splitable resource as a group gets special treatment
+			if (group.Any(x => x.IsSplitableVDI()))
+			{
+				var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
 
-		//		await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
-		//			new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
-		//			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}" });
+				await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
+					new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}" });
 
-		//	}
-		//	else
-		//	{
-		//		await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-		//			new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
-		//			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" });
-		//	}
-		//}
+			}
+			else
+			{
+				await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
+					new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}" });
+			}
+		}
 
-		////MySQL splitting
-		//var mySQLServers = costs.Where(x => x.IsMySQL());
-		//foreach (var mySQL in mySQLServers)
-		//{
-		//	await TriggerSplittableWorkflowAsync<MySQLWorkflow>(context, input, mySQL);
-		//}
+		//MySQL splitting
+		var mySQLServers = costs.Where(x => x.IsMySQL());
+		foreach (var mySQL in mySQLServers)
+		{
+			await TriggerSplittableWorkflowAsync<MySQLWorkflow>(context, input, mySQL);
+		}
 
-		////AKS VMSS splitting
-		//var aksScaleSets = costs.Where(x => x.IsAKSVMSS());
-		//foreach (var aksScaleSet in aksScaleSets)
-		//{
-		//	await TriggerSplittableWorkflowAsync<AKSVMSSWorkflow>(context, input, aksScaleSet);
-		//}
+		//AKS VMSS splitting
+		var aksScaleSets = costs.Where(x => x.IsAKSVMSS());
+		foreach (var aksScaleSet in aksScaleSets)
+		{
+			await TriggerSplittableWorkflowAsync<AKSVMSSWorkflow>(context, input, aksScaleSet);
+		}
 
 		//SQL Pool splitting
 		var sqlPools = costs.Where(x => x.IsSQLPool());
