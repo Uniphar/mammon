@@ -192,7 +192,7 @@
         [
           25.2447606976206,
           22.95487587263,
-          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ap-eu-prod/providers/microsoft.compute/virtualmachines/vm-ap-eu-prod11",
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ap-we-prod/providers/microsoft.compute/virtualmachines/vm-ap-we-prod9",
           [
             "\"mammonsplittablevdi\":\"true\""
           ],
@@ -219,6 +219,14 @@
           31.1450557426874,
           27.1450557426874,
           "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/dawn-prod/providers/microsoft.storage/storageaccounts/unidawnprod",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          383.587306115477,
+          383.587306115477,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/data-mysql-prod/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-prod-mysql",
           [
           ],
           "EUR"
