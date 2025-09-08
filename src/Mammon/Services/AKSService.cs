@@ -33,32 +33,42 @@ public class AKSService(
 			Response<IReadOnlyList<AKSVMSSUsageResponseItem>> response;
 
 #if (DEBUG || INTTEST)
-			var mockedResponse = await File.ReadAllTextAsync(configuration[Consts.MockAKSResponseFilePathConfigKey]!);
-			var items = JsonSerializer.Deserialize<List<AKSVMSSUsageResponseItem>>(mockedResponse)!;
-			response = Response.FromValue<IReadOnlyList<AKSVMSSUsageResponseItem>>(
-				items,
-				new MockResponse(200)
-			);
-#else
-			response = await logsQueryClient.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
-				@$"Perf
-				| where ObjectName == 'K8SContainer'
-					and CounterName in ('cpuUsageNanoCores', 'memoryWorkingSetBytes')
-				| summarize InstanceValue=avg(CounterValue)by InstanceName, CounterName
-				| extend
-					PodUid = tostring(split(InstanceName, '/', 9)[0]),
-					Container = tostring(split(InstanceName, '/', 10)[0])
-				| join kind=leftouter (KubePodInventory
-					| summarize arg_max(TimeGenerated, *) by PodUid)
-					on PodUid
-				| extend Nodepool = tostring(split(Computer, '-', 1)[0])
-				| extend ScaleSet = strcat(tostring(split(Computer, ""-vmss"",0)[0]),""-vmss"")
-				| where ScaleSet =='{rID.Name}'
-				| summarize AvgInstanceValue=toreal(avg(InstanceValue)) by Namespace, CounterName",
-			new QueryTimeRange(from, to));
+
+			string? mockApiResponsePath;
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockAKSResponseFilePathConfigKey])
+				&& File.Exists(mockApiResponsePath))
+			{
+				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+				var items = JsonSerializer.Deserialize<List<AKSVMSSUsageResponseItem>>(mockedResponse)!;
+				response = Response.FromValue<IReadOnlyList<AKSVMSSUsageResponseItem>>(
+					items,
+					new MockResponse(200)
+				);
+			}
+			else
+			{
+#endif
+				response = await logsQueryClient.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+					@$"Perf
+					| where ObjectName == 'K8SContainer'
+						and CounterName in ('cpuUsageNanoCores', 'memoryWorkingSetBytes')
+					| summarize InstanceValue=avg(CounterValue)by InstanceName, CounterName
+					| extend
+						PodUid = tostring(split(InstanceName, '/', 9)[0]),
+						Container = tostring(split(InstanceName, '/', 10)[0])
+					| join kind=leftouter (KubePodInventory
+						| summarize arg_max(TimeGenerated, *) by PodUid)
+						on PodUid
+					| extend Nodepool = tostring(split(Computer, '-', 1)[0])
+					| extend ScaleSet = strcat(tostring(split(Computer, ""-vmss"",0)[0]),""-vmss"")
+					| where ScaleSet =='{rID.Name}'
+					| summarize AvgInstanceValue=toreal(avg(InstanceValue)) by Namespace, CounterName",
+				new QueryTimeRange(from, to));
+#if (DEBUG || INTTEST)
+			}
 #endif
 
-            if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
+			if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
 			{
 				return ([], false);
 			}

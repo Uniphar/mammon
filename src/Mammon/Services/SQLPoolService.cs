@@ -46,24 +46,34 @@ public class SQLPoolService(
 			Response<IReadOnlyList<SQLDatabaseUsageResponseItem>> result;
 
 #if (DEBUG || INTTEST)
-			var mockedResponse = await File.ReadAllTextAsync(configuration[Consts.MockSqlPoolResponseFilePathConfigKey]!);
-			var items = JsonSerializer.Deserialize<List<SQLDatabaseUsageResponseItem>>(mockedResponse)!;
-			result = Response.FromValue<IReadOnlyList<SQLDatabaseUsageResponseItem>>(
-				items,
-				new MockResponse(200)
-			);
-#else
-			string query = @$"AzureMetrics 
-				| where MetricName=='dtu_used' and ResourceId in~ ({string.Join(",", dbs)})
-				| summarize DTUAverage=avg(Average) by ResourceId
-				| where DTUAverage>0";
 
-            result = await logsQueryClient.QueryWorkspaceAsync<SQLDatabaseUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
-				query,
-				new QueryTimeRange(from, to));
+			string? mockApiResponsePath;
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockSqlPoolResponseFilePathConfigKey])
+				&& File.Exists(mockApiResponsePath))
+			{
+				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+				var items = JsonSerializer.Deserialize<List<SQLDatabaseUsageResponseItem>>(mockedResponse)!;
+				result = Response.FromValue<IReadOnlyList<SQLDatabaseUsageResponseItem>>(
+					items,
+					new MockResponse(200)
+				);
+			}
+			else
+			{
+#endif
+				string query = @$"AzureMetrics 
+					| where MetricName=='dtu_used' and ResourceId in~ ({string.Join(",", dbs)})
+					| summarize DTUAverage=avg(Average) by ResourceId
+					| where DTUAverage>0";
+
+				result = await logsQueryClient.QueryWorkspaceAsync<SQLDatabaseUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+					query,
+					new QueryTimeRange(from, to));
+#if (DEBUG || INTTEST)
+			}
 #endif
 
-            return (result.Value, true);
+			return (result.Value, true);
 		}
 		catch (Exception ex) 
 		{

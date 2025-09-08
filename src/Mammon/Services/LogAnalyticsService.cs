@@ -27,26 +27,36 @@ public class LogAnalyticsService(
 			Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
 
 #if (DEBUG || INTTEST)
-			var mockedResponse = await File.ReadAllTextAsync(configuration[Consts.MockLAQueryResponseFilePathConfigKey]!);
-            var items = JsonSerializer.Deserialize<List<LAWorkspaceQueryResponseItem>>(mockedResponse)!;
-            response = Response.FromValue<IReadOnlyList<LAWorkspaceQueryResponseItem>>(
-				items,
-				new MockResponse(200)
-			);
-#else
-			response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
-				@$"search * 
-			| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
-			| project
-				Size=_BilledSize,
-				Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
-				SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
-			| summarize SizeSum=sum(Size) by Selector, SelectorType
-			| order by Selector desc",
-				new QueryTimeRange(from, to));
+
+			string? mockApiResponsePath;
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockLAQueryResponseFilePathConfigKey])
+				&& File.Exists(mockApiResponsePath))
+			{
+				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+				var items = JsonSerializer.Deserialize<List<LAWorkspaceQueryResponseItem>>(mockedResponse)!;
+				response = Response.FromValue<IReadOnlyList<LAWorkspaceQueryResponseItem>>(
+					items,
+					new MockResponse(200)
+				);
+			}
+			else
+			{
+#endif
+				response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+					@$"search * 
+				| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
+				| project
+					Size=_BilledSize,
+					Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
+					SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
+				| summarize SizeSum=sum(Size) by Selector, SelectorType
+				| order by Selector desc",
+					new QueryTimeRange(from, to));
+#if (DEBUG || INTTEST)
+			}
 #endif
 
-            if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
+			if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
 			{
 				return ([], false);
 			}
