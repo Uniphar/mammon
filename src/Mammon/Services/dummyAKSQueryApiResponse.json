@@ -1,52 +1,52 @@
 [
   {
-    "AvgInstanceValue": 1118846.9043197536,
+    "AvgInstanceValue": 2028682.1766470931,
     "Namespace": "app-routing-system",
     "CounterName": "cpuUsageNanoCores"
   },
   {
-    "AvgInstanceValue": 62566351.386029534,
+    "AvgInstanceValue": 41136432.09296509,
     "Namespace": "app-routing-system",
     "CounterName": "memoryWorkingSetBytes"
   },
   {
-    "AvgInstanceValue": 35464.68269494532,
+    "AvgInstanceValue": 31202.99390462065,
     "Namespace": "chaos-testing",
     "CounterName": "cpuUsageNanoCores"
   },
   {
-    "AvgInstanceValue": 23086153.867850505,
+    "AvgInstanceValue": 22190479.691282533,
     "Namespace": "chaos-testing",
     "CounterName": "memoryWorkingSetBytes"
   },
   {
-    "AvgInstanceValue": 3834578.963042879,
-    "Namespace": "diagrid-cloud",
-    "CounterName": "cpuUsageNanoCores"
-  },
-  {
-    "AvgInstanceValue": 35140041.46033978,
-    "Namespace": "diagrid-cloud",
-    "CounterName": "memoryWorkingSetBytes"
-  },
-  {
-    "AvgInstanceValue": 7930915.839200977,
+    "AvgInstanceValue": 10982622.99653557,
     "Namespace": "gatekeeper-system",
     "CounterName": "cpuUsageNanoCores"
   },
   {
-    "AvgInstanceValue": 125055579.60001452,
+    "AvgInstanceValue": 144512962.35308608,
     "Namespace": "gatekeeper-system",
     "CounterName": "memoryWorkingSetBytes"
   },
   {
-    "AvgInstanceValue": 1687807.1994466188,
+    "AvgInstanceValue": 1424651.5244604636,
     "Namespace": "kube-system",
     "CounterName": "cpuUsageNanoCores"
   },
   {
-    "AvgInstanceValue": 37424718.41149016,
+    "AvgInstanceValue": 36010464.95424093,
     "Namespace": "kube-system",
+    "CounterName": "memoryWorkingSetBytes"
+  },
+  {
+    "AvgInstanceValue": 3247243.4765439522,
+    "Namespace": "diagrid-cloud",
+    "CounterName": "cpuUsageNanoCores"
+  },
+  {
+    "AvgInstanceValue": 32957997.40162848,
+    "Namespace": "diagrid-cloud",
     "CounterName": "memoryWorkingSetBytes"
   }
 ]

@@ -146,8 +146,8 @@ public class CostCentreReportService (IConfiguration configuration, CostCentreRu
 			Body = reportBody,
 			From = new Contact { Email = EmailFromAddress , Name = EmailFromAddress },
 			Subject = string.Format(EmailSubject, reportRequest.ReportId),
-			To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
-			Attachments= [attachmentUri]
+			To = [new Contact {  Email = "aandrei@uniphar.ie", Name = "Andrei Andrei" }],
+            Attachments = [attachmentUri]
 		};
 
 		await serviceBusClient.CreateSender("dotflyer-email").SendMessageAsync(new ServiceBusMessage
