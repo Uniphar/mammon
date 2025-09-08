@@ -52,7 +52,12 @@ public class SQLPoolService(
 				&& File.Exists(mockApiResponsePath))
 			{
 				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
-				var items = JsonSerializer.Deserialize<List<SQLDatabaseUsageResponseItem>>(mockedResponse)!;
+
+				using var doc = JsonDocument.Parse(mockedResponse);
+				var subscriptionId = poolResourceId.GetSubscriptionId();
+				var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
+
+                var items = JsonSerializer.Deserialize<List<SQLDatabaseUsageResponseItem>>(subscriptionJson)!;
 				result = Response.FromValue<IReadOnlyList<SQLDatabaseUsageResponseItem>>(
 					items,
 					new MockResponse(200)

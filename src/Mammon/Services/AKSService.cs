@@ -39,7 +39,12 @@ public class AKSService(
 				&& File.Exists(mockApiResponsePath))
 			{
 				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
-				var items = JsonSerializer.Deserialize<List<AKSVMSSUsageResponseItem>>(mockedResponse)!;
+
+				using var doc = JsonDocument.Parse(mockedResponse);
+				var subscriptionId = vmssResourceId.GetSubscriptionId();
+				var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
+
+                var items = JsonSerializer.Deserialize<List<AKSVMSSUsageResponseItem>>(subscriptionJson)!;
 				response = Response.FromValue<IReadOnlyList<AKSVMSSUsageResponseItem>>(
 					items,
 					new MockResponse(200)

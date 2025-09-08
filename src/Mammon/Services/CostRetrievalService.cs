@@ -66,7 +66,12 @@ public class CostRetrievalService
                 && File.Exists(mockApiResponsePath))
             {
                 var mockResponse = File.ReadAllText(mockApiResponsePath);
-                (nextLink, costs) = ParseRawJson(mockResponse, subId, GroupingMode.Resource); //mock only supports resource grouping at the moment
+
+                using var doc = JsonDocument.Parse(mockResponse);
+                var subscriptionId = subId.GetSubscriptionId();
+                var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
+
+                (nextLink, costs) = ParseRawJson(subscriptionJson, subId, GroupingMode.Resource); //mock only supports resource grouping at the moment
             }
             else
             {

@@ -73,4 +73,20 @@ public static class StringExtensions
 
 		return [.. value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
 	}
+
+    public static string GetSubscriptionId(this string path)
+    {
+		if (string.IsNullOrWhiteSpace(path))
+			throw new ArgumentNullException(path, nameof(path));
+
+        var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        // must be "/subscriptions/{guid}[/...]"
+        if (parts.Length >= 2 && parts[0].Equals("subscriptions", StringComparison.OrdinalIgnoreCase))
+        {
+            return parts[1];
+        }
+
+		throw new ArgumentException(path, nameof(path));
+    }
 }

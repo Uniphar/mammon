@@ -1,79 +1,81 @@
 ﻿{
-  "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
-  "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
-  "type": "Microsoft.CostManagement/query",
-  "location": null,
-  "sku": null,
-  "eTag": null,
-  "properties": {
-    "nextLink": null,
-    "columns": [
-      {
-        "name": "Cost",
-        "type": "Number"
-      },
-      {
-        "name": "CostUSD",
-        "type": "Number"
-      },
-      {
-        "name": "ResourceId",
-        "type": "String"
-      },
-      {
-        "name": "Tags",
-        "type": "Array"
-      },
-      {
-        "name": "Currency",
-        "type": "String"
-      }
-    ],
-    "rows": [
-      [
-        14.2276520988,
-        15.4341569967782,
-        "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/core-env-dev/providers/microsoft.operationalinsights/workspaces/core-env-dev-logs",
-        [
-          "\"environment\":\"dev\"",
-          "\"logtype\":\"main\""
-        ],
-        "EUR"
+  "39983c36-2aa4-4c7e-907a-6dbd95860295": {
+    "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "type": "Microsoft.CostManagement/query",
+    "location": null,
+    "sku": null,
+    "eTag": null,
+    "properties": {
+      "nextLink": null,
+      "columns": [
+        {
+          "name": "Cost",
+          "type": "Number"
+        },
+        {
+          "name": "CostUSD",
+          "type": "Number"
+        },
+        {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        {
+          "name": "Tags",
+          "type": "Array"
+        },
+        {
+          "name": "Currency",
+          "type": "String"
+        }
       ],
-      [
-        20.2447606976206,
-        18.95487587263,
-        "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-eu-test/providers/microsoft.compute/virtualmachines/vm-ap-eu-test0",
+      "rows": [
         [
-          "\"mammonsplittablevdi\":\"true\""
+          14.2276520988,
+          15.4341569967782,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/core-env-dev/providers/microsoft.operationalinsights/workspaces/core-env-dev-logs",
+          [
+            "\"environment\":\"dev\"",
+            "\"logtype\":\"main\""
+          ],
+          "EUR"
         ],
-        "EUR"
-      ],
-      [
-        260.293416611576,
-        223.9843947634,
-        "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/data-mysql-dev/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-dev-mysql",
         [
+          20.2447606976206,
+          18.95487587263,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-eu-test/providers/microsoft.compute/virtualmachines/vm-ap-eu-test0",
+          [
+            "\"mammonsplittablevdi\":\"true\""
+          ],
+          "EUR"
         ],
-        "EUR"
-      ],
-      [
-        269.242935754742,
-        19.232382732,
-        "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/mc_compute-ne-dev_compute-aks-ne-dev-k8s_northeurope/providers/microsoft.compute/virtualmachinescalesets/aks-core-38546464-vmss",
         [
-          "\"aks-managed-poolname\":\"core\""
+          260.293416611576,
+          223.9843947634,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/data-mysql-dev/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-dev-mysql",
+          [
+          ],
+          "EUR"
         ],
-        "EUR"
-      ],
-      [
-        159.30907240676,
-        132.30907240676,
-        "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-test/providers/microsoft.storage/storageaccounts/uniwvdaicitest",
         [
+          269.242935754742,
+          19.232382732,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/mc_compute-ne-dev_compute-aks-ne-dev-k8s_northeurope/providers/microsoft.compute/virtualmachinescalesets/aks-core-38546464-vmss",
+          [
+            "\"aks-managed-poolname\":\"core\""
+          ],
+          "EUR"
         ],
-        "EUR"
+        [
+          159.30907240676,
+          132.30907240676,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-test/providers/microsoft.storage/storageaccounts/uniwvdaicitest",
+          [
+          ],
+          "EUR"
+        ]
       ]
-    ]
+    }
   }
 }

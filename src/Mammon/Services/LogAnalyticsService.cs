@@ -33,7 +33,12 @@ public class LogAnalyticsService(
 				&& File.Exists(mockApiResponsePath))
 			{
 				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
-				var items = JsonSerializer.Deserialize<List<LAWorkspaceQueryResponseItem>>(mockedResponse)!;
+
+				using var doc = JsonDocument.Parse(mockedResponse);
+				var subscriptionId = laResourceId.GetSubscriptionId();
+				var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
+
+                var items = JsonSerializer.Deserialize<List<LAWorkspaceQueryResponseItem>>(subscriptionJson)!;
 				response = Response.FromValue<IReadOnlyList<LAWorkspaceQueryResponseItem>>(
 					items,
 					new MockResponse(200)

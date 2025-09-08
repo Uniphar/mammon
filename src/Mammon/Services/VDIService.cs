@@ -40,7 +40,12 @@ public class VDIService(
 				&& File.Exists(mockApiResponsePath))
 			{
 				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
-				var items = JsonSerializer.Deserialize<List<VDIQueryUsageResponseItem>>(mockedResponse)!;
+
+				using var doc = JsonDocument.Parse(mockedResponse);
+				var subscriptionId = resourceGroupId.GetSubscriptionId();
+				var subscriptionJsonValue = doc.RootElement.GetProperty(subscriptionId).GetRawText();
+
+                var items = JsonSerializer.Deserialize<List<VDIQueryUsageResponseItem>>(subscriptionJsonValue)!;
 				response = Response.FromValue<IReadOnlyList<VDIQueryUsageResponseItem>>(
 					items,
 					new MockResponse(200));

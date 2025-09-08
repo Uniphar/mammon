@@ -1,10 +1,12 @@
-[
-  {
-    "GroupID": "556a56fd-d834-4167-88aa-f17453448618",
-    "SessionCount": 10
-  },
-  {
-    "GroupID": "3572453f-77ce-4d89-88af-b6d7ee3b2220",
-    "SessionCount": 1
-  }
-]
+{
+  "39983c36-2aa4-4c7e-907a-6dbd95860295": [
+    {
+      "GroupID": "556a56fd-d834-4167-88aa-f17453448618",
+      "SessionCount": 10
+    },
+    {
+      "GroupID": "3572453f-77ce-4d89-88af-b6d7ee3b2220",
+      "SessionCount": 1
+    }
+  ]
+}
