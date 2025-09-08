@@ -1,6 +1,12 @@
-﻿namespace Mammon.Services;
+﻿using Mammon.Models;
 
-public class SQLPoolService(ArmClient armClient, LogsQueryClient logsQueryClient, ILogger<SQLPoolService> logger)
+namespace Mammon.Services;
+
+public class SQLPoolService(
+	ArmClient armClient,
+	LogsQueryClient logsQueryClient,
+	IConfiguration configuration,
+	ILogger<SQLPoolService> logger)
 {
 	public async Task<(IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool successFlag)> ObtainQueryUsage(string poolResourceId, DateTime from, DateTime to)
 	{
@@ -37,16 +43,27 @@ public class SQLPoolService(ArmClient armClient, LogsQueryClient logsQueryClient
 			}
 			var workspace = await armClient.GetOperationalInsightsWorkspaceResource(laWorkspaceId).GetAsync();
 
+			Response<IReadOnlyList<SQLDatabaseUsageResponseItem>> result;
+
+#if (DEBUG || INTTEST)
+			var mockedResponse = await File.ReadAllTextAsync(configuration[Consts.MockSqlPoolResponseFilePathConfigKey]!);
+			var items = JsonSerializer.Deserialize<List<SQLDatabaseUsageResponseItem>>(mockedResponse)!;
+			result = Response.FromValue<IReadOnlyList<SQLDatabaseUsageResponseItem>>(
+				items,
+				new MockResponse(200)
+			);
+#else
 			string query = @$"AzureMetrics 
 				| where MetricName=='dtu_used' and ResourceId in~ ({string.Join(",", dbs)})
 				| summarize DTUAverage=avg(Average) by ResourceId
 				| where DTUAverage>0";
 
-			var result = await logsQueryClient.QueryWorkspaceAsync<SQLDatabaseUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+            result = await logsQueryClient.QueryWorkspaceAsync<SQLDatabaseUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 				query,
 				new QueryTimeRange(from, to));
+#endif
 
-			return (result.Value, true);
+            return (result.Value, true);
 		}
 		catch (Exception ex) 
 		{

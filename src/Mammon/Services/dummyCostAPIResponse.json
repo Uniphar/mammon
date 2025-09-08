@@ -33,9 +33,20 @@
       [
         14.2276520988,
         15.4341569967782,
-        "/subscriptions/1e38d216-5c3b-4ae8-bd8b-81a98e55fb0c/resourcegroups/rgName/providers/microsoft.storage/storageaccounts/sampleSA",
+        "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/core-env-dev/providers/microsoft.operationalinsights/workspaces/core-env-dev-logs",
         [
-          "\"ms-resource-usage\":\"azure-cloud-shell\""
+          "\"environment\":\"dev\"",
+          "\"logtype\":\"main\""
+        ],
+        "EUR"
+      ],
+      [
+        14.2276520988,
+        15.4341569967782,
+        "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourceGroups/vdi-sample-dev/providers/Microsoft.Compute/virtualMachines/vm-sample-dev1",
+        [
+          "\"environment\":\"dev\"",
+          "\"MammonSplittable\":\"true\""
         ],
         "EUR"
       ]

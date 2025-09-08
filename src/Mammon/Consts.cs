@@ -29,5 +29,7 @@ public static class Consts
 #if (DEBUG || INTTEST)      
 	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
 	public const string MockLAQueryResponseFilePathConfigKey = "Mammon:MockLAQueryResponseFilePath";
+	public const string MockAKSResponseFilePathConfigKey = "Mammon:MockAKSResponseFilePath";
+	public const string MockSqlPoolResponseFilePathConfigKey = "Mammon:MockSqlPoolResponseFilePath";
 #endif
 }

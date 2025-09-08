@@ -37,10 +37,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Services\dummyAKSQueryApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="Services\dummyCostAPIResponse.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Update="Services\dummyLAQueryApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Services\dummySqlPoolQueryApiResponse.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
