@@ -2,9 +2,9 @@
 
 [Route("api/[controller]/[Action]")]
 [ApiController]
-public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine, CostCentreReportService costCentreReportService ) : Controller
-{	
-	[HttpGet()]
+public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine, CostCentreReportService costCentreReportService) : Controller
+{
+    [HttpGet()]
     [HttpPost()]
     [Topic(Consts.MammonPubSubCRDName, Consts.MammonServiceBusTopicName)]
     public async Task<StatusCodeResult> Invoke(CloudEvent<CostReportRequest> @event)
@@ -46,15 +46,15 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
             await workflowClient.ScheduleNewWorkflowAsync(nameof(TenantWorkflow), workflowName, subRequest);
         }
 
-        
+
         return Ok();
     }
 
-	[HttpOptions()]
-	public IActionResult Cron()
-	{
-		return NoContent();
-	}
+    [HttpOptions()]
+    public IActionResult Cron()
+    {
+        return NoContent();
+    }
 
     [HttpGet]
     [HttpPost]
