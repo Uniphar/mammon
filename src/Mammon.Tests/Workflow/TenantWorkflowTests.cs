@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Tests.Workflow;
 
-[TestClass, TestCategory("IntegrationTest")]
+[TestClass]
 public class TenantWorkflowTests
 {
 	private static ServiceBusClient? _serviceBusClient;
@@ -95,9 +95,11 @@ public class TenantWorkflowTests
 		_cslQueryProvider = KustoClientFactory.CreateCslQueryProvider(kcsb);
 	}
 
+
+    [TestMethod, TestCategory("MockedIntegrationTest")]
     public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
 	{
-		decimal apiTotal = 10700;
+		decimal apiTotal = 11675.26m;
 
         await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
         {
@@ -132,7 +134,7 @@ public class TenantWorkflowTests
         (apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
     }
 
-    [TestMethod]
+    [TestMethod, TestCategory("IntegrationTest")]
     public async Task WorkflowFinishesEmailSentTotalsMatch()
 	{
 
@@ -146,13 +148,13 @@ public class TenantWorkflowTests
 		var apiTotal = await ComputeCostAPITotalAsync();
 
 		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
-		{
-			Body = BinaryData.FromObjectAsJson(new
-			{
-				data = _reportRequest
-			}),
-			ContentType = "application/json",
-		});
+        {
+            Body = BinaryData.FromObjectAsJson(new
+            {
+                data = _reportRequest
+            }),
+            ContentType = "application/json",
+        });
 
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
@@ -200,7 +202,7 @@ public class TenantWorkflowTests
 			};
 
 			var httpClientFactory = _host!.Services.GetRequiredService<IHttpClientFactory>();
-			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>(), _config!);
+			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>());
 
 			var response = await _costRetrievalService!.QueryForSubAsync(request);
 			total += response.TotalCost;

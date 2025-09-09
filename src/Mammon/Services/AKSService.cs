@@ -1,11 +1,8 @@
-﻿using Mammon.Models;
-
-namespace Mammon.Services;
+﻿namespace Mammon.Services;
 
 public class AKSService(
 	ArmClient armClient,
 	LogsQueryClient logsQueryClient,
-	IConfiguration configuration,
 	ILogger<AKSService> logger)
 {
 	public async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> QueryUsage(string vmssResourceId, DateTime from, DateTime to)
@@ -35,7 +32,7 @@ public class AKSService(
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
-			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockAKSResponseFilePathConfigKey])
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockAKSResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
 				response = await mockApiResponsePath.ParseMockFileAsync<AKSVMSSUsageResponseItem>(vmssResourceId);

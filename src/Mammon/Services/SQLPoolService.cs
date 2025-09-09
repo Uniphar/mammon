@@ -1,11 +1,8 @@
-﻿using Mammon.Models;
-
-namespace Mammon.Services;
+﻿namespace Mammon.Services;
 
 public class SQLPoolService(
 	ArmClient armClient,
 	LogsQueryClient logsQueryClient,
-	IConfiguration configuration,
 	ILogger<SQLPoolService> logger)
 {
 	public async Task<(IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool successFlag)> ObtainQueryUsage(string poolResourceId, DateTime from, DateTime to)
@@ -48,7 +45,7 @@ public class SQLPoolService(
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
-			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockSqlPoolResponseFilePathConfigKey])
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockSqlPoolResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
 				result = await mockApiResponsePath.ParseMockFileAsync<SQLDatabaseUsageResponseItem>(poolResourceId);

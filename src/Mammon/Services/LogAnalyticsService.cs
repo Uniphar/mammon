@@ -1,11 +1,8 @@
-﻿using Mammon.Models;
-
-namespace Mammon.Services;
+﻿namespace Mammon.Services;
 
 public class LogAnalyticsService(
 	ArmClient armClient,
 	DefaultAzureCredential azureCredential,
-	IConfiguration configuration,
 	ILogger<LogAnalyticsService> logger)
 {
 	public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
@@ -29,7 +26,7 @@ public class LogAnalyticsService(
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
-			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockLAQueryResponseFilePathConfigKey])
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockLAQueryResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
 				response = await mockApiResponsePath.ParseMockFileAsync<LAWorkspaceQueryResponseItem>(laResourceId);

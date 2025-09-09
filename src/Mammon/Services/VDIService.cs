@@ -1,11 +1,8 @@
-﻿using Mammon.Models;
-
-namespace Mammon.Services;
+﻿namespace Mammon.Services;
 
 public class VDIService(
 	ArmClient armClient, 
 	DefaultAzureCredential azureCredential,
-	IConfiguration configuration,
 	ILogger<VDIService> logger)
 {
 	public async Task<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> ObtainQueryUsage(string resourceGroupId, DateTime from, DateTime to)
@@ -36,7 +33,7 @@ public class VDIService(
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
-			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockVDIResponseFilePathConfigKey])
+			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockVDIResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
 				response = await mockApiResponsePath.ParseMockFileAsync<VDIQueryUsageResponseItem>(resourceGroupId);

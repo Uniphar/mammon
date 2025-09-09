@@ -5,7 +5,6 @@ public class CostRetrievalService
     private readonly ArmClient armClient;
     private readonly HttpClient httpClient;
     private readonly ILogger<CostRetrievalService> logger;
-    private readonly IConfiguration configuration;
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
     private const string costAPIVersion = "2024-01-01";
@@ -18,12 +17,11 @@ public class CostRetrievalService
 
     private const int PageSize = 1000; //TODO: make configurable?
 
-    public CostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger, IConfiguration configuration)
+    public CostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger)
     {
         this.armClient = armClient;
         this.httpClient = httpClient;
         this.logger = logger;
-        this.configuration = configuration;
         jsonSerializerOptions.Converters.Add(new ObjectToInferredTypesConverter());
     }
 
@@ -62,7 +60,7 @@ public class CostRetrievalService
 #if (DEBUG || INTTEST)
             string? mockApiResponsePath;
 
-            if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePathConfigKey])
+            if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockCostAPIResponseFilePathConfigKey)
                 && File.Exists(mockApiResponsePath))
             {
                 var mockResponse = File.ReadAllText(mockApiResponsePath);

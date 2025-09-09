@@ -8,11 +8,6 @@
       "environmentVariables": {
         "ASPNETCORE_URLS": "http://+:8082",
         "MAMMON_CONFIG_KEYVAULT_URL": "https://uni-devops-app-dev-kv.vault.azure.net/",
-        "Mammon__MockCostAPIResponseFilePath": "./Services/dummyCostAPIResponse.json",
-        "Mammon__MockLAQueryResponseFilePath": "./Services/dummyLAQueryApiResponse.json",
-        "Mammon__MockAKSResponseFilePath": "./Services/dummyAKSQueryApiResponse.json",
-        "Mammon__MockSqlPoolResponseFilePath": "./Services/dummySqlPoolQueryApiResponse.json",
-        "Mammon__MockVDIResponseFilePath": "./Services/dummyVDIQueryApiResponse.json",
         "Mammon__CostCentreRuleEngineFilePath": "../../../costcentre-definitions/costCentreRules.json",
         "Mammon__StateStoreName": "actor-state-store"
       },
