@@ -178,7 +178,7 @@ jobs:
           --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
           --set-string SBNamespaceName="$SB_NAMESPACE"
           --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}
-          --set-bool mockTests=${{ inputs.mockTests }}
+          --set mockTests=${{ inputs.mockTests }}
           -n devops
           --atomic
 
