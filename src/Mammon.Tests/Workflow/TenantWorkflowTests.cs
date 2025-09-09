@@ -24,7 +24,7 @@ public class TenantWorkflowTests
 	private static CancellationToken _cancellationToken;
 
 
-	[ClassInitialize]
+    [ClassInitialize]
 	public static void Initialize(TestContext testContext)
 	{
 		_cancellationToken = testContext.CancellationTokenSource.Token;
@@ -127,11 +127,13 @@ public class TenantWorkflowTests
         //retrieve content and compute total
         var resultTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 
+		TestContext.WriteLine($"Received result total: {resultTotal}");
+
         // this is to cover rounding issues
         var expectedTotalRound = decimal.Round(expectedTotal, 2);
         var resultTotalRound = decimal.Round(resultTotal, 2);
 
-        (expectedTotalRound - resultTotalRound).Should().BeLessThan(1m, $"api total is {expectedTotalRound} and csv total is {resultTotalRound}");
+        (expectedTotalRound - resultTotalRound).Should().BeLessThan(1.0m, $"api total is {expectedTotalRound} and csv total is {resultTotalRound}");
     }
 
     [TestMethod, TestCategory("IntegrationTest")]
