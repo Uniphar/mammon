@@ -127,7 +127,7 @@ public class TenantWorkflowTests
         //retrieve content and compute total
         var resultTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 
-		TestContext.WriteLine($"Received result total: {resultTotal}");
+		TestContext.WriteLine($"Received result total: {resultTotal} from file: {emailData.AttachmentsList!.First().Uri}");
 
         // this is to cover rounding issues
         var expectedTotalRound = decimal.Round(expectedTotal, 2);
