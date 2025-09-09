@@ -8,6 +8,7 @@ WORKDIR "/src/Mammon"
 RUN dotnet build "./Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish
+ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
