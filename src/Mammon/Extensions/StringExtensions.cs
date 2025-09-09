@@ -108,4 +108,10 @@ public static class StringExtensions
             new MockResponse(200)
         );
     }
+
+    private static readonly Regex InvalidCharsRegex =
+        new(@"[^A-Za-z0-9_-]", RegexOptions.Compiled);
+
+    public static string ToSanitizedInstanceId(this string id)
+        => InvalidCharsRegex.Replace(id, "");
 }

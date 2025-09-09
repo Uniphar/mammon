@@ -36,4 +36,15 @@ public class StringExtensionsTests
 
 		ret.Should().BeEquivalentTo(expectedItems);
 	}
+
+	[TestMethod]
+	[DataRow("activity-123_ok", "activity-123_ok")]
+	[DataRow("activity!@#$id", "activityid")]
+	[DataRow("activity id !@#$%^&*()", "activityid")]
+	public void ToSanitizedInstanceId(string input, string expectedOutput)
+	{
+		var result = input.ToSanitizedInstanceId();
+
+		result.Should().Be(expectedOutput);
+	}
 }

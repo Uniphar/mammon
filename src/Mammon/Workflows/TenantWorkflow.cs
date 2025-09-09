@@ -16,7 +16,7 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
 					SubscriptionName = subscription,
 					ReportRequest = input.ReportRequest
 				},
-				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SubscriptionWorkflow)}{subscription}{input.ReportRequest.ReportId}" }));
+				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SubscriptionWorkflow)}{subscription}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() }));
 		}
 
 		await Task.WhenAll(pendingWorkflows);

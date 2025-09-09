@@ -22,7 +22,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
 			pageResponse = await context.CallChildWorkflowAsync<ObtainCostByPageWorkflowResult>(nameof(ObtainCostByPageWorkflow),
 					costRequest,
-					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainCostByPageWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{costRequest.PageIndex}" });
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainCostByPageWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{costRequest.PageIndex}".ToSanitizedInstanceId() });
 
 			costs.AddRange(pageResponse.Costs);
 
@@ -44,14 +44,14 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 
 				await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
 					new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
-					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}".Replace("$", string.Empty) });
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}".ToSanitizedInstanceId() });
 
 			}
 			else
 			{
 				await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
 					new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
-					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}".Replace("$", string.Empty) });
+					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}".ToSanitizedInstanceId() });
 			}
 		}
 
@@ -97,6 +97,6 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		{
 			Resource = resourceToSplit,
 			ReportRequest = input.ReportRequest
-		}, new ChildWorkflowTaskOptions { InstanceId = $"{workflowTypeName}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.Name}" });
+		}, new ChildWorkflowTaskOptions { InstanceId = $"{workflowTypeName}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.Name}".ToSanitizedInstanceId() });
 	}
 }
