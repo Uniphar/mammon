@@ -112,7 +112,7 @@ jobs:
             echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
             echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
             echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
-            echo "APPLICATION_NAME=${{ inputs.applicationName }}${{ inputs.mockTests && 'inttests' || '' }}" >> $env:GITHUB_ENV
+            echo "APPLICATION_NAME=${{ inputs.applicationName }}${{ inputs.mockTests && ':inttests' || '' }}" >> $env:GITHUB_ENV
             echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
             echo "CRON_DAY_OF_MONTH=$cronDayOfMonth" >> $env:GITHUB_ENV
           azPSVersion: "latest"
