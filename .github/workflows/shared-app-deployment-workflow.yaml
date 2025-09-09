@@ -112,8 +112,7 @@ jobs:
             echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
             echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
             echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
-            echo "HELM_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
-            echo "APPLICATION_NAME=${{ inputs.applicationName }}${{ inputs.mockTests && '-inttest' || '' }}" >> $env:GITHUB_ENV
+            echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
             echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
             echo "CRON_DAY_OF_MONTH=$cronDayOfMonth" >> $env:GITHUB_ENV
           azPSVersion: "latest"
@@ -162,7 +161,7 @@ jobs:
 
       - name: get helm chart
         working-directory: ./charts/${{ env.APPLICATION_FOLDER }}
-        run: helm pull oci://$ACR_NAME.azurecr.io/helm/${{ env.HELM_NAME }} --version $APPLICATION_VERSION
+        run: helm pull oci://$ACR_NAME.azurecr.io/helm/${{ env.APPLICATION_NAME }} --version $APPLICATION_VERSION
 
       - name: deploy app
         working-directory: ./charts/${{ env.APPLICATION_FOLDER }}
@@ -179,6 +178,7 @@ jobs:
           --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
           --set-string SBNamespaceName="$SB_NAMESPACE"
           --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}
+          --set-bool mockTests=${{ inputs.mockTests }}
           -n devops
           --atomic
 
