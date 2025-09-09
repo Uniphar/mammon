@@ -95,7 +95,6 @@ public class TenantWorkflowTests
 		_cslQueryProvider = KustoClientFactory.CreateCslQueryProvider(kcsb);
 	}
 
-    [TestMethod]
     public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
 	{
 		decimal apiTotal = 10700;
@@ -133,7 +132,8 @@ public class TenantWorkflowTests
         (apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
     }
 
-	public async Task WorkflowFinishesEmailSentTotalsMatch()
+    [TestMethod]
+    public async Task WorkflowFinishesEmailSentTotalsMatch()
 	{
 
 		//send report request to SB Topic to wake up Mammon instance
