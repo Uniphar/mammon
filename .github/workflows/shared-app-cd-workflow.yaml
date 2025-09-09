@@ -47,7 +47,7 @@ jobs:
       applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
 
-  app_deployment_inttests:
+  app_deployment_dev_mocked_logs:
     needs: app_package
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
@@ -63,8 +63,8 @@ jobs:
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
       mockLogQueryApi: true
 
-  app_integration_tests_inttests:
-    needs: app_deployment_inttests
+  app_integration_tests_dev_mocked_logs:
+    needs: app_deployment_dev_mocked_logs
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -78,7 +78,7 @@ jobs:
       mockLogQueryApi: true
   
   app_deployment_dev:
-    needs: [app_package, app_integration_tests_inttests]
+    needs: [app_package, app_integration_tests_dev_mocked_logs]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
