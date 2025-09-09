@@ -78,7 +78,7 @@ jobs:
       mockTests: true
   
   app_deployment_dev:
-    needs: app_integration_tests_inttests
+    needs: [app_package, app_integration_tests_inttests]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
