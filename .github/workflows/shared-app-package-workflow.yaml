@@ -103,13 +103,13 @@ jobs:
 
       - name: docker build - inttest
         working-directory: ./src
-        run:  docker build . --build-arg BUILD_CONFIGURATION=INTTEST -f ./$APPLICATION_FOLDER/Dockerfile -t $IMAGE_REPOSITORY/inttest:$APPLICATION_VERSION -t $IMAGE_REPOSITORY:latest
+        run:  docker build . --build-arg BUILD_CONFIGURATION=INTTEST -f ./$APPLICATION_FOLDER/Dockerfile -t $IMAGE_REPOSITORY-inttest:$APPLICATION_VERSION -t $IMAGE_REPOSITORY:latest
 
       - name: docker push - inttest
         working-directory: ./src
         run:  |
           echo "${{ steps.acrLogin.outputs.ACR_TOKEN }}" | docker login $ACR_NAME.azurecr.io --username "00000000-0000-0000-0000-000000000000" --password-stdin
-          docker push -a $IMAGE_REPOSITORY/inttest
+          docker push -a $IMAGE_REPOSITORY-inttest
 
       - name: setup helm
         uses: azure/setup-helm@v3
