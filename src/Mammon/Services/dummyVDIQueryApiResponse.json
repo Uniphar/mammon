@@ -9,5 +9,22 @@
       "SessionCount": 1
     }
   ],
-  "961b7071-1490-44c4-97b7-b4620c73aee5": []
+  "961b7071-1490-44c4-97b7-b4620c73aee5": [
+    {
+      "GroupID": "21271be5-c05a-4228-bec7-7e990432b82e",
+      "SessionCount": 6522
+    },
+    {
+      "GroupID": "6d660e50-5174-4432-84ea-644a326c6937",
+      "SessionCount": 8878
+    },
+    {
+      "GroupID": "bd4efde1-0843-47be-b67c-29ce29c8ce50",
+      "SessionCount": 2382
+    },
+    {
+      "GroupID": "3572453f-77ce-4d89-88af-b6d7ee3b2220",
+      "SessionCount": 28
+    }
+  ]
 }
