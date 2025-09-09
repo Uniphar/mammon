@@ -35,10 +35,10 @@ on:
         type: string
         required: true
         description: 'Application Version'
-      mockTests: 
+      mockLogQueryApi: 
         type: boolean
         default: false
-        description: 'Whether to run mock tests or not'
+        description: 'Mock Log Query Client API calls'
 
 jobs:
   deploy_app:
@@ -178,7 +178,7 @@ jobs:
           --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
           --set-string SBNamespaceName="$SB_NAMESPACE"
           --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}
-          --set mockTests=${{ inputs.mockTests }}
+          --set mockLogQueryApi=${{ inputs.mockLogQueryApi }}
           -n devops
           --atomic
 

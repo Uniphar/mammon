@@ -27,7 +27,7 @@ spec:
       containers:
         - name: mammon
         
-{{- if .Values.mockTests }}
+{{- if .Values.mockLogQueryApi }}
           image: {{ .Values.ACRName }}.azurecr.io/{{ .Chart.Name }}-inttest:{{ .Chart.AppVersion }}
 {{- else }}   
           image: {{ .Values.ACRName }}.azurecr.io/{{ .Chart.Name }}:{{ .Chart.AppVersion }}
