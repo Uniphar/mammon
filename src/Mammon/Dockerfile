@@ -5,6 +5,9 @@ COPY ["Mammon/Mammon.csproj", "Mammon/"]
 RUN dotnet restore "./Mammon/Mammon.csproj"
 COPY . .
 WORKDIR "/src/Mammon"
+RUN dotnet build "./Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
+FROM build AS publish
 RUN dotnet publish "./Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
