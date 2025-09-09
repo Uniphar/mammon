@@ -26,8 +26,8 @@ public static class Consts
 
 	public const string MammonSplittablePrefix = "MammonSplittable";
 
-#if (DEBUG || INTTEST)      
-	public const string MockCostAPIResponseFilePathConfigKey = "./Services/dummyCostAPIResponse.json";
+#if (DEBUG || INTTEST)
+	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
 	public const string MockLAQueryResponseFilePathConfigKey = "./Services/dummyLAQueryApiResponse.json";
 	public const string MockAKSResponseFilePathConfigKey = "./Services/dummyAKSQueryApiResponse.json";
 	public const string MockSqlPoolResponseFilePathConfigKey = "./Services/dummySqlPoolQueryApiResponse.json";

@@ -1,6 +1,4 @@
-﻿using Mammon.Models.Workflows.Activities;
-
-namespace Mammon.Tests.Services;
+﻿namespace Mammon.Tests.Services;
 
 [TestClass()]
 [TestCategory("UnitTest")]
@@ -77,7 +75,7 @@ public class CostRetrievalServiceTests
 
     }
 
-    class TestCostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger) : CostRetrievalService(armClient, httpClient, logger)
+    class TestCostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger) : CostRetrievalService(armClient, httpClient, Mock.Of<IConfiguration>(), logger)
     {
         //we need this as the GetSubscriptions() of the ArmClient is not mockable
         public override string? GetSubscriptionFullResourceId(string subscriptionName)
