@@ -1,10 +1,11 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS sdk
+ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Mammon/Mammon.csproj", "Mammon/"]
 RUN dotnet restore "./Mammon/Mammon.csproj"
 COPY . .
 WORKDIR "/src/Mammon"
-RUN dotnet publish "./Mammon.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ENV COST_CENTRE_DEF_FILE=costCentreRules.json
