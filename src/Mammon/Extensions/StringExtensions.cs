@@ -4,7 +4,10 @@ namespace Mammon.Extensions;
 
 public static class StringExtensions
 {
-	public static string ToParentResourceId(this string value)
+    private static readonly Regex InvalidCharsRegex =
+        new(@"[^A-Za-z0-9_-]", RegexOptions.Compiled);
+
+    public static string ToParentResourceId(this string value)
 	{
 		const string provider = "/providers/";
 
@@ -91,26 +94,6 @@ public static class StringExtensions
 
 		throw new ArgumentException(path, nameof(path));
     }
-
-	public static async Task<Response<IReadOnlyList<T>>> ParseMockFileAsync<T>(
-		this string mockFilePath,
-		string resourceIdKey)
-	{
-        var mockedResponse = await File.ReadAllTextAsync(mockFilePath);
-
-        using var doc = JsonDocument.Parse(mockedResponse);
-        var subscriptionId = resourceIdKey.GetSubscriptionId();
-        var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
-
-        var items = JsonSerializer.Deserialize<List<T>>(subscriptionJson)!;
-        return Response.FromValue<IReadOnlyList<T>>(
-            items,
-            new MockResponse(200)
-        );
-    }
-
-    private static readonly Regex InvalidCharsRegex =
-        new(@"[^A-Za-z0-9_-]", RegexOptions.Compiled);
 
     public static string ToSanitizedInstanceId(this string id)
         => InvalidCharsRegex.Replace(id, "");

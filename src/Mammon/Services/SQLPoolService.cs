@@ -3,7 +3,7 @@
 public class SQLPoolService(
 	ArmClient armClient,
 	LogsQueryClient logsQueryClient,
-	ILogger<SQLPoolService> logger)
+	ILogger<SQLPoolService> logger) : BaseLogService
 {
 	public async Task<(IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool successFlag)> ObtainQueryUsage(string poolResourceId, DateTime from, DateTime to)
 	{
@@ -48,7 +48,7 @@ public class SQLPoolService(
 			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockSqlPoolResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
-				result = await mockApiResponsePath.ParseMockFileAsync<SQLDatabaseUsageResponseItem>(poolResourceId);
+				result = await ParseMockFileAsync<SQLDatabaseUsageResponseItem>(mockApiResponsePath, poolResourceId);
 			}
 			else
 			{

@@ -3,7 +3,7 @@
 public class VDIService(
 	ArmClient armClient, 
 	DefaultAzureCredential azureCredential,
-	ILogger<VDIService> logger)
+	ILogger<VDIService> logger) : BaseLogService
 {
 	public async Task<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> ObtainQueryUsage(string resourceGroupId, DateTime from, DateTime to)
 	{
@@ -36,7 +36,7 @@ public class VDIService(
 			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockVDIResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
-				response = await mockApiResponsePath.ParseMockFileAsync<VDIQueryUsageResponseItem>(resourceGroupId);
+				response = await ParseMockFileAsync<VDIQueryUsageResponseItem>(mockApiResponsePath, resourceGroupId);
 			}
 			else
 			{

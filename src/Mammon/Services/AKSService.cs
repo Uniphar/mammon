@@ -3,7 +3,7 @@
 public class AKSService(
 	ArmClient armClient,
 	LogsQueryClient logsQueryClient,
-	ILogger<AKSService> logger)
+	ILogger<AKSService> logger) : BaseLogService
 {
 	public async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> QueryUsage(string vmssResourceId, DateTime from, DateTime to)
 	{
@@ -35,7 +35,7 @@ public class AKSService(
 			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockAKSResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
-				response = await mockApiResponsePath.ParseMockFileAsync<AKSVMSSUsageResponseItem>(vmssResourceId);
+				response = await ParseMockFileAsync<AKSVMSSUsageResponseItem>(mockApiResponsePath, vmssResourceId);
 			}
 			else
 			{

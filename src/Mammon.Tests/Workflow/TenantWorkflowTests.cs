@@ -99,7 +99,7 @@ public class TenantWorkflowTests
     [TestMethod, TestCategory("MockedIntegrationTest")]
     public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
 	{
-		decimal apiTotal = 11675.26m;
+		decimal expectedTotal = 11675.26m;
 
         await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
         {
@@ -108,7 +108,7 @@ public class TenantWorkflowTests
                 data = _reportRequest
             }),
             ContentType = "application/json",
-        });
+        }, TestContext.CancellationTokenSource.Token);
 
         //wait for ADX to record email produced
         string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
@@ -125,13 +125,13 @@ public class TenantWorkflowTests
         emailData.AttachmentsList.Should().ContainSingle();
 
         //retrieve content and compute total
-        var csvTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
+        var resultTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
 
         // this is to cover rounding issues
-        var apiTotalRound = decimal.Round(apiTotal, 2);
-        var csvTotalRound = decimal.Round(csvTotal, 2);
+        var expectedTotalRound = decimal.Round(expectedTotal, 2);
+        var resultTotalRound = decimal.Round(resultTotal, 2);
 
-        (apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
+        (expectedTotalRound - resultTotalRound).Should().BeLessThan(1m, $"api total is {expectedTotalRound} and csv total is {resultTotalRound}");
     }
 
     [TestMethod, TestCategory("IntegrationTest")]
@@ -265,4 +265,6 @@ public class TenantWorkflowTests
 		[JsonPropertyName("URI")]
 		public required string Uri { get; set; }
 	}
+
+    public TestContext TestContext { get; set; }
 }

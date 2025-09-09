@@ -3,7 +3,7 @@
 public class LogAnalyticsService(
 	ArmClient armClient,
 	DefaultAzureCredential azureCredential,
-	ILogger<LogAnalyticsService> logger)
+	ILogger<LogAnalyticsService> logger) : BaseLogService
 {
 	public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
 	{
@@ -29,7 +29,7 @@ public class LogAnalyticsService(
 			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockLAQueryResponseFilePathConfigKey)
 				&& File.Exists(mockApiResponsePath))
 			{
-				response = await mockApiResponsePath.ParseMockFileAsync<LAWorkspaceQueryResponseItem>(laResourceId);
+				response = await ParseMockFileAsync<LAWorkspaceQueryResponseItem>(mockApiResponsePath, laResourceId);
 			}
 			else
 			{
