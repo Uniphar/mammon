@@ -1,4 +1,6 @@
-﻿namespace Mammon.Extensions;
+﻿using Mammon.Models;
+
+namespace Mammon.Extensions;
 
 public static class StringExtensions
 {
@@ -88,5 +90,22 @@ public static class StringExtensions
         }
 
 		throw new ArgumentException(path, nameof(path));
+    }
+
+	public static async Task<Response<IReadOnlyList<T>>> ParseMockFileAsync<T>(
+		this string mockFilePath,
+		string resourceIdKey)
+	{
+        var mockedResponse = await File.ReadAllTextAsync(mockFilePath);
+
+        using var doc = JsonDocument.Parse(mockedResponse);
+        var subscriptionId = resourceIdKey.GetSubscriptionId();
+        var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
+
+        var items = JsonSerializer.Deserialize<List<T>>(subscriptionJson)!;
+        return Response.FromValue<IReadOnlyList<T>>(
+            items,
+            new MockResponse(200)
+        );
     }
 }

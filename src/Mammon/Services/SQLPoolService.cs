@@ -51,17 +51,7 @@ public class SQLPoolService(
 			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockSqlPoolResponseFilePathConfigKey])
 				&& File.Exists(mockApiResponsePath))
 			{
-				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
-
-				using var doc = JsonDocument.Parse(mockedResponse);
-				var subscriptionId = poolResourceId.GetSubscriptionId();
-				var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
-
-                var items = JsonSerializer.Deserialize<List<SQLDatabaseUsageResponseItem>>(subscriptionJson)!;
-				result = Response.FromValue<IReadOnlyList<SQLDatabaseUsageResponseItem>>(
-					items,
-					new MockResponse(200)
-				);
+				result = await mockApiResponsePath.ParseMockFileAsync<SQLDatabaseUsageResponseItem>(poolResourceId);
 			}
 			else
 			{

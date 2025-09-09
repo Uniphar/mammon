@@ -38,17 +38,7 @@ public class AKSService(
 			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockAKSResponseFilePathConfigKey])
 				&& File.Exists(mockApiResponsePath))
 			{
-				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
-
-				using var doc = JsonDocument.Parse(mockedResponse);
-				var subscriptionId = vmssResourceId.GetSubscriptionId();
-				var subscriptionJson = doc.RootElement.GetProperty(subscriptionId).GetRawText();
-
-                var items = JsonSerializer.Deserialize<List<AKSVMSSUsageResponseItem>>(subscriptionJson)!;
-				response = Response.FromValue<IReadOnlyList<AKSVMSSUsageResponseItem>>(
-					items,
-					new MockResponse(200)
-				);
+				response = await mockApiResponsePath.ParseMockFileAsync<AKSVMSSUsageResponseItem>(vmssResourceId);
 			}
 			else
 			{

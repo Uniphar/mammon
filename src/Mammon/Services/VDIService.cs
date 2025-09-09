@@ -39,16 +39,7 @@ public class VDIService(
 			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockVDIResponseFilePathConfigKey])
 				&& File.Exists(mockApiResponsePath))
 			{
-				var mockedResponse = await File.ReadAllTextAsync(mockApiResponsePath);
-
-				using var doc = JsonDocument.Parse(mockedResponse);
-				var subscriptionId = resourceGroupId.GetSubscriptionId();
-				var subscriptionJsonValue = doc.RootElement.GetProperty(subscriptionId).GetRawText();
-
-                var items = JsonSerializer.Deserialize<List<VDIQueryUsageResponseItem>>(subscriptionJsonValue)!;
-				response = Response.FromValue<IReadOnlyList<VDIQueryUsageResponseItem>>(
-					items,
-					new MockResponse(200));
+				response = await mockApiResponsePath.ParseMockFileAsync<VDIQueryUsageResponseItem>(resourceGroupId);
 			}
 			else
 			{
