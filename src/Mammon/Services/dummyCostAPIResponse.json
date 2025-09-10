@@ -1,5 +1,5 @@
 ﻿{
-  "39983c36-2aa4-4c7e-907a-6dbd95860295": {
+  "uniphar-dev": {
     "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
     "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
     "type": "Microsoft.CostManagement/query",
@@ -86,7 +86,7 @@
       ]
     }
   },
-  "1620bff3-d3be-4da6-b073-b3b6c2001716": {
+  "uniphar-platform": {
     "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
     "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
     "type": "Microsoft.CostManagement/query",
@@ -155,7 +155,7 @@
       ]
     }
   },
-  "961b7071-1490-44c4-97b7-b4620c73aee5": {
+  "uniphar-prod": {
     "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
     "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
     "type": "Microsoft.CostManagement/query",
