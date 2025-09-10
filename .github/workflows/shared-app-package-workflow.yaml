@@ -103,7 +103,7 @@ jobs:
 
       - name: docker build - inttest
         working-directory: ./src
-        run:  docker build . --build-arg BUILD_CONFIGURATION=INTTEST -f ./$APPLICATION_FOLDER/Dockerfile -t $IMAGE_REPOSITORY-inttest:$APPLICATION_VERSION -t $IMAGE_REPOSITORY:latest
+        run:  docker build . --build-arg BUILD_CONFIGURATION=INTTEST -f ./$APPLICATION_FOLDER/Dockerfile -t $IMAGE_REPOSITORY-inttest:$APPLICATION_VERSION
 
       - name: docker push - inttest
         working-directory: ./src
