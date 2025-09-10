@@ -185,7 +185,7 @@ public class TenantWorkflowTests
 		var apiTotalRound = decimal.Round(apiTotal, 2);
 		var csvTotalRound = decimal.Round(csvTotal, 2);
 
-		(apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
+		Math.Abs(apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
 	}
 
 	private static async Task<decimal> ComputeCostAPITotalAsync()
