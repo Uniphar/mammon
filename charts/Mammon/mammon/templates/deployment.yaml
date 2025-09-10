@@ -44,6 +44,10 @@ spec:
             value: {{ .Values.AzureKeyVaultURL | quote }}
           - name: "Mammon__CostCentreRuleEngineFilePath"
             value: /app/costCentreRules.json
+{{- if .Values.mockLogQueryApi }}
+          - name: "Mammon__MockCostAPIResponseFilePath"
+            value: ./Services/dummyCostAPIResponse.json
+{{- end }}
           - name: "Mammon__StateStoreName"
             value: {{ .Chart.Name }}-actor-state-store
           volumeMounts:
