@@ -9,20 +9,10 @@ public class LogAnalyticsService(
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
 
-		LogsQueryClient client = new(azureCredential);
+        Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
 
-		Response<OperationalInsightsWorkspaceResource>? workspace;
-		try
+        try
 		{
-			workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
-
-			if (workspace == null || !workspace.Value.HasData || workspace.Value.Data.CustomerId == null)
-			{
-				return ([], false);
-			}
-
-			Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
-
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
@@ -34,7 +24,18 @@ public class LogAnalyticsService(
 			else
 			{
 #endif
-				response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+                LogsQueryClient client = new(azureCredential);
+
+                Response<OperationalInsightsWorkspaceResource>? workspace;
+
+                workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
+
+                if (workspace == null || !workspace.Value.HasData || workspace.Value.Data.CustomerId == null)
+                {
+                    return ([], false);
+                }
+
+                response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 					@$"search * 
 				| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
 				| project

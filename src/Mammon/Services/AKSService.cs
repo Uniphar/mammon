@@ -9,26 +9,10 @@ public class AKSService(
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(vmssResourceId);
 
-		var rID  = new ResourceIdentifier(vmssResourceId);
+        Response<IReadOnlyList<AKSVMSSUsageResponseItem>> response;
 
-		try
+        try
 		{
-			var rgTags = await armClient.GetResourceGroupResource(rID.GetResourceGroupIdentifier()).GetTagResource().GetAsync();
-
-			var clusterRG = rgTags.Value.Data.TagValues["aks-managed-cluster-rg"];
-			var clusterName = rgTags.Value.Data.TagValues["aks-managed-cluster-name"];
-
-			ResourceIdentifier sID = new($"/subscriptions/{rID.SubscriptionId}");
-
-			var rgResponse = await armClient.GetSubscriptionResource(sID).GetResourceGroups().GetAsync(clusterRG);
-			var clusterResponse = await rgResponse.Value.GetContainerServiceManagedClusterAsync(clusterName);
-
-			var laWorkspaceId = clusterResponse.Value.Data.AddonProfiles["omsagent"].Config["logAnalyticsWorkspaceResourceID"];
-
-			var workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laWorkspaceId)).GetAsync();
-
-			Response<IReadOnlyList<AKSVMSSUsageResponseItem>> response;
-
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
@@ -40,7 +24,22 @@ public class AKSService(
 			else
 			{
 #endif
-				response = await logsQueryClient.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+                var rID = new ResourceIdentifier(vmssResourceId);
+                var rgTags = await armClient.GetResourceGroupResource(rID.GetResourceGroupIdentifier()).GetTagResource().GetAsync();
+
+                var clusterRG = rgTags.Value.Data.TagValues["aks-managed-cluster-rg"];
+                var clusterName = rgTags.Value.Data.TagValues["aks-managed-cluster-name"];
+
+                ResourceIdentifier sID = new($"/subscriptions/{rID.SubscriptionId}");
+
+                var rgResponse = await armClient.GetSubscriptionResource(sID).GetResourceGroups().GetAsync(clusterRG);
+                var clusterResponse = await rgResponse.Value.GetContainerServiceManagedClusterAsync(clusterName);
+
+                var laWorkspaceId = clusterResponse.Value.Data.AddonProfiles["omsagent"].Config["logAnalyticsWorkspaceResourceID"];
+
+                var workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laWorkspaceId)).GetAsync();
+
+                response = await logsQueryClient.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 					@$"Perf
 					| where ObjectName == 'K8SContainer'
 						and CounterName in ('cpuUsageNanoCores', 'memoryWorkingSetBytes')

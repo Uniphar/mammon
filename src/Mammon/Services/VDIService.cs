@@ -7,29 +7,10 @@ public class VDIService(
 {
 	public async Task<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> ObtainQueryUsage(string resourceGroupId, DateTime from, DateTime to)
 	{
-		try
+        Response<IReadOnlyList<VDIQueryUsageResponseItem>> response;
+
+        try
 		{
-			//find hostpool
-			var hostPools = armClient.GetResourceGroupResource(new ResourceIdentifier(resourceGroupId)).GetHostPools();
-
-			var hostPool = hostPools.First();
-
-			var diagSettings = armClient.GetDiagnosticSettings(hostPool.Id).GetAll();
-			if (diagSettings==null || !diagSettings.Any())
-			{
-				return ([], false);
-			}
-
-			var diagSetting = diagSettings.First();
-			var diagSettingsResource = diagSetting.Get();
-			var workspaceId = diagSettingsResource.Value.Data.WorkspaceId;
-			var workspace = await armClient.GetOperationalInsightsWorkspaceResource(workspaceId).GetAsync();
-
-			//query session usage
-			LogsQueryClient client = new(azureCredential);
-
-			Response<IReadOnlyList<VDIQueryUsageResponseItem>> response;
-
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
@@ -41,7 +22,26 @@ public class VDIService(
 			else
 			{
 #endif
-				response = await client.QueryWorkspaceAsync<VDIQueryUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+                //find hostpool
+                var hostPools = armClient.GetResourceGroupResource(new ResourceIdentifier(resourceGroupId)).GetHostPools();
+
+                var hostPool = hostPools.First();
+
+                var diagSettings = armClient.GetDiagnosticSettings(hostPool.Id).GetAll();
+                if (diagSettings == null || !diagSettings.Any())
+                {
+                    return ([], false);
+                }
+
+                var diagSetting = diagSettings.First();
+                var diagSettingsResource = diagSetting.Get();
+                var workspaceId = diagSettingsResource.Value.Data.WorkspaceId;
+                var workspace = await armClient.GetOperationalInsightsWorkspaceResource(workspaceId).GetAsync();
+
+                //query session usage
+                LogsQueryClient client = new(azureCredential);
+
+                response = await client.QueryWorkspaceAsync<VDIQueryUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 						@$"WVDConnections
 					| where _ResourceId =~'{hostPool.Id}' and State == 'Completed' and ResourceAlias has '#'
 					| extend GroupID = tostring(split(ResourceAlias, '#', 0)[0])

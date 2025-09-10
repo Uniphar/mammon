@@ -9,39 +9,10 @@ public class SQLPoolService(
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(poolResourceId);
 
-		try
+        Response<IReadOnlyList<SQLDatabaseUsageResponseItem>> result;
+
+        try
 		{
-
-			//lookup pool LA id
-			var rID = new ResourceIdentifier(poolResourceId);
-
-			List<string> dbs = [];
-
-			var pool = await armClient.GetElasticPoolResource(rID).GetAsync();
-			await foreach (var db in pool.Value.GetDatabasesAsync())
-			{
-				dbs.Add($"'{db.Id}'");
-			}
-
-			if (dbs.Count == 0)
-			{
-				logger.LogInformation($"No databases found in SQL Pool {poolResourceId}");
-				return ([], false);
-			}
-
-			var diagSetttings = armClient.GetDiagnosticSettings(pool.Value.Id);
-			if (diagSetttings == null || !diagSetttings.Any())
-				return ([], false);
-
-			ResourceIdentifier? laWorkspaceId = diagSetttings.First().Data?.WorkspaceId;
-			if (laWorkspaceId is null)
-			{
-				return ([], false);
-			}
-			var workspace = await armClient.GetOperationalInsightsWorkspaceResource(laWorkspaceId).GetAsync();
-
-			Response<IReadOnlyList<SQLDatabaseUsageResponseItem>> result;
-
 #if (DEBUG || INTTEST)
 
 			string? mockApiResponsePath;
@@ -53,7 +24,35 @@ public class SQLPoolService(
 			else
 			{
 #endif
-				string query = @$"AzureMetrics 
+                //lookup pool LA id
+                var rID = new ResourceIdentifier(poolResourceId);
+
+                List<string> dbs = [];
+
+                var pool = await armClient.GetElasticPoolResource(rID).GetAsync();
+                await foreach (var db in pool.Value.GetDatabasesAsync())
+                {
+                    dbs.Add($"'{db.Id}'");
+                }
+
+                if (dbs.Count == 0)
+                {
+                    logger.LogInformation($"No databases found in SQL Pool {poolResourceId}");
+                    return ([], false);
+                }
+
+                var diagSetttings = armClient.GetDiagnosticSettings(pool.Value.Id);
+                if (diagSetttings == null || !diagSetttings.Any())
+                    return ([], false);
+
+                ResourceIdentifier? laWorkspaceId = diagSetttings.First().Data?.WorkspaceId;
+                if (laWorkspaceId is null)
+                {
+                    return ([], false);
+                }
+                var workspace = await armClient.GetOperationalInsightsWorkspaceResource(laWorkspaceId).GetAsync();
+
+                string query = @$"AzureMetrics 
 					| where MetricName=='dtu_used' and ResourceId in~ ({string.Join(",", dbs)})
 					| summarize DTUAverage=avg(Average) by ResourceId
 					| where DTUAverage>0";
