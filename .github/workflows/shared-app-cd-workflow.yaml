@@ -61,7 +61,7 @@ jobs:
       applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
-      mockLogQueryApi: true
+      mockCostAndLogQueryApis: true
 
   app_integration_tests_dev_mocked:
     needs: app_deployment_dev_mocked
@@ -75,7 +75,7 @@ jobs:
     with:
       environment: dev
       applicationFolder: ${{ inputs.applicationFolder }}
-      mockLogQueryApi: true
+      mockCostAndLogQueryApis: true
   
   app_deployment_dev:
     needs: [app_package, app_integration_tests_dev_mocked]

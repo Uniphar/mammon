@@ -27,7 +27,7 @@ spec:
       containers:
         - name: mammon
         
-{{- if .Values.mockLogQueryApi }}
+{{- if .Values.mockCostAndLogQueryApis }}
           image: {{ .Values.ACRName }}.azurecr.io/{{ .Chart.Name }}-inttest:{{ .Chart.AppVersion }}
 {{- else }}   
           image: {{ .Values.ACRName }}.azurecr.io/{{ .Chart.Name }}:{{ .Chart.AppVersion }}
@@ -44,7 +44,7 @@ spec:
             value: {{ .Values.AzureKeyVaultURL | quote }}
           - name: "Mammon__CostCentreRuleEngineFilePath"
             value: /app/costCentreRules.json
-{{- if .Values.mockLogQueryApi }}
+{{- if .Values.mockCostAndLogQueryApis }}
           - name: "Mammon__MockCostAPIResponseFilePath"
             value: ./Services/dummyCostAPIResponse.json
 {{- end }}

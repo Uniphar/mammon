@@ -27,7 +27,7 @@ on:
         type: string
         required: true
         description: 'Application Folder'
-      mockLogQueryApi: 
+      mockCostAndLogQueryApis: 
         type: boolean
         default: false
         description: 'Mock Log Query Client API calls'
@@ -91,4 +91,4 @@ jobs:
 
       - name: run integration tests
         working-directory: ./mammon/src/${{ inputs.applicationFolder }}.Tests
-        run: dotnet test --filter "TestCategory=${{ inputs.mockLogQueryApi && 'MockedIntegrationTest' || 'IntegrationTest' }}" --logger "console;verbosity=normal"
+        run: dotnet test --filter "TestCategory=${{ inputs.mockCostAndLogQueryApis && 'MockedIntegrationTest' || 'IntegrationTest' }}" --logger "console;verbosity=normal"
