@@ -73,6 +73,11 @@ jobs:
         working-directory: ./src/
         run: |
           docker build . -f ./$APPLICATION_FOLDER/Dockerfile
+
+      - name: docker build test (inttest)
+        working-directory: ./src/
+        run: |
+          docker build . -f ./$APPLICATION_FOLDER/Dockerfile --build-arg BUILD_CONFIGURATION=INTTEST
       
       - name: check for NuGet vulnerabilites
         working-directory: ./src/

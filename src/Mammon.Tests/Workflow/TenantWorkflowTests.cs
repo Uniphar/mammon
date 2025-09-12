@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Tests.Workflow;
 
-[TestClass, TestCategory("IntegrationTest")]
+[TestClass]
 public class TenantWorkflowTests
 {
 	private static ServiceBusClient? _serviceBusClient;
@@ -24,7 +24,7 @@ public class TenantWorkflowTests
 	private static CancellationToken _cancellationToken;
 
 
-	[ClassInitialize]
+    [ClassInitialize]
 	public static void Initialize(TestContext testContext)
 	{
 		_cancellationToken = testContext.CancellationTokenSource.Token;
@@ -95,8 +95,49 @@ public class TenantWorkflowTests
 		_cslQueryProvider = KustoClientFactory.CreateCslQueryProvider(kcsb);
 	}
 
-	[TestMethod]
-	public async Task WorkflowFinishesEmailSentTotalsMatch()
+
+    [TestMethod, TestCategory("MockedIntegrationTest")]
+    public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
+	{
+		decimal expectedTotal = 11675.26m;
+
+        await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
+        {
+            Body = BinaryData.FromObjectAsJson(new
+            {
+                data = _reportRequest
+            }),
+            ContentType = "application/json",
+        }, TestContext.CancellationTokenSource.Token);
+
+        //wait for ADX to record email produced
+        string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
+
+        EmailData emailData = await _cslQueryProvider!
+            .WaitSingleQueryResult<EmailData>($"DotFlyerEmails | where Subject == \"{expectedSubject}\"", TimeSpan.FromMinutes(30), _cancellationToken);
+
+        //assertions
+
+        emailData.Should().NotBeNull();
+        emailData.FromEmail.Should().Be(_fromEmail);
+        emailData.FromName.Should().Be(_fromEmail);
+        emailData.Attachments.Should().NotBeEmpty();
+        emailData.AttachmentsList.Should().ContainSingle();
+
+        //retrieve content and compute total
+        var resultTotal = await ComputeCSVReportTotalAsync(emailData.AttachmentsList!.First().Uri);
+
+		TestContext.WriteLine($"Received result total: {resultTotal} from file: {emailData.AttachmentsList!.First().Uri}");
+
+        // this is to cover rounding issues
+        var expectedTotalRound = decimal.Round(expectedTotal, 2);
+        var resultTotalRound = decimal.Round(resultTotal, 2);
+
+        Math.Abs(expectedTotalRound - resultTotalRound).Should().BeLessThan(1.0m, $"api total is {expectedTotalRound} and csv total is {resultTotalRound}");
+    }
+
+    [TestMethod, TestCategory("IntegrationTest")]
+    public async Task WorkflowFinishesEmailSentTotalsMatch()
 	{
 
 		//send report request to SB Topic to wake up Mammon instance
@@ -109,13 +150,13 @@ public class TenantWorkflowTests
 		var apiTotal = await ComputeCostAPITotalAsync();
 
 		await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
-		{
-			Body = BinaryData.FromObjectAsJson(new
-			{
-				data = _reportRequest
-			}),
-			ContentType = "application/json",
-		});
+        {
+            Body = BinaryData.FromObjectAsJson(new
+            {
+                data = _reportRequest
+            }),
+            ContentType = "application/json",
+        });
 
 		//wait for ADX to record email produced
 		string expectedSubject = string.Format(_reportSubject!, _reportRequest.ReportId);
@@ -144,7 +185,7 @@ public class TenantWorkflowTests
 		var apiTotalRound = decimal.Round(apiTotal, 2);
 		var csvTotalRound = decimal.Round(csvTotal, 2);
 
-		(apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
+		Math.Abs(apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
 	}
 
 	private static async Task<decimal> ComputeCostAPITotalAsync()
@@ -163,7 +204,7 @@ public class TenantWorkflowTests
 			};
 
 			var httpClientFactory = _host!.Services.GetRequiredService<IHttpClientFactory>();
-			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), Mock.Of<ILogger<CostRetrievalService>>(), _config!);
+			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), _config!, Mock.Of<ILogger<CostRetrievalService>>());
 
 			var response = await _costRetrievalService!.QueryForSubAsync(request);
 			total += response.TotalCost;
@@ -226,4 +267,6 @@ public class TenantWorkflowTests
 		[JsonPropertyName("URI")]
 		public required string Uri { get; set; }
 	}
+
+    public TestContext TestContext { get; set; }
 }

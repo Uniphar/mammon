@@ -1,30 +1,38 @@
 ﻿namespace Mammon.Services;
 
-public class AKSService(ArmClient armClient, LogsQueryClient logsQueryClient, ILogger<AKSService> logger)
+public class AKSService(
+	ArmClient armClient,
+	LogsQueryClient logsQueryClient,
+	ILogger<AKSService> logger) : BaseLogService
 {
 	public async Task<(IEnumerable<AKSVMSSUsageResponseItem> usageElements, bool success)> QueryUsage(string vmssResourceId, DateTime from, DateTime to)
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(vmssResourceId);
 
-		var rID  = new ResourceIdentifier(vmssResourceId);
+        Response<IReadOnlyList<AKSVMSSUsageResponseItem>> response;
 
-		try
+        try
 		{
-			var rgTags = await armClient.GetResourceGroupResource(rID.GetResourceGroupIdentifier()).GetTagResource().GetAsync();
+#if (DEBUG || INTTEST)
 
-			var clusterRG = rgTags.Value.Data.TagValues["aks-managed-cluster-rg"];
-			var clusterName = rgTags.Value.Data.TagValues["aks-managed-cluster-name"];
+            response = await ParseMockFileAsync<AKSVMSSUsageResponseItem>(Consts.MockAKSResponseFilePathConfigKey, vmssResourceId);
+#else
+			var rID = new ResourceIdentifier(vmssResourceId);
+            var rgTags = await armClient.GetResourceGroupResource(rID.GetResourceGroupIdentifier()).GetTagResource().GetAsync();
 
-			ResourceIdentifier sID = new($"/subscriptions/{rID.SubscriptionId}");
+            var clusterRG = rgTags.Value.Data.TagValues["aks-managed-cluster-rg"];
+            var clusterName = rgTags.Value.Data.TagValues["aks-managed-cluster-name"];
 
-			var rgResponse = await armClient.GetSubscriptionResource(sID).GetResourceGroups().GetAsync(clusterRG);
-			var clusterResponse = await rgResponse.Value.GetContainerServiceManagedClusterAsync(clusterName);
+            ResourceIdentifier sID = new($"/subscriptions/{rID.SubscriptionId}");
 
-			var laWorkspaceId = clusterResponse.Value.Data.AddonProfiles["omsagent"].Config["logAnalyticsWorkspaceResourceID"];
+            var rgResponse = await armClient.GetSubscriptionResource(sID).GetResourceGroups().GetAsync(clusterRG);
+            var clusterResponse = await rgResponse.Value.GetContainerServiceManagedClusterAsync(clusterName);
 
-			var workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laWorkspaceId)).GetAsync();
+            var laWorkspaceId = clusterResponse.Value.Data.AddonProfiles["omsagent"].Config["logAnalyticsWorkspaceResourceID"];
 
-			var response = await logsQueryClient.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+            var workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laWorkspaceId)).GetAsync();
+
+            response = await logsQueryClient.QueryWorkspaceAsync<AKSVMSSUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
 				@$"Perf
 				| where ObjectName == 'K8SContainer'
 					and CounterName in ('cpuUsageNanoCores', 'memoryWorkingSetBytes')
@@ -40,8 +48,8 @@ public class AKSService(ArmClient armClient, LogsQueryClient logsQueryClient, IL
 				| where ScaleSet =='{rID.Name}'
 				| summarize AvgInstanceValue=toreal(avg(InstanceValue)) by Namespace, CounterName",
 			new QueryTimeRange(from, to));
-
-			if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
+#endif
+            if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
 			{
 				return ([], false);
 			}

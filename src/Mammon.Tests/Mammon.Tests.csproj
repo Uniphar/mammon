@@ -7,11 +7,12 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <Configurations>Debug;Release;IntTest</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="*" />
-    <PackageReference Include="FluentAssertions" Version="*-*" />
+	<PackageReference Include="AwesomeAssertions" Version="*" />
+	<PackageReference Include="coverlet.collector" Version="*" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="8.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
     <PackageReference Include="Moq" Version="*" />

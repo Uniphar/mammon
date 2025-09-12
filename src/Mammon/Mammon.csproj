@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>47ece60e-f306-4e4b-9245-0480438b730f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+	<Configurations>Debug;Release;IntTest</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,7 +37,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="Services\dummyAKSQueryApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="Services\dummyCostAPIResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Services\dummyLAQueryApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Services\dummySqlPoolQueryApiResponse.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Services\dummyVDIQueryApiResponse.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

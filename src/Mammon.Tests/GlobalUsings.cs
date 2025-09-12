@@ -1,4 +1,5 @@
-﻿global using Azure.Core;
+﻿global using AwesomeAssertions;
+global using Azure.Core;
 global using Azure.Identity;
 global using Azure.Messaging.ServiceBus;
 global using Azure.ResourceManager;
@@ -6,7 +7,6 @@ global using Azure.Storage.Blobs;
 global using CsvHelper;
 global using CsvHelper.Configuration;
 global using DotFlyer.Common.Payload;
-global using FluentAssertions;
 global using Kusto.Cloud.Platform.Data;
 global using Kusto.Data;
 global using Kusto.Data.Common;

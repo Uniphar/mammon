@@ -1,6 +1,4 @@
-﻿using Mammon.Models.Workflows.Activities;
-
-namespace Mammon.Tests.Services;
+﻿namespace Mammon.Tests.Services;
 
 [TestClass()]
 [TestCategory("UnitTest")]
@@ -25,7 +23,7 @@ public class CostRetrievalServiceTests
 
         var client = mockHttp.ToHttpClient();
 
-        var service = new TestCostRetrievalService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostRetrievalService>>(), Mock.Of<IConfiguration>());
+        var service = new TestCostRetrievalService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostRetrievalService>>());
 
         //test
         var result = await service.QueryForSubAsync(
@@ -77,7 +75,7 @@ public class CostRetrievalServiceTests
 
     }
 
-    class TestCostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger, IConfiguration configuration) : CostRetrievalService(armClient, httpClient, logger, configuration)
+    class TestCostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger) : CostRetrievalService(armClient, httpClient, Mock.Of<IConfiguration>(), logger)
     {
         //we need this as the GetSubscriptions() of the ArmClient is not mockable
         public override string? GetSubscriptionFullResourceId(string subscriptionName)

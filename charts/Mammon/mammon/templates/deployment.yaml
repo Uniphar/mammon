@@ -26,7 +26,12 @@ spec:
       serviceAccountName: {{ .Values.AKSClusterSAName }}
       containers:
         - name: mammon
+        
+{{- if .Values.mockCostAndLogQueryApis }}
+          image: {{ .Values.ACRName }}.azurecr.io/{{ .Chart.Name }}-inttest:{{ .Chart.AppVersion }}
+{{- else }}   
           image: {{ .Values.ACRName }}.azurecr.io/{{ .Chart.Name }}:{{ .Chart.AppVersion }}
+{{- end }}
           imagePullPolicy: IfNotPresent
           ports:
             - name: mammon-port
@@ -39,6 +44,10 @@ spec:
             value: {{ .Values.AzureKeyVaultURL | quote }}
           - name: "Mammon__CostCentreRuleEngineFilePath"
             value: /app/costCentreRules.json
+{{- if .Values.mockCostAndLogQueryApis }}
+          - name: "Mammon__MockCostAPIResponseFilePath"
+            value: ./Services/dummyCostAPIResponse.json
+{{- end }}
           - name: "Mammon__StateStoreName"
             value: {{ .Chart.Name }}-actor-state-store
           volumeMounts:

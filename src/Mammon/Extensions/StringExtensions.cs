@@ -1,8 +1,13 @@
-﻿namespace Mammon.Extensions;
+﻿using Mammon.Models;
+
+namespace Mammon.Extensions;
 
 public static class StringExtensions
 {
-	public static string ToParentResourceId(this string value)
+    private static readonly Regex InvalidCharsRegex =
+        new(@"[^A-Za-z0-9_-]", RegexOptions.Compiled);
+
+    public static string ToParentResourceId(this string value)
 	{
 		const string provider = "/providers/";
 
@@ -73,4 +78,23 @@ public static class StringExtensions
 
 		return [.. value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
 	}
+
+    public static string GetSubscriptionId(this string path)
+    {
+		if (string.IsNullOrWhiteSpace(path))
+			throw new ArgumentNullException(path, nameof(path));
+
+        var parts = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        // must be "/subscriptions/{guid}[/...]"
+        if (parts.Length >= 2 && parts[0].Equals("subscriptions", StringComparison.OrdinalIgnoreCase))
+        {
+            return parts[1];
+        }
+
+		throw new ArgumentException(path, nameof(path));
+    }
+
+    public static string ToSanitizedInstanceId(this string id)
+        => InvalidCharsRegex.Replace(id, "");
 }

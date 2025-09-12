@@ -1,44 +1,245 @@
 ﻿{
-  "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
-  "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
-  "type": "Microsoft.CostManagement/query",
-  "location": null,
-  "sku": null,
-  "eTag": null,
-  "properties": {
-    "nextLink": null,
-    "columns": [
-      {
-        "name": "Cost",
-        "type": "Number"
-      },
-      {
-        "name": "CostUSD",
-        "type": "Number"
-      },
-      {
-        "name": "ResourceId",
-        "type": "String"
-      },
-      {
-        "name": "Tags",
-        "type": "Array"
-      },
-      {
-        "name": "Currency",
-        "type": "String"
-      }
-    ],
-    "rows": [
-      [
-        14.2276520988,
-        15.4341569967782,
-        "/subscriptions/1e38d216-5c3b-4ae8-bd8b-81a98e55fb0c/resourcegroups/rgName/providers/microsoft.storage/storageaccounts/sampleSA",
+  "uniphar-dev": {
+    "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "type": "Microsoft.CostManagement/query",
+    "location": null,
+    "sku": null,
+    "eTag": null,
+    "properties": {
+      "nextLink": null,
+      "columns": [
+        {
+          "name": "Cost",
+          "type": "Number"
+        },
+        {
+          "name": "CostUSD",
+          "type": "Number"
+        },
+        {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        {
+          "name": "Tags",
+          "type": "Array"
+        },
+        {
+          "name": "Currency",
+          "type": "String"
+        }
+      ],
+      "rows": [
         [
-          "\"ms-resource-usage\":\"azure-cloud-shell\""
+          14.2276520988,
+          15.4341569967782,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/core-env-dev/providers/microsoft.operationalinsights/workspaces/core-env-dev-logs",
+          [
+            "\"environment\":\"dev\"",
+            "\"logtype\":\"main\""
+          ],
+          "EUR"
         ],
-        "EUR"
+        [
+          20.2447606976206,
+          18.95487587263,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-we-test/providers/microsoft.compute/virtualmachines/vm-ap-we-test1",
+          [
+            "\"mammonsplittablevdi\":\"true\""
+          ],
+          "EUR"
+        ],
+        [
+          260.293416611576,
+          223.9843947634,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/data-mysql-dev/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-dev-mysql",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          269.242935754742,
+          19.232382732,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/mc_compute-ne-dev_compute-aks-ne-dev-k8s_northeurope/providers/microsoft.compute/virtualmachinescalesets/aks-core-38546464-vmss",
+          [
+            "\"aks-managed-poolname\":\"core\""
+          ],
+          "EUR"
+        ],
+        [
+          159.30907240676,
+          132.30907240676,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-test/providers/microsoft.storage/storageaccounts/uniwvdaicitest",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          450.709939507005,
+          450.709939507005,
+          "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/datasql-test/providers/microsoft.sql/servers/uni-datasql-test-sql/elasticpools/semarchy-test-sql-pool",
+          [
+          ],
+          "EUR"
+        ]
       ]
-    ]
+    }
+  },
+  "uniphar-platform": {
+    "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "type": "Microsoft.CostManagement/query",
+    "location": null,
+    "sku": null,
+    "eTag": null,
+    "properties": {
+      "nextLink": null,
+      "columns": [
+        {
+          "name": "Cost",
+          "type": "Number"
+        },
+        {
+          "name": "CostUSD",
+          "type": "Number"
+        },
+        {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        {
+          "name": "Tags",
+          "type": "Array"
+        },
+        {
+          "name": "Currency",
+          "type": "String"
+        }
+      ],
+      "rows": [
+        [
+          2375.05184270885,
+          1996.05184270885,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.operationalinsights/workspaces/core-platform-logs",
+          [
+            "\"environment\":\"platform\"",
+            "\"logtype\":\"main\""
+          ],
+          "EUR"
+        ],
+        [
+          260.293416611576,
+          223.9843947634,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/data-mysql-dev/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-platform-mysql",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          34.4753006887598,
+          34.4753006887598,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/p-epod/providers/microsoft.storage/storageaccounts/peununiepod01archive",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          136.31793918234,
+          136.31793918234,
+          "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/ict/providers/microsoft.compute/virtualmachines/uniappaz01",
+          [
+          ],
+          "EUR"
+        ]
+      ]
+    }
+  },
+  "uniphar-prod": {
+    "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "type": "Microsoft.CostManagement/query",
+    "location": null,
+    "sku": null,
+    "eTag": null,
+    "properties": {
+      "nextLink": null,
+      "columns": [
+        {
+          "name": "Cost",
+          "type": "Number"
+        },
+        {
+          "name": "CostUSD",
+          "type": "Number"
+        },
+        {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        {
+          "name": "Tags",
+          "type": "Array"
+        },
+        {
+          "name": "Currency",
+          "type": "String"
+        }
+      ],
+      "rows": [
+        [
+          4602.88930901704,
+          4042.88930901704,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/core-env-prod/providers/microsoft.operationalinsights/workspaces/core-env-prod-logs",
+          [
+            "\"environment\":\"prod\"",
+            "\"logtype\":\"main\""
+          ],
+          "EUR"
+        ],
+        [
+          25.2447606976206,
+          22.95487587263,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ap-ne-prod/providers/microsoft.compute/virtualmachines/vm-ap-ne-prod1",
+          [
+            "\"mammonsplittablevdi\":\"true\""
+          ],
+          "EUR"
+        ],
+        [
+          2382.98599248377,
+          1865.98599248377,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/datasql-prod/providers/microsoft.sql/servers/uni-datasql-prod-sql/elasticpools/datasql-prod-sql-pool",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          269.242935754742,
+          19.232382732,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/mc_compute-we-prod_compute-aks-we-prod-k8s_westeurope/providers/microsoft.compute/virtualmachinescalesets/aks-core-66019043-vmss",
+          [
+            "\"aks-managed-poolname\":\"core\""
+          ],
+          "EUR"
+        ],
+        [
+          31.1450557426874,
+          27.1450557426874,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/dawn-prod/providers/microsoft.storage/storageaccounts/unidawnprod",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          383.587306115477,
+          383.587306115477,
+          "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/data-mysql-prod/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-prod-mysql",
+          [
+          ],
+          "EUR"
+        ]
+      ]
+    }
   }
 }

@@ -1,0 +1,668 @@
+{
+  "39983c36-2aa4-4c7e-907a-6dbd95860295": [
+      {
+        "Selector": "yh-chaos3",
+        "SelectorType": "Namespace",
+        "SizeSum": 2347
+      },
+      {
+        "Selector": "yh-chaos2",
+        "SelectorType": "Namespace",
+        "SizeSum": 7541149
+      },
+      {
+        "Selector": "yh-chaos",
+        "SelectorType": "Namespace",
+        "SizeSum": 249298
+      },
+      {
+        "Selector": "space48",
+        "SelectorType": "Namespace",
+        "SizeSum": 353560604
+      },
+      {
+        "Selector": "semarchy",
+        "SelectorType": "Namespace",
+        "SizeSum": 7402323
+      },
+      {
+        "Selector": "monsoon",
+        "SelectorType": "Namespace",
+        "SizeSum": 17985126827
+      },
+      {
+        "Selector": "kube-system",
+        "SelectorType": "Namespace",
+        "SizeSum": 22423915121
+      },
+      {
+        "Selector": "ingress-nginx",
+        "SelectorType": "Namespace",
+        "SizeSum": 23740596754
+      },
+      {
+        "Selector": "digicerttest",
+        "SelectorType": "Namespace",
+        "SizeSum": 1957241
+      },
+      {
+        "Selector": "diagrid-cloud",
+        "SelectorType": "Namespace",
+        "SizeSum": 655212877
+      },
+      {
+        "Selector": "devops-user-group-sync",
+        "SelectorType": "Namespace",
+        "SizeSum": 59037936
+      },
+      {
+        "Selector": "devops-frontgate",
+        "SelectorType": "Namespace",
+        "SizeSum": 28919556793
+      },
+      {
+        "Selector": "devops",
+        "SelectorType": "Namespace",
+        "SizeSum": 6998679412
+      },
+      {
+        "Selector": "default",
+        "SelectorType": "Namespace",
+        "SizeSum": 9347
+      },
+      {
+        "Selector": "dawn",
+        "SelectorType": "Namespace",
+        "SizeSum": 210655775254
+      },
+      {
+        "Selector": "dapr-system",
+        "SelectorType": "Namespace",
+        "SizeSum": 329938914078
+      },
+      {
+        "Selector": "chaos-testing",
+        "SelectorType": "Namespace",
+        "SizeSum": 57711199743
+      },
+      {
+        "Selector": "cert-manager",
+        "SelectorType": "Namespace",
+        "SizeSum": 72183927
+      },
+      {
+        "Selector": "app-routing-system",
+        "SelectorType": "Namespace",
+        "SizeSum": 68439204
+      },
+      {
+        "Selector": "aks-command",
+        "SelectorType": "Namespace",
+        "SizeSum": 510304
+      },
+      {
+        "Selector": "actions-runner-system",
+        "SelectorType": "Namespace",
+        "SizeSum": 7353893
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ub-ne-dev/providers/microsoft.network/networksecuritygroups/wvd-ub-ne-dev-vnet-vdi-subnet-nsg",
+        "SelectorType": "ResourceId",
+        "SizeSum": 673832003
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ub-ne-dev/providers/microsoft.desktopvirtualization/workspaces/wvd-ub-ne-dev-workspace",
+        "SelectorType": "ResourceId",
+        "SizeSum": 183279
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ub-ne-dev/providers/microsoft.desktopvirtualization/hostpools/wvd-ub-ne-dev-hostpool",
+        "SelectorType": "ResourceId",
+        "SizeSum": 301276657
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ub-ne-dev/providers/microsoft.compute/virtualmachines/vm-ub-ne-dev1",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1248368340
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ub-ne-dev/providers/microsoft.compute/virtualmachines/vm-ub-ne-dev0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 952595064
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ua-ne-dev/providers/microsoft.network/networksecuritygroups/wvd-ua-ne-dev-vnet-vdi-subnet-nsg",
+        "SelectorType": "ResourceId",
+        "SizeSum": 219072621
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ua-ne-dev/providers/microsoft.desktopvirtualization/workspaces/wvd-ua-ne-dev-workspace",
+        "SelectorType": "ResourceId",
+        "SizeSum": 186368
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ua-ne-dev/providers/microsoft.desktopvirtualization/hostpools/wvd-ua-ne-dev-hostpool",
+        "SelectorType": "ResourceId",
+        "SizeSum": 291967280
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ua-ne-dev/providers/microsoft.compute/virtualmachines/vm-ua-ne-dev1",
+        "SelectorType": "ResourceId",
+        "SizeSum": 835460757
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ua-ne-dev/providers/microsoft.compute/virtualmachines/vm-ua-ne-dev0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1334927852
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-ne-dev/providers/microsoft.network/networksecuritygroups/wvd-ap-ne-dev-vnet-vdi-subnet-nsg",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1490082770
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-ne-dev/providers/microsoft.desktopvirtualization/workspaces/wvd-ap-ne-dev-workspace",
+        "SelectorType": "ResourceId",
+        "SizeSum": 183942
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-ne-dev/providers/microsoft.desktopvirtualization/hostpools/wvd-ap-ne-dev-hostpool",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1727175
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-ne-dev/providers/microsoft.desktopvirtualization/applicationgroups/sapgroup0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 3354
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-ne-dev/providers/microsoft.desktopvirtualization/applicationgroups/iwacsgroup0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 4382
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-ne-dev/providers/microsoft.compute/virtualmachines/vm-ap-ne-dev1",
+        "SelectorType": "ResourceId",
+        "SizeSum": 2248296980
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ap-ne-dev/providers/microsoft.compute/virtualmachines/vm-ap-ne-dev0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 2249714639
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-dev/providers/microsoft.network/networksecuritygroups/wvd-ai-ci-dev-vnet-vdi-subnet-nsg",
+        "SelectorType": "ResourceId",
+        "SizeSum": 613678464
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-dev/providers/microsoft.desktopvirtualization/workspaces/wvd-ai-ci-dev-workspace",
+        "SelectorType": "ResourceId",
+        "SizeSum": 185205
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-dev/providers/microsoft.desktopvirtualization/hostpools/wvd-ai-ci-dev-hostpool",
+        "SelectorType": "ResourceId",
+        "SizeSum": 300394904
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-dev/providers/microsoft.compute/virtualmachines/vm-ai-ci-dev1",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1416058812
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ai-ci-dev/providers/microsoft.compute/virtualmachines/vm-ai-ci-dev0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 845253119
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ae-ne-dev/providers/microsoft.network/networksecuritygroups/wvd-ae-ne-dev-vnet-vdi-subnet-nsg",
+        "SelectorType": "ResourceId",
+        "SizeSum": 578631011
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ae-ne-dev/providers/microsoft.desktopvirtualization/workspaces/wvd-ae-ne-dev-workspace",
+        "SelectorType": "ResourceId",
+        "SizeSum": 186356
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ae-ne-dev/providers/microsoft.desktopvirtualization/hostpools/wvd-ae-ne-dev-hostpool",
+        "SelectorType": "ResourceId",
+        "SizeSum": 297409899
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ae-ne-dev/providers/microsoft.compute/virtualmachines/vm-ae-ne-dev1",
+        "SelectorType": "ResourceId",
+        "SizeSum": 510359616
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/wvd-ae-ne-dev/providers/microsoft.compute/virtualmachines/vm-ae-ne-dev0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1823012953
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/web-dev/providers/microsoft.cdn/profiles/web-dev-afd",
+        "SelectorType": "ResourceId",
+        "SizeSum": 22129150107
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/web-dev/providers/microsoft.apimanagement/service/uni-web-dev-apim",
+        "SelectorType": "ResourceId",
+        "SizeSum": 14127863
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/uprint-dev/providers/microsoft.insights/components/uprint-dev-insights",
+        "SelectorType": "ResourceId",
+        "SizeSum": 28777335105
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/tricentis-dev/providers/microsoft.compute/virtualmachines/vm-tosca-dev-0",
+        "SelectorType": "ResourceId",
+        "SizeSum": 43308602
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/storage-test/providers/microsoft.storage/storageaccounts/unistoragetestkrb/fileservices/default",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1530509208
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/storage-test/providers/microsoft.storage/storageaccounts/unistoragetestdurbin/blobservices/default",
+        "SelectorType": "ResourceId",
+        "SizeSum": 624631114
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/storage-test/providers/microsoft.storage/storageaccounts/unistoragetestad/fileservices/default",
+        "SelectorType": "ResourceId",
+        "SizeSum": 57244
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/storage-dev/providers/microsoft.storage/storageaccounts/unistoragedevkrb/fileservices/default",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1082579677
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/storage-dev/providers/microsoft.storage/storageaccounts/unistoragedevdurbin/blobservices/default",
+        "SelectorType": "ResourceId",
+        "SizeSum": 137150451
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/storage-dev/providers/microsoft.storage/storageaccounts/unistoragedevad/fileservices/default",
+        "SelectorType": "ResourceId",
+        "SizeSum": 100034
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/semarchy-dev/providers/microsoft.storage/storageaccounts/unisemarchydev/fileservices/default",
+        "SelectorType": "ResourceId",
+        "SizeSum": 1567413653
+      },
+      {
+        "Selector": "/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/sap-dev/providers/microsoft.network/networksecuritygroups/sap-dev-vnet-vdi-subnet-nsg",
+        "SelectorType": "ResourceId",
+        "SizeSum": 268709249
+      }
+    ],
+  "1620bff3-d3be-4da6-b073-b3b6c2001716": [
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/web-dev/providers/microsoft.cdn/profiles/web-dev-afd",
+      "SelectorType": "ResourceId",
+      "SizeSum": 9389520
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/p-hcarbiter/providers/microsoft.compute/virtualmachines/unihcarbiter",
+      "SelectorType": "ResourceId",
+      "SizeSum": 33007889
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/legacy-web-test/providers/microsoft.cdn/profiles/legacy-web-test-afd",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10528650
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/legacy-web-prod/providers/microsoft.cdn/profiles/legacy-web-prod-afd",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10543500
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/ict/providers/microsoft.compute/virtualmachines/unihcarbiter01",
+      "SelectorType": "ResourceId",
+      "SizeSum": 32534267
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/ict/providers/microsoft.compute/virtualmachines/uniappaz01",
+      "SelectorType": "ResourceId",
+      "SizeSum": 32463511
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-test/providers/microsoft.network/virtualnetworkgateways/hub-test-gw",
+      "SelectorType": "ResourceId",
+      "SizeSum": 2054219430
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-test/providers/microsoft.network/networksecuritygroups/hub-bastion-test-nsg",
+      "SelectorType": "ResourceId",
+      "SizeSum": 282319754
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-test/providers/microsoft.network/bastionhosts/hub-test-bastion",
+      "SelectorType": "ResourceId",
+      "SizeSum": 36683759
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-test/providers/microsoft.network/azurefirewalls/hub-test-fw",
+      "SelectorType": "ResourceId",
+      "SizeSum": 76649568824
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-prod/providers/microsoft.network/virtualnetworkgateways/hub-prod-gw",
+      "SelectorType": "ResourceId",
+      "SizeSum": 111761047
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-prod/providers/microsoft.network/networksecuritygroups/hub-bastion-prod-nsg",
+      "SelectorType": "ResourceId",
+      "SizeSum": 282158417
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-prod/providers/microsoft.network/expressroutecircuits/hub-er",
+      "SelectorType": "ResourceId",
+      "SizeSum": 82053956
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-prod/providers/microsoft.network/expressroutecircuits/greenogue-er-1",
+      "SelectorType": "ResourceId",
+      "SizeSum": 85448814
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-prod/providers/microsoft.network/bastionhosts/hub-prod-bastion",
+      "SelectorType": "ResourceId",
+      "SizeSum": 36976401
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-prod/providers/microsoft.network/azurefirewalls/hub-prod-fw",
+      "SelectorType": "ResourceId",
+      "SizeSum": 66544934206
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-dev/providers/microsoft.network/virtualnetworkgateways/hub-dev-gw",
+      "SelectorType": "ResourceId",
+      "SizeSum": 111779241
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-dev/providers/microsoft.network/networksecuritygroups/hub-bastion-dev-nsg",
+      "SelectorType": "ResourceId",
+      "SizeSum": 279989819
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-dev/providers/microsoft.network/bastionhosts/hub-dev-bastion",
+      "SelectorType": "ResourceId",
+      "SizeSum": 36110834
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/hub-dev/providers/microsoft.network/azurefirewalls/hub-dev-fw",
+      "SelectorType": "ResourceId",
+      "SizeSum": 47267227
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/frontdoor-test/providers/microsoft.cdn/profiles/frontdoor-test-afd",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10471440
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.recoveryservices/vaults/uni-core-platform-backup",
+      "SelectorType": "ResourceId",
+      "SizeSum": 723777
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.operationalinsights/workspaces/core-platform-logs",
+      "SelectorType": "ResourceId",
+      "SizeSum": 398249
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.keyvault/vaults/uni-core-platform-kv",
+      "SelectorType": "ResourceId",
+      "SizeSum": 38562499
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.keyvault/vaults/uni-core-on-prem-kv",
+      "SelectorType": "ResourceId",
+      "SizeSum": 521216986
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.dataprotection/backupvaults/core-platform-backupvault",
+      "SelectorType": "ResourceId",
+      "SizeSum": 6159668
+    },
+    {
+      "Selector": "/subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/resourcegroups/core-platform/providers/microsoft.automation/automationaccounts/core-platform-automation",
+      "SelectorType": "ResourceId",
+      "SizeSum": 18130056
+    }
+  ],
+  "961b7071-1490-44c4-97b7-b4620c73aee5": [
+    {
+      "Selector": "semarchy",
+      "SelectorType": "Namespace",
+      "SizeSum": 47502872
+    },
+    {
+      "Selector": "neoload",
+      "SelectorType": "Namespace",
+      "SizeSum": 265948
+    },
+    {
+      "Selector": "monsoon",
+      "SelectorType": "Namespace",
+      "SizeSum": 22086624117
+    },
+    {
+      "Selector": "kube-system",
+      "SelectorType": "Namespace",
+      "SizeSum": 12680729645
+    },
+    {
+      "Selector": "ingress-nginx",
+      "SelectorType": "Namespace",
+      "SizeSum": 31714913559
+    },
+    {
+      "Selector": "diagrid-cloud",
+      "SelectorType": "Namespace",
+      "SizeSum": 3764218
+    },
+    {
+      "Selector": "devops-user-group-sync",
+      "SelectorType": "Namespace",
+      "SizeSum": 14491452
+    },
+    {
+      "Selector": "devops-frontgate",
+      "SelectorType": "Namespace",
+      "SizeSum": 5769162324
+    },
+    {
+      "Selector": "devops",
+      "SelectorType": "Namespace",
+      "SizeSum": 3224565636
+    },
+    {
+      "Selector": "dawn",
+      "SelectorType": "Namespace",
+      "SizeSum": 2519424829
+    },
+    {
+      "Selector": "dapr-system",
+      "SelectorType": "Namespace",
+      "SizeSum": 58084459
+    },
+    {
+      "Selector": "cert-manager",
+      "SelectorType": "Namespace",
+      "SizeSum": 1568790
+    },
+    {
+      "Selector": "app-routing-system",
+      "SelectorType": "Namespace",
+      "SizeSum": 13743072
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.network/networksecuritygroups/wvd-ub-we-prod-vnet-vdi-subnet-nsg",
+      "SelectorType": "ResourceId",
+      "SizeSum": 612580636
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.desktopvirtualization/workspaces/wvd-ub-we-prod-workspace",
+      "SelectorType": "ResourceId",
+      "SizeSum": 1141
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.desktopvirtualization/hostpools/wvd-ub-we-prod-hostpool",
+      "SelectorType": "ResourceId",
+      "SizeSum": 154625578
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod9",
+      "SelectorType": "ResourceId",
+      "SizeSum": 16249259
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod8",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10127030
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod7",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10193149
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod6",
+      "SelectorType": "ResourceId",
+      "SizeSum": 666222865
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod5",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10262147
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod4",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10538604
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod3",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10472702
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod24",
+      "SelectorType": "ResourceId",
+      "SizeSum": 508770390
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod23",
+      "SelectorType": "ResourceId",
+      "SizeSum": 11645013
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod22",
+      "SelectorType": "ResourceId",
+      "SizeSum": 11698034
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod21",
+      "SelectorType": "ResourceId",
+      "SizeSum": 11639388
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod20",
+      "SelectorType": "ResourceId",
+      "SizeSum": 11710028
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod2",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10519024
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod19",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10590293
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod18",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10636630
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod17",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10557256
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod16",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10003852
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod15",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10559490
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod14",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10600514
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod13",
+      "SelectorType": "ResourceId",
+      "SizeSum": 9450894
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod12",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10546338
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod11",
+      "SelectorType": "ResourceId",
+      "SizeSum": 11001378
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod10",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10610005
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod1",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10409365
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-we-prod/providers/microsoft.compute/virtualmachines/vm-ub-we-prod0",
+      "SelectorType": "ResourceId",
+      "SizeSum": 10448845
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-ne-prod/providers/microsoft.network/networksecuritygroups/wvd-ub-ne-prod-vnet-vdi-subnet-nsg",
+      "SelectorType": "ResourceId",
+      "SizeSum": 2940734167
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-ne-prod/providers/microsoft.desktopvirtualization/workspaces/wvd-ub-ne-prod-workspace",
+      "SelectorType": "ResourceId",
+      "SizeSum": 2760422
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-ne-prod/providers/microsoft.desktopvirtualization/hostpools/wvd-ub-ne-prod-hostpool",
+      "SelectorType": "ResourceId",
+      "SizeSum": 926227502
+    },
+    {
+      "Selector": "/subscriptions/961b7071-1490-44c4-97b7-b4620c73aee5/resourcegroups/wvd-ub-ne-prod/providers/microsoft.compute/virtualmachines/vm-ub-ne-prod9",
+      "SelectorType": "ResourceId",
+      "SizeSum": 592525007
+    }
+  ]
+}

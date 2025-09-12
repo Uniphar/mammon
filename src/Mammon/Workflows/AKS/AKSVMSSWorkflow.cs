@@ -22,7 +22,7 @@ public class AKSVMSSWorkflow : Workflow<SplittableResourceRequest, bool>
 
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
 				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource] },
-				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}" });
+				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}".ToSanitizedInstanceId() });
 		}
 
 		return true;

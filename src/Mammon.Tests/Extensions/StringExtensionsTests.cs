@@ -36,4 +36,25 @@ public class StringExtensionsTests
 
 		ret.Should().BeEquivalentTo(expectedItems);
 	}
+
+	[TestMethod]
+	[DataRow("/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups/a/b/c", "39983c36-2aa4-4c7e-907a-6dbd95860295")]
+    [DataRow("/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295/resourcegroups", "39983c36-2aa4-4c7e-907a-6dbd95860295")]
+    [DataRow("/subscriptions/39983c36-2aa4-4c7e-907a-6dbd95860295", "39983c36-2aa4-4c7e-907a-6dbd95860295")]
+    public void GetSubscriptionId(string input, string expectedOutput)
+	{
+		var result = input.GetSubscriptionId();
+		result.Should().Be(expectedOutput);
+	}
+
+    [TestMethod]
+	[DataRow("activity-123_ok", "activity-123_ok")]
+	[DataRow("activity!@#$id", "activityid")]
+	[DataRow("activity id !@#$%^&*()", "activityid")]
+	public void ToSanitizedInstanceId(string input, string expectedOutput)
+	{
+		var result = input.ToSanitizedInstanceId();
+
+		result.Should().Be(expectedOutput);
+	}
 }

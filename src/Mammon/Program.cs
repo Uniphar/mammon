@@ -80,6 +80,7 @@ builder.Configuration.AddAzureKeyVault(
 	new Uri(configKVURL),
 	defaultAzureCredentials);
 
+builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddApplicationInsightsTelemetry();
 
 builder.Services.AddRazorPages();
