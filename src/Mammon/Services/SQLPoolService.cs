@@ -15,56 +15,47 @@ public class SQLPoolService(
 		{
 #if (DEBUG || INTTEST)
 
-			string? mockApiResponsePath;
-			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockSqlPoolResponseFilePathConfigKey)
-				&& File.Exists(mockApiResponsePath))
-			{
-				result = await ParseMockFileAsync<SQLDatabaseUsageResponseItem>(mockApiResponsePath, poolResourceId);
-			}
-			else
-			{
-#endif
-                //lookup pool LA id
-                var rID = new ResourceIdentifier(poolResourceId);
+            result = await ParseMockFileAsync<SQLDatabaseUsageResponseItem>(Consts.MockSqlPoolResponseFilePathConfigKey, poolResourceId);
+#else
+            //lookup pool LA id
+            var rID = new ResourceIdentifier(poolResourceId);
 
-                List<string> dbs = [];
+            List<string> dbs = [];
 
-                var pool = await armClient.GetElasticPoolResource(rID).GetAsync();
-                await foreach (var db in pool.Value.GetDatabasesAsync())
-                {
-                    dbs.Add($"'{db.Id}'");
-                }
+            var pool = await armClient.GetElasticPoolResource(rID).GetAsync();
+            await foreach (var db in pool.Value.GetDatabasesAsync())
+            {
+                dbs.Add($"'{db.Id}'");
+            }
 
-                if (dbs.Count == 0)
-                {
-                    logger.LogInformation($"No databases found in SQL Pool {poolResourceId}");
-                    return ([], false);
-                }
+            if (dbs.Count == 0)
+            {
+                logger.LogInformation($"No databases found in SQL Pool {poolResourceId}");
+                return ([], false);
+            }
 
-                var diagSetttings = armClient.GetDiagnosticSettings(pool.Value.Id);
-                if (diagSetttings == null || !diagSetttings.Any())
-                    return ([], false);
+            var diagSetttings = armClient.GetDiagnosticSettings(pool.Value.Id);
+            if (diagSetttings == null || !diagSetttings.Any())
+                return ([], false);
 
-                ResourceIdentifier? laWorkspaceId = diagSetttings.First().Data?.WorkspaceId;
-                if (laWorkspaceId is null)
-                {
-                    return ([], false);
-                }
-                var workspace = await armClient.GetOperationalInsightsWorkspaceResource(laWorkspaceId).GetAsync();
+            ResourceIdentifier? laWorkspaceId = diagSetttings.First().Data?.WorkspaceId;
+            if (laWorkspaceId is null)
+            {
+                return ([], false);
+            }
+            var workspace = await armClient.GetOperationalInsightsWorkspaceResource(laWorkspaceId).GetAsync();
 
-                string query = @$"AzureMetrics 
-					| where MetricName=='dtu_used' and ResourceId in~ ({string.Join(",", dbs)})
-					| summarize DTUAverage=avg(Average) by ResourceId
-					| where DTUAverage>0";
+            string query = @$"AzureMetrics 
+				| where MetricName=='dtu_used' and ResourceId in~ ({string.Join(",", dbs)})
+				| summarize DTUAverage=avg(Average) by ResourceId
+				| where DTUAverage>0";
 
-				result = await logsQueryClient.QueryWorkspaceAsync<SQLDatabaseUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
-					query,
-					new QueryTimeRange(from, to));
-#if (DEBUG || INTTEST)
-			}
+			result = await logsQueryClient.QueryWorkspaceAsync<SQLDatabaseUsageResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+				query,
+				new QueryTimeRange(from, to));
 #endif
 
-			return (result.Value, true);
+            return (result.Value, true);
 		}
 		catch (Exception ex) 
 		{

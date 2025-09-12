@@ -15,41 +15,32 @@ public class LogAnalyticsService(
 		{
 #if (DEBUG || INTTEST)
 
-			string? mockApiResponsePath;
-			if (!string.IsNullOrWhiteSpace(mockApiResponsePath = Consts.MockLAQueryResponseFilePathConfigKey)
-				&& File.Exists(mockApiResponsePath))
-			{
-				response = await ParseMockFileAsync<LAWorkspaceQueryResponseItem>(mockApiResponsePath, laResourceId);
-			}
-			else
-			{
-#endif
-                LogsQueryClient client = new(azureCredential);
+            response = await ParseMockFileAsync<LAWorkspaceQueryResponseItem>(Consts.MockLAQueryResponseFilePathConfigKey, laResourceId);
+#else
+			LogsQueryClient client = new(azureCredential);
 
-                Response<OperationalInsightsWorkspaceResource>? workspace;
+            Response<OperationalInsightsWorkspaceResource>? workspace;
 
-                workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
+            workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
 
-                if (workspace == null || !workspace.Value.HasData || workspace.Value.Data.CustomerId == null)
-                {
-                    return ([], false);
-                }
+            if (workspace == null || !workspace.Value.HasData || workspace.Value.Data.CustomerId == null)
+            {
+                return ([], false);
+            }
 
-                response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
-					@$"search * 
-				| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
-				| project
-					Size=_BilledSize,
-					Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
-					SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
-				| summarize SizeSum=sum(Size) by Selector, SelectorType
-				| order by Selector desc",
-					new QueryTimeRange(from, to));
-#if (DEBUG || INTTEST)
-			}
+            response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+				@$"search * 
+			| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
+			| project
+				Size=_BilledSize,
+				Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
+				SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
+			| summarize SizeSum=sum(Size) by Selector, SelectorType
+			| order by Selector desc",
+				new QueryTimeRange(from, to));
 #endif
 
-			if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
+            if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
 			{
 				return ([], false);
 			}
