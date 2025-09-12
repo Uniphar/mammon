@@ -2,9 +2,9 @@
 
 public record CostReportSubscriptionRequest
 {    
-    public required string SubscriptionName { get; set; }
-    public required CostReportRequest ReportRequest { get; set; }
-    public GroupingMode GroupingMode { get; set; } = GroupingMode.Resource;
+    public required string SubscriptionName { get; init; }
+    public required CostReportRequest ReportRequest { get; init; }
+    public GroupingMode GroupingMode => GroupingMode.Resource;
 }
 
 public enum GroupingMode

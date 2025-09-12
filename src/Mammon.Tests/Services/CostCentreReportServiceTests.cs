@@ -59,7 +59,7 @@ public class CostCentreReportServiceTests
 	}
 
 
-	[DataTestMethod]
+	[TestMethod]
 	[DataRow("2024-04-15 22:15:26", 3, "2024-03-03 00:00:00", "2024-04-02 23:59:59")] //ordinary date - cycle of 1st
 	[DataRow("2024-04-15 22:15:26", 7, "2024-03-07 00:00:00", "2024-04-06 23:59:59")] //ordinary date - cycle of 7th
 	[DataRow("2024-03-01 01:00:00", 1, "2024-02-01 00:00:00", "2024-02-29 23:59:59")] //leap year -cycle of 1st

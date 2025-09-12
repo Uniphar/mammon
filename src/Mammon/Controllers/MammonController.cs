@@ -2,10 +2,10 @@
 
 [Route("api/[controller]/[Action]")]
 [ApiController]
-public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine, CostCentreReportService costCentreReportService) : Controller
-{
-    [HttpGet()]
-    [HttpPost()]
+public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleEngine costCentreRuleEngine, CostCentreReportService costCentreReportService ) : Controller
+{	
+	[HttpGet]
+    [HttpPost]
     [Topic(Consts.MammonPubSubCRDName, Consts.MammonServiceBusTopicName)]
     public async Task<StatusCodeResult> Invoke(CloudEvent<CostReportRequest> @event)
     {

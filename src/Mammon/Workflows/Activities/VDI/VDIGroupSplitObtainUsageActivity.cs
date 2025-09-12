@@ -1,7 +1,7 @@
 ﻿namespace Mammon.Workflows.Activities.VDI;
 
 public class VDIGroupSplitObtainUsageActivity(VDIService vdiService) 
-    : WorkflowActivity<SplittableResourceGroupRequest, (IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)>
+	: WorkflowActivity<SplittableResourceGroupRequest, (IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)>
 {
     public override async Task<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> RunAsync(WorkflowActivityContext context, SplittableResourceGroupRequest request)
     {

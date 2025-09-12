@@ -10,11 +10,11 @@ public class CostCentreRuleEngine
 	private readonly IConfiguration configuration;
 	private IList<CostCentreRule> CostCentreRules { get; set; } = [];
 	public IList<SubscriptionDefinition> Subscriptions { get; internal set; } = [];
-	public IEnumerable<string> CostCentres { get; internal set; } = [];
+	public IEnumerable<string> CostCentres { get; private set; } = [];
 	public string DefaultCostCentre { get; internal set; } = string.Empty;
 	public IEnumerable<string> ResourceGroupSuffixRemoveList { get; internal set; } = [];
 	public IDictionary<string, string> ResourceGroupTokenClassMap { get; internal set; } = new Dictionary<string, string>();
-	public IEnumerable<string> SubscriptionNames { get; internal set; } = [];
+	public IEnumerable<string> SubscriptionNames { get; private set; } = [];
 	public IList<SpecialModeDefinition> SpecialModes { get; internal set; } = [];
 	public IDictionary<string, string> AKSNamespaceMapping { get; internal set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 	public IDictionary<string, string> GroupIDMapping { get; internal set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -160,14 +160,12 @@ public class CostCentreRuleEngine
 		
 		if (!mode.ResourceGroupFilter.Any())
 			return true;
-		else
+		
+		return mode.ResourceGroupFilter.Any(x => 
 		{
-			return mode.ResourceGroupFilter.Any(x => 
-			{
-				Regex r = new(string.Format(RGRegexpFormat, x));
-				return r.IsMatch(resourceIdentifier.ToString());
-			});
-		}	
+			Regex r = new(string.Format(RGRegexpFormat, x));
+			return r.IsMatch(resourceIdentifier.ToString());
+		});
 	}
 
 	public string? ClassifyPivot(CostReportPivotEntry pivotDefinition)
@@ -179,23 +177,21 @@ public class CostCentreRuleEngine
 		{
 			return "DevBox Pool";
 		}
-		else
+
+		string? ret = null;
+
+		_ = ResourceGroupTokenClassMap.FirstOrDefault(x =>
 		{
-			string? ret = null;
-
-			_ = ResourceGroupTokenClassMap.FirstOrDefault(x =>
+			if (pivotDefinition.PivotName.Contains(x.Key, StringComparison.OrdinalIgnoreCase))
 			{
-				if (pivotDefinition.PivotName.Contains(x.Key, StringComparison.OrdinalIgnoreCase))
-				{
-					ret = x.Value;
-					return true;
-				}
+				ret = x.Value;
+				return true;
+			}
 
-				return false;
-			});
+			return false;
+		});
 
-			return ret;
-		}
+		return ret;
 	}
 
 	public string LookupEnvironment(string subId)
@@ -208,8 +204,8 @@ public class CostCentreRuleEngine
 
 public record CostReportPivotEntry
 {
-	public required string PivotName { get; set; }
-	public required string ResourceId { get; set; }
-	public required string SubscriptionId { get; set; }
-	public required ResourceCost Cost { get; set; }
+	public required string PivotName { get; init; }
+	public required string ResourceId { get; init; }
+	public required string SubscriptionId { get; init; }
+	public required ResourceCost Cost { get; init; }
 }

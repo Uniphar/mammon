@@ -1,6 +1,7 @@
 ﻿namespace Mammon.Workflows.Activities.SQLPool;
 
-public class SQLPoolObtainUsageDataActivity(SQLPoolService sqlService) : WorkflowActivity<SplittableResourceRequest, (IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool usageDataAvailable)>
+public class SQLPoolObtainUsageDataActivity(SQLPoolService sqlService) 
+	: WorkflowActivity<SplittableResourceRequest, (IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool usageDataAvailable)>
 {
 	public override async Task<(IEnumerable<SQLDatabaseUsageResponseItem> usageData, bool usageDataAvailable)> RunAsync(WorkflowActivityContext context, SplittableResourceRequest request)
 	{

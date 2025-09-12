@@ -59,7 +59,7 @@ public class CostRetrievalServiceTests
         mockHttp.VerifyNoOutstandingExpectation();
     }
 
-    [DataTestMethod]
+    [TestMethod]
     [DataRow("\"ms-resource-usage\":\"azure-cloud-shell\"", "ms-resource-usage", "azure-cloud-shell")]
     [DataRow("\"ms-resource-usage\":\"", "ms-resource-usage", "")]
     [DataRow("\"key1:key2\":\"s\"", "key1:key2", "s")]
@@ -78,7 +78,7 @@ public class CostRetrievalServiceTests
     class TestCostRetrievalService(ArmClient armClient, HttpClient httpClient, ILogger<CostRetrievalService> logger) : CostRetrievalService(armClient, httpClient, Mock.Of<IConfiguration>(), logger)
     {
         //we need this as the GetSubscriptions() of the ArmClient is not mockable
-        public override string? GetSubscriptionFullResourceId(string subscriptionName)
+        protected override string? GetSubscriptionFullResourceId(string subscriptionName)
         {
             return "/subscriptions/subId";
         }

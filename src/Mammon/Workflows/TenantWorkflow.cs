@@ -14,7 +14,7 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
 				new CostReportSubscriptionRequest
 				{
 					SubscriptionName = subscription,
-					ReportRequest = input.ReportRequest
+                    ReportRequest = input.ReportRequest,
 				},
 				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SubscriptionWorkflow)}{subscription}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() }));
 		}
