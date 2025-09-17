@@ -14,9 +14,9 @@ public class TenantWorkflowTests
 	private static CostReportRequest _reportRequest = new()
 	{
 		ReportId = Guid.NewGuid().ToString(),
-		CostFrom = DateTime.UtcNow.BeginningOfDay().AddDays(-14),
-		CostTo = DateTime.UtcNow.BeginningOfDay().AddDays(-13)
-	};
+        CostFrom = DateTime.UtcNow.BeginningOfDay().AddDays(-2),
+        CostTo = DateTime.UtcNow.BeginningOfDay().AddDays(-1)
+    };
 
 	private static string? _reportSubject = string.Empty;
 	private static string? _fromEmail = string.Empty;
