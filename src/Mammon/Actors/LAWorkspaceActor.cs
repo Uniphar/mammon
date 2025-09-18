@@ -13,7 +13,7 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 		var tags = request.Resource.Tags;
 		var reportId = request.ReportRequest.ReportId;
 
-		var costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportId);
+		var costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportId, request.ReportRequest.SubscriptionId);
 
 		try
 		{			
@@ -52,13 +52,19 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 				foreach (var costCentreCost in costCentreCosts)
 				{
 					//send them to cost centre actors
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreCost.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, costCentreCost.Value));
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+						CostCentreActor.GetActorId(reportId, costCentreCost.Key, request.ReportRequest.SubscriptionId), 
+						nameof(CostCentreActor), 
+						async (p) => await p.AddCostAsync(resourceId, costCentreCost.Value));
 				}
 			}
 			else
 			{
 				//no usage, assign to LA workspace cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, totalCost));
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags), request.ReportRequest.SubscriptionId),
+					nameof(CostCentreActor),
+					async (p) => await p.AddCostAsync(resourceId, totalCost));
 			}
 
 			var state = await GetStateAsync(CostStateName);

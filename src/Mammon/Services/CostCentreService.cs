@@ -2,7 +2,7 @@
 
 public class CostCentreService(CostCentreRuleEngine costCentreRuleEngine)
 {
-	public async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId)
+	public async Task<Dictionary<string, CostCentreActorState>> RetrieveCostCentreStatesAsync(string reportId, string subscriptionId)
 	{
 		var costCentres = costCentreRuleEngine.CostCentres;
 
@@ -10,7 +10,10 @@ public class CostCentreService(CostCentreRuleEngine costCentreRuleEngine)
 
 		foreach (var costCentre in costCentres)
 		{
-			var state = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor, CostCentreActorState>(CostCentreActor.GetActorId(reportId, costCentre), nameof(CostCentreActor), async (p) => await p.GetCostsAsync());
+			var state = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor, CostCentreActorState>(
+				CostCentreActor.GetActorId(reportId, costCentre, subscriptionId),
+				nameof(CostCentreActor),
+				async (p) => await p.GetCostsAsync());
 			if (state != null)
 			{
 				costCentreStates.Add(costCentre, state);

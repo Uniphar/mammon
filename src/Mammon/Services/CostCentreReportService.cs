@@ -19,7 +19,55 @@ public class CostCentreReportService(
     {
         ArgumentNullException.ThrowIfNull(reportRequest);
 
-        Dictionary<string, CostCentreActorState> costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportRequest.ReportId);
+        var subsScriptions = costCentreRuleEngine.Subscriptions.Select(t => t.SubscriptionId);
+
+        var costCentreStates = new Dictionary<string, CostCentreActorState>();
+
+        foreach(var subId in subsScriptions)
+        {
+            var subCostCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportRequest.ReportId, subId);
+
+            foreach(var kvp in subCostCentreStates)
+            {
+                if (costCentreStates.ContainsKey(kvp.Key))
+                {
+                    //merge costs
+                    var existing = costCentreStates[kvp.Key];
+
+                    var costsToAdd = new List<ResourceCost>();
+                    if (existing.TotalCost is not null) costsToAdd.Add(existing.TotalCost);
+                    if (kvp.Value.TotalCost is not null) costsToAdd.Add(kvp.Value.TotalCost);
+
+                    if (costsToAdd.Count == 0) continue;
+
+                    existing.TotalCost = new ResourceCost(costsToAdd);
+
+                    if (existing.ResourceCosts is null)
+                    {
+                        existing.ResourceCosts = kvp.Value.ResourceCosts;
+                    }
+                    else if (kvp.Value.ResourceCosts is not null)
+                    {
+                        foreach(var resourceCost in kvp.Value.ResourceCosts)
+                        {
+                            if (existing.ResourceCosts.TryGetValue(resourceCost.Key, out var existingCost))
+                            {
+                                existingCost = new ResourceCost([existingCost, resourceCost.Value]);
+                                existing.ResourceCosts[resourceCost.Key] = existingCost;
+                            }
+                            else
+                            {
+                                existing.ResourceCosts[resourceCost.Key] = resourceCost.Value;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    costCentreStates[kvp.Key] = kvp.Value;
+                }
+            }
+        }
 
         var viewModel = BuildViewModel(reportRequest, costCentreStates);
 

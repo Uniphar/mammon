@@ -10,7 +10,10 @@ public class AssignCostCentreActivity : WorkflowActivity<AssignCostCentreActivit
         (string costCentre, ResourceCost cost) = await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor, (string costCentre, ResourceCost cost)>(input.ResourceActorId, nameof(ResourceActor), async (p) => await p.AssignCostCentre());            
 
         //send them to cost centre actors
-        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(input.ReportId, costCentre), nameof(CostCentreActor), async (p) => await p.AddCostAsync(input.ResourceId, cost));
+        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+            CostCentreActor.GetActorId(input.ReportId, costCentre, input.SubscriptionId), 
+            nameof(CostCentreActor), 
+            async (p) => await p.AddCostAsync(input.ResourceId, cost));
 
         return true;
     }

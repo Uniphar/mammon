@@ -21,7 +21,7 @@ public class AKSVMSSWorkflow : Workflow<SplittableResourceRequest, bool>
 			ResourceIdentifier rId = new(request.Resource.ResourceId);
 
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource] },
+				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource], SubscriptionId = request.ReportRequest.SubscriptionId },
 				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(AKSVMSSWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}".ToSanitizedInstanceId() });
 		}
 

@@ -44,7 +44,10 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 			foreach (var nsMetric in nsMetrics)
 			{
 				var cost = new ResourceCost((decimal)(nsMetric.Value.Score / totalScore) * totalCost.Cost, totalCost.Currency);
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, nsMetric.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, cost));
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					CostCentreActor.GetActorId(reportId, nsMetric.Key, request.ReportRequest.SubscriptionId), 
+					nameof(CostCentreActor), 
+					async (p) => await p.AddCostAsync(resourceId, cost));
 			}
 
 			//assumption here of at least one namespace ("default") with usage so no unallocated cost should exist

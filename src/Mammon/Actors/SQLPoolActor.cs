@@ -46,13 +46,19 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 
 				foreach (var nsMetric in nsMetrics)
 				{
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, nsMetric.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, nsMetric.Value));
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+						CostCentreActor.GetActorId(reportId, nsMetric.Key, request.ReportRequest.SubscriptionId),
+						nameof(CostCentreActor),
+						async (p) => await p.AddCostAsync(resourceId, nsMetric.Value));
 				}
 			}
 			else
 			{
 				//no usage, assign to sql pool cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, totalCost));
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags), request.ReportRequest.SubscriptionId),
+					nameof(CostCentreActor),
+					async (p) => await p.AddCostAsync(resourceId, totalCost));
 			}
 
 		}

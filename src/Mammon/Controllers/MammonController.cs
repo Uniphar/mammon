@@ -11,7 +11,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
     {
         ArgumentNullException.ThrowIfNull(@event, nameof(@event));
 
-        var subscriptions = costCentreRuleEngine.SubscriptionNames;
+        var subscriptions = costCentreRuleEngine.Subscriptions;
 
         //check if workflow exists but in failed state, so we can reset it
         //or start new fresh instance
