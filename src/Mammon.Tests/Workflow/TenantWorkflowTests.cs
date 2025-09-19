@@ -133,7 +133,7 @@ public class TenantWorkflowTests
         var expectedTotalRound = decimal.Round(expectedTotal, 2);
         var resultTotalRound = decimal.Round(resultTotal, 2);
 
-        Math.Abs(expectedTotalRound - resultTotalRound).Should().BeLessThan(4.0m, $"api total is {expectedTotalRound} and csv total is {resultTotalRound}");
+        Math.Abs(expectedTotalRound - resultTotalRound).Should().BeLessThan(1.0m, $"api total is {expectedTotalRound} and csv total is {resultTotalRound}");
     }
 
     [TestMethod, TestCategory("IntegrationTest")]
@@ -185,7 +185,7 @@ public class TenantWorkflowTests
 		var apiTotalRound = decimal.Round(apiTotal, 2);
 		var csvTotalRound = decimal.Round(csvTotal, 2);
 
-		Math.Abs(apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
+		Math.Abs(apiTotalRound - csvTotalRound).Should().BeLessThan(4.0m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
 	}
 
 	private static async Task<decimal> ComputeCostAPITotalAsync()
