@@ -19,7 +19,55 @@ public class CostCentreReportService(
     {
         ArgumentNullException.ThrowIfNull(reportRequest);
 
-        Dictionary<string, CostCentreActorState> costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportRequest.ReportId);
+        var subscriptionIds = costCentreRuleEngine.Subscriptions.Select(t => t.SubscriptionId);
+
+        var costCentreStates = new Dictionary<string, CostCentreActorState>();
+
+        foreach(var subId in subscriptionIds)
+        {
+            var subCostCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportRequest.ReportId, subId);
+
+            foreach(var subCostCentreState in subCostCentreStates)
+            {
+                if (costCentreStates.ContainsKey(subCostCentreState.Key))
+                {
+                    //merge costs
+                    var existing = costCentreStates[subCostCentreState.Key];
+
+                    var costsToAdd = new List<ResourceCost>();
+                    if (existing.TotalCost is not null) costsToAdd.Add(existing.TotalCost);
+                    if (subCostCentreState.Value.TotalCost is not null) costsToAdd.Add(subCostCentreState.Value.TotalCost);
+
+                    if (costsToAdd.Count == 0) continue;
+
+                    existing.TotalCost = new ResourceCost(costsToAdd);
+
+                    if (existing.ResourceCosts is null)
+                    {
+                        existing.ResourceCosts = subCostCentreState.Value.ResourceCosts;
+                    }
+                    else if (subCostCentreState.Value.ResourceCosts is not null)
+                    {
+                        foreach(var resourceCost in subCostCentreState.Value.ResourceCosts)
+                        {
+                            if (existing.ResourceCosts.TryGetValue(resourceCost.Key, out var existingCost))
+                            {
+                                existingCost = new ResourceCost([existingCost, resourceCost.Value]);
+                                existing.ResourceCosts[resourceCost.Key] = existingCost;
+                            }
+                            else
+                            {
+                                existing.ResourceCosts[resourceCost.Key] = resourceCost.Value;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    costCentreStates[subCostCentreState.Key] = subCostCentreState.Value;
+                }
+            }
+        }
 
         var viewModel = BuildViewModel(reportRequest, costCentreStates);
 

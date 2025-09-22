@@ -43,14 +43,14 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 				var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
 
 				await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
-					new SplittableResourceGroupRequest { ReportRequest = input.ReportRequest, Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
+					new SplittableResourceGroupRequest { ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId ), Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
 					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}".ToSanitizedInstanceId() });
 
 			}
 			else
 			{
 				await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-					new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group },
+					new GroupSubWorkflowRequest { ReportId = input.ReportRequest.ReportId, Resources = group, SubscriptionId = input.SubscriptionId },
 					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(GroupSubWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{group.Key}".ToSanitizedInstanceId() });
 			}
 		}
@@ -96,7 +96,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		await context.CallChildWorkflowAsync<bool>(workflowTypeName, new SplittableResourceRequest
 		{
 			Resource = resourceToSplit,
-			ReportRequest = input.ReportRequest
+			ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId)
 		}, new ChildWorkflowTaskOptions { InstanceId = $"{workflowTypeName}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.Name}".ToSanitizedInstanceId() });
 	}
 }

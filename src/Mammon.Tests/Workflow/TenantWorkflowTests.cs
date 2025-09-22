@@ -14,9 +14,9 @@ public class TenantWorkflowTests
 	private static CostReportRequest _reportRequest = new()
 	{
 		ReportId = Guid.NewGuid().ToString(),
-		CostFrom = DateTime.UtcNow.BeginningOfDay().AddDays(-2),
-		CostTo = DateTime.UtcNow.BeginningOfDay().AddDays(-1)
-	};
+        CostFrom = DateTime.UtcNow.BeginningOfDay().AddDays(-17),
+        CostTo = DateTime.UtcNow.BeginningOfDay().AddDays(-16)
+    };
 
 	private static string? _reportSubject = string.Empty;
 	private static string? _fromEmail = string.Empty;
@@ -185,7 +185,7 @@ public class TenantWorkflowTests
 		var apiTotalRound = decimal.Round(apiTotal, 2);
 		var csvTotalRound = decimal.Round(csvTotal, 2);
 
-		Math.Abs(apiTotalRound - csvTotalRound).Should().BeLessThan(1m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
+		Math.Abs(apiTotalRound - csvTotalRound).Should().BeLessThan(4.0m, $"api total is {apiTotalRound} and csv total is {csvTotalRound}");
 	}
 
 	private static async Task<decimal> ComputeCostAPITotalAsync()

@@ -23,7 +23,7 @@
     <PackageReference Include="Azure.ResourceManager.Sql" Version="*" />    
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />
     <PackageReference Include="CsvHelper" Version="*" />
-    <PackageReference Include="Dapr.AspNetCore" Version="*-*" />
+    <PackageReference Include="Dapr.AspNetCore" Version="*" />
     <PackageReference Include="DotFlyer.Common" Version="*" />
     <PackageReference Include="FluentValidation" Version="*" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="*" />
