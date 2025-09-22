@@ -22,7 +22,7 @@ public class VDIWorkflow : Workflow<SplittableResourceGroupRequest, bool>
 			ResourceIdentifier rId = new(request.ResourceGroupId);
 
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = request.Resources },
+				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = request.Resources, SubscriptionId = request.ReportRequest.SubscriptionId },
 				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}".ToSanitizedInstanceId() });
 		}
 

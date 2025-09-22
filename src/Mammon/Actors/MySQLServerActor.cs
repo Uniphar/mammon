@@ -44,13 +44,19 @@ public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCent
 
 				foreach (var proRataCost in proRataCosts)
 				{
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, proRataCost.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, proRataCost.Value));
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+						CostCentreActor.GetActorId(reportId, proRataCost.Key, request.ReportRequest.SubscriptionId),
+						nameof(CostCentreActor),
+						async (p) => await p.AddCostAsync(resourceId, proRataCost.Value));
 				}
 			}
 			else
 			{
 				//no pro rata, assign to mysql server cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags)), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, totalCost));
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags), request.ReportRequest.SubscriptionId),
+					nameof(CostCentreActor),
+					async (p) => await p.AddCostAsync(resourceId, totalCost));
 			}
 
 		}

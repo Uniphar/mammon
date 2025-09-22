@@ -2,6 +2,7 @@
 
 public record AssignCostCentreActivityRequest
 {
+    public required string SubscriptionId { get; set; }
     public required string ReportId { get; set; }
     public required string ResourceActorId { get; set; }
     public required string ResourceId { get; set; }

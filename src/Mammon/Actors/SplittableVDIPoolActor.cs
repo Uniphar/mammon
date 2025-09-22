@@ -44,13 +44,19 @@ public class SplittableVDIPoolActor(ActorHost host, CostCentreRuleEngine costCen
 
 				foreach (var nsMetric in nsMetrics)
 				{
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, nsMetric.Key), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, nsMetric.Value));
+					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+						CostCentreActor.GetActorId(reportId, nsMetric.Key, request.ReportRequest.SubscriptionId),
+						nameof(CostCentreActor),
+						async (p) => await p.AddCostAsync(resourceId, nsMetric.Value));
 				}
 			}
 			else
 			{
 				//no usage, assign to RG cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, new Dictionary<string, string>())), nameof(CostCentreActor), async (p) => await p.AddCostAsync(resourceId, totalResourceCost));
+				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, new Dictionary<string, string>()), request.ReportRequest.SubscriptionId),
+					nameof(CostCentreActor),
+					async (p) => await p.AddCostAsync(resourceId, totalResourceCost));
 			}
 
 		}

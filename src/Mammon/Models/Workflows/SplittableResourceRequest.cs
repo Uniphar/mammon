@@ -2,6 +2,6 @@
 
 public record SplittableResourceRequest
 {
-	public required CostReportRequest ReportRequest { get; set; }
+	public required SubscriptionCostReportRequest ReportRequest { get; set; }
 	public required ResourceCostResponse Resource { get; set; }
 }

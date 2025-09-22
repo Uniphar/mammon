@@ -11,7 +11,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
     {
         ArgumentNullException.ThrowIfNull(@event, nameof(@event));
 
-        var subscriptions = costCentreRuleEngine.SubscriptionNames;
+        var subscriptions = costCentreRuleEngine.Subscriptions;
 
         //check if workflow exists but in failed state, so we can reset it
         //or start new fresh instance
@@ -19,12 +19,10 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
 
         var workflowName = $"{nameof(TenantWorkflow)}_{@event.Data.ReportId}";
 
-        WorkflowState? workflowInstance;
-        try
-        {
-            workflowInstance = await workflowClient.GetWorkflowStateAsync(workflowName);
-        }
-        catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Unknown)
+        var workflowInstance = await workflowClient.GetWorkflowStateAsync(workflowName);
+
+        // if unknown, just reset
+        if (workflowInstance.RuntimeStatus == WorkflowRuntimeStatus.Unknown)
         {
             workflowInstance = null;
         }

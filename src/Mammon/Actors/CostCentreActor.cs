@@ -4,7 +4,10 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
 {
     private const string CostStateName = "CostCentreActorState";
 
-    public static string GetActorId(string reportId, string costCentreName) => $"{reportId}_{costCentreName}";
+    public new static string GetActorId(
+        string reportId, 
+        string costCentreName,
+        string subscriptionId) => $"{reportId}_{costCentreName}_{subscriptionId.ToSanitizedInstanceId()}";
 
     /// <inheritdoc/>
     public async Task AddCostAsync(string resourceId, ResourceCost cost)

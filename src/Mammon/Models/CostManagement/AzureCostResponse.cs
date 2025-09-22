@@ -52,7 +52,7 @@ public record ResourceCost
 	[SetsRequiredMembers]
 	public ResourceCost(decimal costValue, string currency)
 	{
-		Cost = costValue;
+		Cost = decimal.Round(costValue, 2);
 		Currency = currency;
 	}
 
@@ -62,7 +62,7 @@ public record ResourceCost
 		if (!costs.All(x => x.Currency == costs.First().Currency))
 			throw new ArgumentException("All costs must have the same currency");
 
-		Cost = costs.Sum(x => x.Cost);
+		Cost = decimal.Round(costs.Sum(x => x.Cost), 2);
 		Currency = costs.FirstOrDefault()?.Currency ?? "NA";
 	}
 

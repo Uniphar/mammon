@@ -23,6 +23,7 @@ public class GroupSubWorkflow : Workflow<GroupSubWorkflowRequest, bool>
             await context.CallActivityAsync<bool>(nameof(AssignCostCentreActivity),
                 new AssignCostCentreActivityRequest 
                 { 
+                    SubscriptionId = input.SubscriptionId,
                     ReportId = input.ReportId, 
                     ResourceActorId = resourceActor.Key, 
                     ResourceId = resourceActor.Value 

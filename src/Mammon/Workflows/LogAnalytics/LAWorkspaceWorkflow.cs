@@ -20,13 +20,14 @@ public class LAWorkspaceWorkflow : Workflow<SplittableResourceRequest, bool>
 			var gaps = await context.CallActivityAsync<IEnumerable<string>>(nameof(IdenfityLAWorkspaceRefGapsActivity),
 				new IdentifyMissingLAWorkspaceReferencesRequest
 				{
-					ReportId = request.ReportRequest.ReportId,
+					SubscriptionId = request.ReportRequest.SubscriptionId,
+                    ReportId = request.ReportRequest.ReportId,
 					Data = elements
 				});
 
 			/* these stand outside of cost api, and are assumed to be allocated purely by LA splitting - no tag*/
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-					new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = gaps.Select(i => new ResourceCostResponse { ResourceId = i, Cost = new(0, request.Resource.Cost.Currency), Tags = []}) },
+					new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = gaps.Select(i => new ResourceCostResponse { ResourceId = i, Cost = new(0, request.Resource.Cost.Currency), Tags = []}), SubscriptionId = request.ReportRequest.SubscriptionId },
 					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}".ToSanitizedInstanceId() });
 
 			await context.CallActivityAsync<bool>(nameof(SplitLAWorkspaceCostsActivity),
@@ -39,7 +40,7 @@ public class LAWorkspaceWorkflow : Workflow<SplittableResourceRequest, bool>
 		else
 		{
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
-				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource] },
+				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource], SubscriptionId = request.ReportRequest.SubscriptionId },
 				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(LAWorkspaceWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}".ToSanitizedInstanceId() });
 		}
 

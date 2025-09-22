@@ -3,8 +3,22 @@
 public record CostReportRequest
 {
     public required string ReportId { get; set; }
-    public  DateTime CostFrom { get; set; }
-    public  DateTime CostTo { get; set; }
+    public DateTime CostFrom { get; set; }
+    public DateTime CostTo { get; set; }
+}
+
+public record SubscriptionCostReportRequest : CostReportRequest
+{
+    public required string SubscriptionId { get; set; }
+
+    public static SubscriptionCostReportRequest FromCostReportRequest(CostReportRequest request, string subscriptionId) =>
+        new SubscriptionCostReportRequest
+        {
+            ReportId = request.ReportId,
+            CostFrom = request.CostFrom,
+            CostTo = request.CostTo,
+            SubscriptionId = subscriptionId
+        };
 }
 
 public class CostReportRequestValidator : AbstractValidator<CostReportRequest>
