@@ -19,12 +19,10 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
 
         var workflowName = $"{nameof(TenantWorkflow)}_{@event.Data.ReportId}";
 
-        WorkflowState? workflowInstance;
-        try
-        {
-            workflowInstance = await workflowClient.GetWorkflowStateAsync(workflowName);
-        }
-        catch (RpcException ex) when (ex.StatusCode == Grpc.Core.StatusCode.Unknown)
+        var workflowInstance = await workflowClient.GetWorkflowStateAsync(workflowName);
+
+        // if unknown, just reset
+        if (workflowInstance.RuntimeStatus == WorkflowRuntimeStatus.Unknown)
         {
             workflowInstance = null;
         }

@@ -22,7 +22,7 @@
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="*" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="*" />
     <PackageReference Include="System.Formats.Asn1" Version="8.*" />
-    <PackageReference Include="System.Text.Json" Version="8.*" />
+    <PackageReference Include="System.Text.Json" Version="9.*" />
   </ItemGroup>
 
   <ItemGroup>
