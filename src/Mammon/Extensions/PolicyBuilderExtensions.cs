@@ -2,25 +2,38 @@
 
 public static class PolicyBuilderExtensions
 {
-    private const string retryAfterHeader = "x-ms-ratelimit-microsoft.costmanagement-clienttype-retry-after";
+    private const string EntityRetryAfterHeader = "x-ms-ratelimit-microsoft.costmanagement-entity-retry-after";
+    private const string ClientTypeRetryAfterHeader = "x-ms-ratelimit-microsoft.costmanagement-clienttype-retry-after";
 
-    public static AsyncRetryPolicy<HttpResponseMessage> AddCostManagementRetryPolicy(this PolicyBuilder<HttpResponseMessage> builder)
+    public static AsyncRetryPolicy<HttpResponseMessage> AddCostManagementRetryPolicy(
+        this PolicyBuilder<HttpResponseMessage> builder)
     {
-        return builder.WaitAndRetryAsync(3, 
-            (i, resp, ctx) => {
+        return builder.WaitAndRetryAsync(
+            retryCount: 3,
+            sleepDurationProvider: (i, resp, ctx) =>
+            {
                 if (resp.Result.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    var header = resp.Result.Headers.GetValues(retryAfterHeader)
-                        .FirstOrDefault();
+                    var header = GetHeaderValue(resp.Result, EntityRetryAfterHeader)
+                                 ?? GetHeaderValue(resp.Result, ClientTypeRetryAfterHeader);
 
-                    if (!string.IsNullOrWhiteSpace(header))
-                        return TimeSpan.FromSeconds(Convert.ToDouble(header));
+                    if (!string.IsNullOrWhiteSpace(header) && double.TryParse(header, out var seconds))
+                    {
+                        return TimeSpan.FromSeconds(seconds);
+                    }
                 }
 
                 return TimeSpan.FromMinutes(Math.Pow(2, i));
-            }
-            ,(resp, ts, i, ctx) => {
-                return Task.CompletedTask;
-            });
+            },
+            onRetryAsync: (resp, ts, i, ctx) => Task.CompletedTask
+        );
+    }
+
+    private static string? GetHeaderValue(HttpResponseMessage response, string headerName)
+    {
+        return response.Headers.TryGetValues(headerName, out var values)
+            ? values.FirstOrDefault()
+            : null;
     }
 }
+
