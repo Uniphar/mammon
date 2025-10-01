@@ -41,6 +41,10 @@
 	</style>
 </head>
 <body>
+	@if(Model.IsIntTest)
+	{
+		<h1>This is an int test report</h1>
+	}
 	<h1>Cost Breakdown</h1>
 	<p class="dateRow">From : @Model.ReportFromDateTime.ToString("dd/MM/yyyy") (inclusive) To: @Model.ReportToDateTime.ToString("dd/MM/yyyy") (inclusive)</p>
 	@{
