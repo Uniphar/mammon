@@ -41,6 +41,13 @@
 	</style>
 </head>
 <body>
+@{
+#if DEBUG || INTTEST
+    ;
+    <h1>This is an integration test report</h1>
+#endif
+}
+
 	<h1>Cost Breakdown</h1>
 	<p class="dateRow">From : @Model.ReportFromDateTime.ToString("dd/MM/yyyy") (inclusive) To: @Model.ReportToDateTime.ToString("dd/MM/yyyy") (inclusive)</p>
 	@{

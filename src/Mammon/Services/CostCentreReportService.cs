@@ -182,7 +182,7 @@ public class CostCentreReportService(
                     var nodeClass = costCentreRuleEngine.ClassifyPivot(pivotGroup.First());
                     var environment = costCentreRuleEngine.LookupEnvironment(pivotGroup.Key.SubscriptionId);
 
-                    emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, new ResourceCost(pivotGroup.Select(x => x.Cost)), nodeClass);
+                    emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, new ResourceCost(pivotGroup.Select(x => x.Cost), true), nodeClass);
                 }
             }
         }

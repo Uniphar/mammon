@@ -52,17 +52,17 @@ public record ResourceCost
 	[SetsRequiredMembers]
 	public ResourceCost(decimal costValue, string currency)
 	{
-		Cost = decimal.Round(costValue, 2);
+		Cost = costValue;
 		Currency = currency;
 	}
 
 	[SetsRequiredMembers]
-	public ResourceCost(IEnumerable<ResourceCost> costs)
+	public ResourceCost(IEnumerable<ResourceCost> costs, bool round = false)
 	{
 		if (!costs.All(x => x.Currency == costs.First().Currency))
 			throw new ArgumentException("All costs must have the same currency");
 
-		Cost = decimal.Round(costs.Sum(x => x.Cost), 2);
+		Cost = round ? decimal.Round(costs.Sum(x => x.Cost), 2) : costs.Sum(x => x.Cost);
 		Currency = costs.FirstOrDefault()?.Currency ?? "NA";
 	}
 
