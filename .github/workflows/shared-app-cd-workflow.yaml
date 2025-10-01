@@ -66,7 +66,6 @@ jobs:
   app_integration_tests_dev_mocked:
     needs: app_deployment_dev_mocked
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
-    continue-on-error: true
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
