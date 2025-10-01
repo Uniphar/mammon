@@ -166,10 +166,6 @@ public class CostCentreReportService(
 
         CostCentreReportModel emailReportModel = new() { ReportId = reportRequest.ReportId, ReportFromDateTime = reportRequest.CostFrom, ReportToDateTime = reportRequest.CostTo };
 
-#if (DEBUG || INTTEST)
-        emailReportModel.IsIntTest = true;
-#endif
-
         foreach (var costCentre in costCentreStates)
         {
             var pivots = costCentre.Value.ResourceCosts?.Select(x => costCentreRuleEngine.ProjectCostReportPivotEntry(x.Key, x.Value));

@@ -6,7 +6,6 @@ public class CostCentreReportModel
 	public string ReportId { get; set; } = string.Empty;
 	public DateTime ReportFromDateTime { get; set; }
 	public DateTime ReportToDateTime { get; set; }
-	public bool IsIntTest { get; set; } = false;
 
 	public void AddLeaf(string costCentre, string rgName, string environment, ResourceCost cost, string? nodeClass)
 	{
