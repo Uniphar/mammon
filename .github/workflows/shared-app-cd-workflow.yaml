@@ -93,7 +93,6 @@ jobs:
       applicationName: ${{ inputs.applicationName }}
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
 
-
   app_integration_tests_dev:
     needs: app_deployment_dev
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
@@ -102,7 +101,7 @@ jobs:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_DEV_SUBSCRIPTION_ID }}
       ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
-      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.AZURE_AUTH_APP_PRIVATE_KEY }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
     with:
       environment: dev
       applicationFolder: ${{ inputs.applicationFolder }}
