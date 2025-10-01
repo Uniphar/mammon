@@ -66,7 +66,7 @@ jobs:
   app_integration_tests_dev_mocked:
     needs: app_deployment_dev_mocked
     uses: ./.github/workflows/shared-app-integration-tests-workflow.yaml
-+   continue-on-error: true
+    continue-on-error: true
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
@@ -77,10 +77,10 @@ jobs:
       environment: dev
       applicationFolder: ${{ inputs.applicationFolder }}
       mockCostAndLogQueryApis: true
-  
+
   app_deployment_dev:
     needs: [app_package, app_integration_tests_dev_mocked]
-+   if: always()
+    if: always()
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -93,6 +93,7 @@ jobs:
       applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
       applicationVersion: ${{ needs.app_package.outputs.applicationVersion }}
+
 
   app_integration_tests_dev:
     needs: app_deployment_dev
