@@ -141,6 +141,7 @@ builder.Services
     .AddSingleton<AKSService>()
     .AddSingleton<SQLPoolService>()
     .AddSingleton<VDIService>()
+    .AddSingleton<SqlFailoverService>()
     .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {
