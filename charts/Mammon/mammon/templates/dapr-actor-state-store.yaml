@@ -22,4 +22,4 @@ spec:
   - name: actorStateStore
     value: "true"
 scopes:
-- {{ .Chart.Name }}
+- {{ include "mammon.uniqueAppName" .}}
