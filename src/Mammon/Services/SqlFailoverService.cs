@@ -2,9 +2,7 @@
 
 namespace Mammon.Services;
 
-public class SqlFailoverService(
-    ArmClient armClient,
-    ILogger<SqlFailoverService> logger)
+public class SqlFailoverService(ArmClient armClient, ILogger<SqlFailoverService> logger)
 {
     public async Task<string?> ResolvePrimaryPoolResourceIdAsync(string secondaryPoolResourceId)
     {
@@ -28,22 +26,18 @@ public class SqlFailoverService(
                 return null;
             }
 
-            var fgCollection = server.GetFailoverGroups();
-            await foreach (var fg in fgCollection.GetAllAsync())
+            var allDatabases = new List<SqlDatabaseResource>();
+            await foreach (var db in server.GetSqlDatabases().GetAllAsync())
+                allDatabases.Add(db);
+
+            var dbsByFailoverGroup = allDatabases
+                .Where(db => db.Data.FailoverGroupId is not null)
+                .GroupBy(db => db.Data.FailoverGroupId!.ToString(), StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(g => g.Key, g => g.Select(db => db.Data.Name).ToHashSet(StringComparer.OrdinalIgnoreCase));
+
+            await foreach (var fg in server.GetFailoverGroups().GetAllAsync())
             {
-                var fgDbNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-                var dbCollection = server.GetSqlDatabases();
-                await foreach (var db in dbCollection.GetAllAsync())
-                {
-                    if (db.Data.FailoverGroupId is not null &&
-                        string.Equals(db.Data.FailoverGroupId.ToString(), fg.Id.ToString(), StringComparison.OrdinalIgnoreCase))
-                    {
-                        fgDbNames.Add(db.Data.Name);
-                    }
-                }
-
-                if (fgDbNames.Count == 0)
+                if (!dbsByFailoverGroup.TryGetValue(fg.Id.ToString(), out var fgDbNames))
                     continue;
 
                 if (!poolDbNames.Overlaps(fgDbNames))
