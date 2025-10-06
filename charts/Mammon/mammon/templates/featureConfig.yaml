@@ -4,7 +4,7 @@ metadata:
   name: {{ .Chart.Name }}-featureconfig
 spec:
   features:
-    - enabled: false
+    - enabled: true
       name: SchedulerReminders
   metric:
     enabled: true

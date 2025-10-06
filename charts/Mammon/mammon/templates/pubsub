@@ -8,3 +8,5 @@ spec:
   metadata:
   - name: namespaceName
     value: "{{ .Values.SBNamespaceName }}.servicebus.windows.net"
+  - name: consumerID
+    value: mammon
