@@ -12,32 +12,63 @@ public class SqlFailoverService(
         {
             var poolId = new ResourceIdentifier(secondaryPoolResourceId);
             var pool = armClient.GetElasticPoolResource(poolId);
-
             var poolResponse = await pool.GetAsync();
             var poolName = poolResponse.Value.Data.Name;
 
-            // Parent is the SQL server
             var serverId = poolId.Parent;
             var server = armClient.GetSqlServerResource(serverId);
 
-            // Get all failover groups for this server
-            FailoverGroupCollection fgCollection = server.GetFailoverGroups();
+            var poolDbNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            await foreach (var db in pool.GetDatabasesAsync())
+                poolDbNames.Add(db.Data.Name);
 
-            await foreach (FailoverGroupResource fg in fgCollection.GetAllAsync())
+            if (poolDbNames.Count == 0)
             {
-                // Each failover group has partner servers
+                logger.LogInformation("No databases found in secondary pool {PoolId}", secondaryPoolResourceId);
+                return null;
+            }
+
+            var fgCollection = server.GetFailoverGroups();
+            await foreach (var fg in fgCollection.GetAllAsync())
+            {
+                var fgDbNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                var dbCollection = server.GetSqlDatabases();
+                await foreach (var db in dbCollection.GetAllAsync())
+                {
+                    if (db.Data.FailoverGroupId is not null &&
+                        string.Equals(db.Data.FailoverGroupId.ToString(), fg.Id.ToString(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        fgDbNames.Add(db.Data.Name);
+                    }
+                }
+
+                if (fgDbNames.Count == 0)
+                    continue;
+
+                if (!poolDbNames.Overlaps(fgDbNames))
+                    continue;
+
                 var primaryPartner = fg.Data.PartnerServers
                     .FirstOrDefault(p => p.ReplicationRole == FailoverGroupReplicationRole.Primary);
 
-                if (primaryPartner is not null)
+                if (primaryPartner is null)
                 {
-                    // Build elastic pool id for the primary
-                    var primaryPoolId = $"{primaryPartner.Id}/elasticPools/{poolName}";
-                    return primaryPoolId;
+                    logger.LogWarning(
+                        "Failover group {FailoverGroupName} matched databases but has no primary partner",
+                        fg.Data.Name);
+                    continue;
                 }
+
+                var primaryPoolId = $"{primaryPartner.Id}/elasticPools/{poolName}";
+                logger.LogInformation(
+                    "Resolved primary pool {PrimaryPoolId} for secondary {SecondaryPoolId} via failover group {FailoverGroupName}",
+                    primaryPoolId, secondaryPoolResourceId, fg.Data.Name);
+
+                return primaryPoolId;
             }
 
-            logger.LogInformation("No failover group found for {PoolId}", secondaryPoolResourceId);
+            logger.LogInformation("No matching failover group found for {PoolId}", secondaryPoolResourceId);
             return null;
         }
         catch (Exception ex)
@@ -47,4 +78,3 @@ public class SqlFailoverService(
         }
     }
 }
-
