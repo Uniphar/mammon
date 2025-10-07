@@ -8,6 +8,8 @@ public class SqlFailoverService(ArmClient armClient, ILogger<SqlFailoverService>
     {
         try
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(secondaryPoolResourceId, nameof(secondaryPoolResourceId));
+
             var poolId = new ResourceIdentifier(secondaryPoolResourceId);
             var pool = armClient.GetElasticPoolResource(poolId);
             var poolResponse = await pool.GetAsync();
