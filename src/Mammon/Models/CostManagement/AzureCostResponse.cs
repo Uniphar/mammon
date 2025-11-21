@@ -1,4 +1,6 @@
-﻿namespace Mammon.Models.CostManagement;
+﻿using JsonIgnoreAttribute = Newtonsoft.Json.JsonIgnoreAttribute;
+
+namespace Mammon.Models.CostManagement;
 
 public class AzureCostResponse : List<ResourceCostResponse>
 {
@@ -21,8 +23,8 @@ public class ResourceCostResponse
 {
 	public required string ResourceId { get; set; }
 
-	[JsonIgnore]
-	public ResourceIdentifier ResourceIdentifier => new(ResourceId);
+    [JsonIgnore]
+    public ResourceIdentifier ResourceIdentifier => new(ResourceId);
 
 	public required ResourceCost Cost { get; set; }
 	public required Dictionary<string, string> Tags { get; set; }
@@ -73,4 +75,12 @@ public record ResourceCost
 	{
 		return $"{Currency} {Cost:F}";
 	}
+}
+
+public sealed class DevOpsCostResponse
+{
+    public ResourceCost Cost { get; set; } = default!;
+    public string Product { get; set; } = string.Empty;
+    public string MeterSubcategory { get; set; } = string.Empty;
+    public Dictionary<string, string> Tags { get; set; } = new();
 }

@@ -33,7 +33,7 @@
     <PackageReference Include="Dapr.Actors" Version="*" />
     <PackageReference Include="Dapr.Workflow" Version="*" />
     <PackageReference Include="Dapr.Actors.AspNetCore" Version="*" />
-    <PackageReference Include="Westwind.AspNetCore" Version="*" />
+    <PackageReference Include="Westwind.AspNetCore" Version="4.0.*" />
   </ItemGroup>
 
   <ItemGroup>

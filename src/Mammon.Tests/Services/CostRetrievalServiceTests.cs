@@ -26,7 +26,7 @@ public class CostRetrievalServiceTests
         var service = new TestCostRetrievalService(Mock.Of<ArmClient>(), mockHttp.ToHttpClient(), Mock.Of<ILogger<CostRetrievalService>>());
 
         //test
-        var result = await service.QueryForSubAsync(
+        var result = await service.QueryResourceCostForSubAsync(
             new ObtainCostsActivityRequest
 			{
                 SubscriptionName = "blah",               

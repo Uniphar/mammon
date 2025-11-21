@@ -206,7 +206,7 @@ public class TenantWorkflowTests
 			var httpClientFactory = _host!.Services.GetRequiredService<IHttpClientFactory>();
 			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), _config!, Mock.Of<ILogger<CostRetrievalService>>());
 
-			var response = await _costRetrievalService!.QueryForSubAsync(request);
+			var response = await _costRetrievalService!.QueryResourceCostForSubAsync(request);
 			total += response.TotalCost;
 		}
 

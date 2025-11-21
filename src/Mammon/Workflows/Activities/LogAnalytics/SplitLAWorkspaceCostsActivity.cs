@@ -6,7 +6,8 @@ public class SplitLAWorkspaceCostsActivity : WorkflowActivity<SplitUsageActivity
 	{
 		ResourceIdentifier rId = new(input.Request.Resource.ResourceId);
 
-		await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ILAWorkspaceActor>(LAWorkspaceActor.GetActorId(input.Request.ReportRequest.ReportId, rId.Name, rId.SubscriptionId!), nameof(LAWorkspaceActor),
+		await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ILAWorkspaceActor>(
+			LAWorkspaceActor.GetActorId(input.Request.ReportRequest.ReportId, rId.Name, rId.SubscriptionId!), nameof(LAWorkspaceActor),
 			async (p) => await p.SplitCost(input.Request, input.Data ));
 
 		return true;

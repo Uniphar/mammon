@@ -9,8 +9,9 @@ public static class Consts
 
 	public const string ConfigKeyVaultConfigEnvironmentVariable = "MAMMON_CONFIG_KEYVAULT_URL";
 	public const string CostCentreRuleEngineFilePathConfigKey = "Mammon:CostCentreRuleEngineFilePath";
+	public const string CostCentreRuleEngineDevOpsConfigKey = "Mammon:CostCentreRuleEngineDevOpsConfigFilePath";
 
-	public const string ReportBillingPeriodStartDayInMonthConfigKey = "Mammon:ReportSettings:BillingPeriodStartDayInMonth";
+    public const string ReportBillingPeriodStartDayInMonthConfigKey = "Mammon:ReportSettings:BillingPeriodStartDayInMonth";
 
 	public const string ReportSubjectConfigKey = "Mammon:EmailSettings:SubjectFormat";
 	public const string ReportToAddressesConfigKey = "Mammon:EmailSettings:ToAddresses";

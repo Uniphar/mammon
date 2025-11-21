@@ -24,10 +24,8 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
                 logger.LogWarning($"Resource {resourceId} already exists in cost centre {Id}");
             }
 
-			state.TotalCost = new ResourceCost(state.ResourceCosts.Values);			
-
+            UpdateTotalCost(state);
             await SaveStateAsync(CostStateName, state);
-           
         }
         catch (Exception ex)
         {
@@ -36,8 +34,75 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
         }
     }
 
-	public async Task<CostCentreActorState> GetCostsAsync()
-	{
+    public async Task AddDevOpsUnassignedCostAsync(ResourceCost cost)
+    {
+        try
+        {
+            var state = await GetStateAsync(CostStateName);
+
+            state.DevOpsProjectCosts ??= [];
+
+            if (!state.DevOpsProjectCosts.TryAdd("Licenses without active groups", new Dictionary<string, ResourceCost>()
+            {
+                { "Unassigned ", cost}
+            }))
+            {
+                //log this - this is either logical error or dapr retrying actor call
+                logger.LogWarning($"Unassigned DevOps cost already exists in cost centre {Id}");
+
+            }
+
+            UpdateTotalCost(state);
+            await SaveStateAsync(CostStateName, state);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Failure in CostCentreActor.AddCost (ActorId:{Id})");
+            throw;
+        }
+    }
+
+    public async Task AddDevOpsLicenseCostAsync(Dictionary<string, Dictionary<string, ResourceCost>> projectToGroupCosts)
+    {
+        try
+        {
+            var state = await GetStateAsync(CostStateName);
+
+            state.DevOpsProjectCosts ??= [];
+
+            foreach(var project in projectToGroupCosts)
+            {
+                if (!state.DevOpsProjectCosts.TryAdd(project.Key, project.Value))
+                {
+                    //log this - this is either logical error or dapr retrying actor call
+                    logger.LogWarning($"DevOps Project {project.Key} already exists in cost centre {Id}");
+                }
+            }
+
+            UpdateTotalCost(state);
+            await SaveStateAsync(CostStateName, state);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Failure in CostCentreActor.AddCost (ActorId:{Id})");
+            throw;
+        }
+    }
+
+    public async Task<CostCentreActorState> GetCostsAsync()
+    {
         return await GetStateAsync(CostStateName);
-	}	
+    }
+
+    private static void UpdateTotalCost(CostCentreActorState state)
+    {
+        if (state.DevOpsProjectCosts == null)
+        {
+            state.TotalCost = new ResourceCost(state.ResourceCosts.Values);
+            return;
+        }
+
+        state.TotalCost = new ResourceCost(state.DevOpsProjectCosts.Values
+            .SelectMany(dict => dict.Values).Concat(state.ResourceCosts.Values));
+    }
 }

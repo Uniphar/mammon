@@ -168,10 +168,10 @@ public class CostCentreReportService(
 
         foreach (var costCentre in costCentreStates)
         {
-            var pivots = costCentre.Value.ResourceCosts?.Select(x => costCentreRuleEngine.ProjectCostReportPivotEntry(x.Key, x.Value));
-            if (pivots != null)
+            var resourceCostsPivots = costCentre.Value.ResourceCosts?.Select(x => costCentreRuleEngine.ProjectCostReportPivotEntry(x.Key, x.Value));
+            if (resourceCostsPivots != null)
             {
-                var pivotGroups = pivots.GroupBy(x => (x.PivotName, x.SubscriptionId)).ToList();
+                var pivotGroups = resourceCostsPivots.GroupBy(x => (x.PivotName, x.SubscriptionId)).ToList();
 
                 pivotGroups.Sort(new PivotDefinitionComparer());
 
@@ -183,6 +183,20 @@ public class CostCentreReportService(
                     var environment = costCentreRuleEngine.LookupEnvironment(pivotGroup.Key.SubscriptionId);
 
                     emailReportModel.AddLeaf(costCentre.Key, pivotName, environment, new ResourceCost(pivotGroup.Select(x => x.Cost), true), nodeClass);
+                }
+            }
+
+            if (costCentre.Value.DevOpsProjectCosts is not null)
+            {
+                foreach(var devOpsProjectCost in costCentre.Value.DevOpsProjectCosts)
+                {
+                    var projectName = devOpsProjectCost.Key;
+                    foreach (var envCost in devOpsProjectCost.Value)
+                    {
+                        var environment = envCost.Key;
+                        var cost = envCost.Value;
+                        emailReportModel.AddLeaf(costCentre.Key, projectName, environment, cost, "DevOps Project");
+                    }
                 }
             }
         }
@@ -202,6 +216,7 @@ public class CostCentreReportService(
             From = new Contact { Email = EmailFromAddress, Name = EmailFromAddress },
             Subject = string.Format(EmailSubject, reportRequest.ReportId),
             To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
+            //To = [new Contact() { Email = "aandrei@uniphar.ie", Name = "Andrei Andrei" }], //TODO: remove test address]
             Attachments = [attachmentUri]
         };
 

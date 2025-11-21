@@ -10,14 +10,15 @@ public class TenantWorkflow : Workflow<TenantWorkflowRequest, bool>
 
 		foreach (var subscription in input.Subscriptions)
 		{
-            pendingWorkflows.Add(context.CallChildWorkflowAsync<bool>(nameof(SubscriptionWorkflow),
+			pendingWorkflows.Add(context.CallChildWorkflowAsync<bool>(nameof(SubscriptionWorkflow),
 				new CostReportSubscriptionRequest
 				{
 					SubscriptionId = subscription.SubscriptionId,
                     SubscriptionName = subscription.SubscriptionName,
-					ReportRequest = input.ReportRequest
-				},
-				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SubscriptionWorkflow)}{subscription}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() }));
+					ReportRequest = input.ReportRequest,
+					DevOpsOrganization = subscription.DevOpsOrganization,
+                },
+				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SubscriptionWorkflow)}{subscription.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() }));
 		}
 
         await Task.WhenAll(pendingWorkflows);
