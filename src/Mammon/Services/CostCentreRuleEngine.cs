@@ -43,7 +43,7 @@ public class CostCentreRuleEngine
             throw new InvalidOperationException($"Unable to locate file: {filePath}");
 
         var definition = JsonSerializer.Deserialize<CostCentreDefinition>(new FileStream(filePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions)
-            ?? throw new InvalidOperationException("Unable to deserialize Cost centre definition");
+                         ?? throw new InvalidOperationException("Unable to deserialize Cost centre definition");
 
         new CostCentreDefinitionValidator().ValidateAndThrow(definition);
 
@@ -52,7 +52,8 @@ public class CostCentreRuleEngine
         if (string.IsNullOrWhiteSpace(devOpsConfigFilePath) || !File.Exists(devOpsConfigFilePath))
             throw new InvalidOperationException($"Unable to locate DevOps config file: {devOpsConfigFilePath}");
 
-        var devOpsConfigDefinition = JsonSerializer.Deserialize<DevOpsCostCentreDefinition>(new FileStream(devOpsConfigFilePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions)
+        var devOpsConfigDefinition =
+            JsonSerializer.Deserialize<DevOpsCostCentreDefinition>(new FileStream(devOpsConfigFilePath, FileMode.Open, FileAccess.Read), jsonSerializerOptions)
             ?? throw new InvalidOperationException("Unable to deserialize DevOps Cost centre definition");
 
         new DevOpsCostCentreDefinitionValidator().ValidateAndThrow(devOpsConfigDefinition);
@@ -204,8 +205,6 @@ public class CostCentreRuleEngine
     {
         ArgumentNullException.ThrowIfNull(pivotDefinition);
 
-        if (pivotDefinition.IsDevOpsLicenses()) return "DevOps Licenses";
-
         ResourceIdentifier rId = new(pivotDefinition.ResourceId);
         if (IsModeEnabled(DevBoxSpecialMode) && rId.IsDevBoxPool())
         {
@@ -244,9 +243,4 @@ public record CostReportPivotEntry
     public required string ResourceId { get; set; }
     public required string SubscriptionId { get; set; }
     public required ResourceCost Cost { get; set; }
-
-    public bool IsDevOpsLicenses()
-    {
-        return PivotName.Equals("DevOpsLicenses", StringComparison.OrdinalIgnoreCase);
-    }
 }
