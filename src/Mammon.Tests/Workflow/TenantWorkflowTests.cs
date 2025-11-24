@@ -99,7 +99,9 @@ public class TenantWorkflowTests
     [TestMethod, TestCategory("MockedIntegrationTest")]
     public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
 	{
-		decimal expectedTotal = 11675.26m;
+		var expectedResourcesTotal = 11675.26m;
+		var expectedDevOpsLicensesTotal = 400.0m;
+		decimal expectedTotal = expectedResourcesTotal + expectedDevOpsLicensesTotal;
 
         await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
         {

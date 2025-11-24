@@ -91,6 +91,9 @@ jobs:
       - name: add cost centre rule file
         run: cp ./costcentre-definitions/costCentreRules.json src
 
+      - name: add cost centre rule file
+        run: cp ./costcentre-definitions/costCentreDevOpsRules.json
+
       - name: docker build - release
         working-directory: ./src
         run:  docker build . -f ./$APPLICATION_FOLDER/Dockerfile -t $IMAGE_REPOSITORY:$APPLICATION_VERSION -t $IMAGE_REPOSITORY:latest
