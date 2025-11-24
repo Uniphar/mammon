@@ -12,8 +12,7 @@ public record CostReportSubscriptionRequest
 public enum GroupingMode
 {
 	Resource,
-	Subscription,
-    Product,
+	Subscription
 }
 
 public class CostReportSubscriptionRequestValidator : AbstractValidator<CostReportSubscriptionRequest>

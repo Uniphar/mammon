@@ -343,4 +343,12 @@ public class CostRetrievalService
 
         return (result.Properties!.NextLink, costs);
     }
+
+    public sealed class DevOpsCostResponse
+    {
+        public ResourceCost Cost { get; set; } = default!;
+        public string Product { get; set; } = string.Empty;
+        public string MeterSubcategory { get; set; } = string.Empty;
+        public Dictionary<string, string> Tags { get; set; } = new();
+    }
 }
