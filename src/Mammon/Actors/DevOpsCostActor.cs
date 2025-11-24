@@ -6,7 +6,7 @@ public class DevOpsCostActor(
 	CostCentreRuleEngine costCentreRuleEngine) 
 	: ActorBase<CoreResourceActorState>(actorHost), IDevOpsCostActor
 {
-    public async Task SplitCost(DevopsResourceRequest request)
+    public async Task SplitCostAsync(DevopsResourceRequest request)
     {
 		ArgumentNullException.ThrowIfNull(request);
 

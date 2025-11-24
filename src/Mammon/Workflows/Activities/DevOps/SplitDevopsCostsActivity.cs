@@ -8,7 +8,7 @@ public class SplitDevopsCostsActivity : WorkflowActivity<DevopsResourceRequest, 
 
 		await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IDevOpsCostActor>(
 			DevOpsCostActor.GetActorId(input.ReportRequest.ReportId, "DevOps", input.ReportRequest.SubscriptionId), nameof(DevOpsCostActor),
-			async (p) => await p.SplitCost(input));
+			async (p) => await p.SplitCostAsync(input));
 		return true;
     }
 }

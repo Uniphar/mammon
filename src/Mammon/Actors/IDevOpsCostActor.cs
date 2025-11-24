@@ -2,5 +2,5 @@
 
 public interface IDevOpsCostActor : IActor
 {
-	Task SplitCost(DevopsResourceRequest request);
+	Task SplitCostAsync(DevopsResourceRequest request);
 }

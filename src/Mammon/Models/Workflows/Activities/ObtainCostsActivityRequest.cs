@@ -16,7 +16,7 @@ public record ObtainDevOpsUsersActivityRequest
 
 public record PaginatedMemberEntitlementsRequest : ObtainDevOpsUsersActivityRequest
 {
-	public required string? ContinuationToken { get; init; } 
+	public string? ContinuationToken { get; init; } 
 }
 
 public record PaginatedMemberEntitlementsResult
