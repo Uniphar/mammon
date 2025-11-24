@@ -96,13 +96,24 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
 
     private static void UpdateTotalCost(CostCentreActorState state)
     {
-        if (state.DevOpsProjectCosts == null)
+        ResourceCost? totalCost = null;
+
+        if (state.DevOpsProjectCosts is not null)
         {
-            state.TotalCost = new ResourceCost(state.ResourceCosts.Values);
-            return;
+            var devOpsCosts = new ResourceCost(state.DevOpsProjectCosts.Values.SelectMany(t => t.Values));
+            totalCost = totalCost is null
+                ? devOpsCosts
+                : new ResourceCost([totalCost, devOpsCosts]);
         }
 
-        state.TotalCost = new ResourceCost(state.DevOpsProjectCosts.Values
-            .SelectMany(dict => dict.Values).Concat(state.ResourceCosts.Values));
+        if (state.ResourceCosts is not null && state.ResourceCosts.Count > 0)
+        {
+            var resourceCosts = new ResourceCost(state.ResourceCosts.Values);
+            totalCost = totalCost is null
+                ? resourceCosts
+                : new ResourceCost([totalCost, resourceCosts]);
+        }
+
+        state.TotalCost = totalCost;
     }
 }
