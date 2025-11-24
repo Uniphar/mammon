@@ -124,7 +124,9 @@ public record DevOpsProjectsCosts
     public bool IsEmpty() => UnassignedCost == null && ProjectCosts.Count == 0;
 }
 
-
+/// <summary>
+/// eg. { "Dawn", { { "Project Contributors" : { Cost : 25.43m, Currency: "EUR" } , } } 
+/// </summary>
 public record DevOpsProjectCost
 {
     public required string ProjectName { get; set; } = string.Empty;

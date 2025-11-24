@@ -1,6 +1,6 @@
-﻿namespace Mammon.Workflows.Activities;
+﻿namespace Mammon.Workflows.Activities.DevOps;
 
-public class ObtainDevOpsProjectCostActivity(AzureDevOpsClient azureDevOpsClient) : WorkflowActivity<ObtainDevOpsProjectCostRequest, DevOpsProjectsCosts>
+public class DevOpsProjectCostsActivity : WorkflowActivity<DevOpsMapProjectCostsActivityRequest, DevOpsProjectsCosts>
 {
     private const string BasicLicenseName = "Basic";
     private const string BasicPlusTestPlansLicenseName = "Basic + Test Plans";
@@ -18,23 +18,13 @@ public class ObtainDevOpsProjectCostActivity(AzureDevOpsClient azureDevOpsClient
         "Project Readers"
     ];
 
-    public override async Task<DevOpsProjectsCosts> RunAsync(WorkflowActivityContext context, ObtainDevOpsProjectCostRequest input)
+    public override async Task<DevOpsProjectsCosts> RunAsync(WorkflowActivityContext context, DevOpsMapProjectCostsActivityRequest input)
     {
-        if (string.IsNullOrWhiteSpace(input.DevOpsOrganization))
-            return new DevOpsProjectsCosts
-            {
-                ProjectCosts = [],
-                UnassignedCost = null
-            };
-
-        // Get all members with their entitlements
-        var members = await azureDevOpsClient.GetAllMembersEntitlementsAsync(input.DevOpsOrganization);
-
         var currency = input.LicenseCosts.TotalBasicLicensesCost.Currency;
 
         // Separate users by license type and calculate price per user
-        var basicUsers = members.Where(m => m.AccessLevel.LicenseDisplayName == BasicLicenseName).ToList();
-        var testPlansUsers = members.Where(m => m.AccessLevel.LicenseDisplayName == BasicPlusTestPlansLicenseName).ToList();
+        var basicUsers = input.MemberEntitlements.Where(m => m.AccessLevel.LicenseDisplayName == BasicLicenseName).ToList();
+        var testPlansUsers = input.MemberEntitlements.Where(m => m.AccessLevel.LicenseDisplayName == BasicPlusTestPlansLicenseName).ToList();
 
         var basicPricePerUser = basicUsers.Count > 0 ? input.LicenseCosts.TotalBasicLicensesCost.Cost / basicUsers.Count : 0m;
         var testPlansPricePerUser = testPlansUsers.Count > 0 ? input.LicenseCosts.TotalBasicPlusTestPlansLicensesCost.Cost / testPlansUsers.Count : 0m;
@@ -42,7 +32,7 @@ public class ObtainDevOpsProjectCostActivity(AzureDevOpsClient azureDevOpsClient
 
         // Map users to projects and groups
         // UserId -> [ ProjectName -> Set of Groups ]
-        var userProjects = CreateUsersToProjectsAndGroupsMap(members);
+        var userProjects = CreateUsersToProjectsAndGroupsMap(input.MemberEntitlements);
 
         var projectsToGroupCosts = new Dictionary<string, DevOpsProjectCost>(StringComparer.OrdinalIgnoreCase);
         (projectsToGroupCosts, var unassignedBasicCost) = DistributeSharesAcrossActiveGroups(userProjects, projectsToGroupCosts, basicUsers, basicPricePerUser, currency);

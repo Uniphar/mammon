@@ -14,6 +14,17 @@ public record ObtainDevOpsUsersActivityRequest
 	public string DevOpsOrganization { get; init; } = string.Empty;
 }
 
+public record PaginatedUserEntitlementsRequest : ObtainDevOpsUsersActivityRequest
+{
+	public required string? ContinuationToken { get; init; } 
+}
+
+public record PaginatedUserEntitlementsResult
+{
+	public List<MemberEntitlementItem> Users { get; init; } = [];
+	public string? ContinuationToken { get; init; }
+}
+
 public record ObtainDevOpsCostsActivityRequest : ObtainDevOpsUsersActivityRequest
 {
 	public required string SubscriptionName { get; init; } = string.Empty;
@@ -23,5 +34,11 @@ public record ObtainDevOpsCostsActivityRequest : ObtainDevOpsUsersActivityReques
 
 public record ObtainDevOpsProjectCostRequest : ObtainDevOpsUsersActivityRequest
 {
+	public required string ReportId { get; init; } = string.Empty;
 	public required ObtainLicensesCostWorkflowResult LicenseCosts { get; init; }
+}
+
+public record DevOpsMapProjectCostsActivityRequest : ObtainDevOpsProjectCostRequest
+{
+	public required List<MemberEntitlementItem> MemberEntitlements { get; init; } = [];
 }

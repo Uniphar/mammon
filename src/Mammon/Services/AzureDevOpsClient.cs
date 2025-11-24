@@ -18,59 +18,51 @@ public class AzureDevOpsClient : IDisposable
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    public async Task<List<MemberEntitlementItem>> GetAllMembersEntitlementsAsync(string organization)
+    public async Task<PaginatedUserEntitlementsResult> GetMembersEntitlementsAsync(string organization, string? continuationToken =  null)
     {
         var allMembers = new List<MemberEntitlementItem>();
-        string? continuationToken = null;
-        int totalRetrieved = 0;
-
         _logger.LogInformation($"Fetching members from Azure DevOps organization: {organization}");
+        
+        var url = $"https://vsaex.dev.azure.com/{organization}/_apis/MemberEntitlements?select=license,projects&$orderBy=name Ascending";
 
-        do
+        if (!string.IsNullOrEmpty(continuationToken))
         {
-            var url = $"https://vsaex.dev.azure.com/{organization}/_apis/MemberEntitlements?select=license,projects&$orderBy=name Ascending";
+            url += $"&continuationToken={Uri.EscapeDataString(continuationToken)}";
+        }
 
-            if (!string.IsNullOrEmpty(continuationToken))
+        try
+        {
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
             {
-                url += $"&continuationToken={Uri.EscapeDataString(continuationToken)}";
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Failed to fetch members. Status: {response.StatusCode}, Error: {errorContent}");
             }
 
-            try
+            var content = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<MemberEntitlementsResponse>(content);
+
+            if (result?.Items != null)
             {
-                var response = await _httpClient.GetAsync(url);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    throw new HttpRequestException(
-                        $"Failed to fetch members. Status: {response.StatusCode}, Error: {errorContent}");
-                }
-
-                var content = await response.Content.ReadAsStringAsync();
-                var result = JsonConvert.DeserializeObject<MemberEntitlementsResponse>(content);
-
-                if (result?.Items != null)
-                {
-                    allMembers.AddRange(result.Items);
-                    totalRetrieved += result.Items.Count;
-                    _logger.LogInformation($"Retrieved {totalRetrieved} members so far...");
-                }
-
-                continuationToken = result?.ContinuationToken;
-
-                // TODO: Remove
-                //return allMembers;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Error fetching members: {ex.Message}");
-                throw;
+                allMembers.AddRange(result.Items);
             }
 
-        } while (!string.IsNullOrEmpty(continuationToken));
+            continuationToken = result?.ContinuationToken;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error fetching members: {ex.Message}");
+            throw;
+        }
 
-        _logger.LogInformation($"Total members retrieved: {allMembers.Count}");
-        return allMembers;
+        _logger.LogInformation($"Returned {allMembers.Count} members and their entitlements");
+        return new PaginatedUserEntitlementsResult
+        {
+            Users = allMembers,
+            ContinuationToken = continuationToken
+        };
     }
 
     public class MemberEntitlementsResponse

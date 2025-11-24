@@ -35,6 +35,7 @@ global using Mammon.Utils;
 global using Mammon.Workflows;
 global using Mammon.Workflows.Activities;
 global using Mammon.Workflows.Activities.AKS;
+global using Mammon.Workflows.Activities.DevOps;
 global using Mammon.Workflows.Activities.LogAnalytics;
 global using Mammon.Workflows.Activities.MySQL;
 global using Mammon.Workflows.Activities.SQLPool;
@@ -98,12 +99,14 @@ builder.Services
         config.RegisterWorkflow<VDIWorkflow>();
         config.RegisterWorkflow<ObtainCostByPageWorkflow>();
         config.RegisterWorkflow<ObtainDevOpsCostWorkflow>();
+        config.RegisterWorkflow<ObtainPagedDevOpsMembershipEntitlementsWorkflow>();
         config.RegisterWorkflow<ObtainDevOpsProjectCostWorkflow>();
         config.RegisterWorkflow<MySQLWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<ObtainDevOpsCostsActivity>();
-        config.RegisterActivity<ObtainDevOpsProjectCostActivity>();
+        config.RegisterActivity<DevOpsProjectCostsActivity>();
+        config.RegisterActivity<ObtainPagedDevOpsMembershipEntitlementsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
         config.RegisterActivity<AssignCostCentreActivity>();
         config.RegisterActivity<SendReportViaEmail>();

@@ -1,6 +1,9 @@
 ﻿namespace Mammon.Actors;
 
-public class DevOpsCostActor(ActorHost actorHost, ILogger<DevOpsCostActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) 
+public class DevOpsCostActor(
+	ActorHost actorHost, ILogger<DevOpsCostActor> logger, 
+	CostCentreService costCentreService, 
+	CostCentreRuleEngine costCentreRuleEngine) 
 	: ActorBase<CoreResourceActorState>(actorHost), IDevOpsCostActor
 {
     public async Task SplitCost(DevopsResourceRequest request)

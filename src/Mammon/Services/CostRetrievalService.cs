@@ -43,37 +43,36 @@ public class CostRetrievalService
         if (string.IsNullOrWhiteSpace(request.DevOpsOrganization)) return [];
 
         var costApiRequest = $$"""
-
-                                       {
-                                           "type": "ActualCost",
-                                           "dataSet": {
-                                           "granularity": "None",
-                                           "aggregation": {
-                                               "totalCost": {
-                                               "name": "Cost",
-                                               "function": "Sum"
-                                               }
-                                           },
-                                           "grouping": [
-                                               { "type": "Dimension", "name": "Product" },
-                                               { "type": "Dimension", "name": "MeterSubcategory" }
-                                           ],
-                                           "include": [ "Tags" ],
-                                           "filter": {
-                                               "tags": {
-                                               "name": "_organizationname_",
-                                               "operator": "In",
-                                               "values": [ "{{request.DevOpsOrganization}}" ]
-                                               }
-                                           }
-                                           },
-                                           "timeframe": "Custom",
-                                           "timePeriod": {
-                                           "from": "{{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}}",
-                                           "to": "{{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}}"
-                                           }
+                               {
+                                   "type": "ActualCost",
+                                   "dataSet": {
+                                   "granularity": "None",
+                                   "aggregation": {
+                                       "totalCost": {
+                                       "name": "Cost",
+                                       "function": "Sum"
                                        }
-                               """;
+                                   },
+                                   "grouping": [
+                                       { "type": "Dimension", "name": "Product" },
+                                       { "type": "Dimension", "name": "MeterSubcategory" }
+                                   ],
+                                   "include": [ "Tags" ],
+                                   "filter": {
+                                       "tags": {
+                                       "name": "_organizationname_",
+                                       "operator": "In",
+                                       "values": [ "{{request.DevOpsOrganization}}" ]
+                                       }
+                                   }
+                                   },
+                                   "timeframe": "Custom",
+                                   "timePeriod": {
+                                   "from": "{{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}}",
+                                   "to": "{{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}}"
+                                   }
+                               }
+                       """;
 
         bool nextPageAvailable;
         List<DevOpsCostResponse> responseData = [];
@@ -84,8 +83,6 @@ public class CostRetrievalService
 
         do
         {
-            List<DevOpsCostResponse> costs;
-
             if (string.IsNullOrWhiteSpace(subId))
             {
                 subId = GetSubscriptionFullResourceId(request.SubscriptionName);
@@ -100,7 +97,7 @@ public class CostRetrievalService
 
             response.EnsureSuccessStatusCode();
 
-            (nextLink, costs) = ParseDevOpsRawJson(await response.Content.ReadAsStringAsync());
+            (nextLink, var costs) = ParseDevOpsRawJson(await response.Content.ReadAsStringAsync());
 
             responseData.AddRange(costs);
             nextPageAvailable = !string.IsNullOrWhiteSpace(nextLink);

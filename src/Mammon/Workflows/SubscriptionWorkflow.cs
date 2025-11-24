@@ -86,8 +86,10 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			await TriggerSplittableWorkflowAsync<LAWorkspaceWorkflow>(context, input, laWorkspace);
 		}
 
+		if (string.IsNullOrEmpty(input.DevOpsOrganization)) return true;
+
 		// Get total license costs
-		var devopsCost = await context.CallChildWorkflowAsync<ObtainLicensesCostWorkflowResult>(
+		var devOpsLicenseCosts = await context.CallChildWorkflowAsync<ObtainLicensesCostWorkflowResult>(
 			nameof(ObtainDevOpsCostWorkflow),
             new ObtainDevOpsCostsActivityRequest
             {
@@ -95,22 +97,21 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
                 CostFrom = input.ReportRequest.CostFrom,
                 CostTo = input.ReportRequest.CostTo,
                 DevOpsOrganization = input.DevOpsOrganization
-            },
-			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainDevOpsCostWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
+            });
 
-        // Get project costs from group contributions
-        var projectsCosts = await context.CallChildWorkflowAsync<DevOpsProjectsCosts>(
+		// Get project costs from group contributions
+		var projectsCosts = await context.CallChildWorkflowAsync<DevOpsProjectsCosts>(
 			nameof(ObtainDevOpsProjectCostWorkflow),
-            new ObtainDevOpsProjectCostRequest
-            {
-                DevOpsOrganization = input.DevOpsOrganization,
-                TotalBasicLicensesCost = devopsCost.TotalBasicLicensesCost,
-                TotalBasicPlusTestPlansLicensesCost = devopsCost.TotalBasicPlusTestPlansLicensesCost,
-            },
+			new ObtainDevOpsProjectCostRequest
+			{
+				DevOpsOrganization = input.DevOpsOrganization,
+				LicenseCosts = devOpsLicenseCosts,
+				ReportId = input.ReportRequest.ReportId,
+			},
 			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainDevOpsProjectCostWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
 
-        // Split DevOps costs across cost centres
-        await context.CallChildWorkflowAsync<bool>(
+		// Split DevOps costs across cost centres
+		await context.CallChildWorkflowAsync<bool>(
 			nameof(SplitDevopsCostsWorkflow),
             new DevopsResourceRequest()
             {
