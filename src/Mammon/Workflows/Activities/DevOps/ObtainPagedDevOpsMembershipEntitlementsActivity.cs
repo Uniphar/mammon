@@ -1,12 +1,12 @@
 ﻿namespace Mammon.Workflows.Activities.DevOps;
 
 public class ObtainPagedDevOpsMembershipEntitlementsActivity(AzureDevOpsClient azureDevOpsClient)
-    : WorkflowActivity<PaginatedUserEntitlementsRequest, PaginatedUserEntitlementsResult>
+    : WorkflowActivity<PaginatedMemberEntitlementsRequest, PaginatedMemberEntitlementsResult>
 {
-    public override async Task<PaginatedUserEntitlementsResult> RunAsync(
-        WorkflowActivityContext context, PaginatedUserEntitlementsRequest input)
+    public override async Task<PaginatedMemberEntitlementsResult> RunAsync(
+        WorkflowActivityContext context, PaginatedMemberEntitlementsRequest input)
     {
-        if (string.IsNullOrWhiteSpace(input.DevOpsOrganization)) return new PaginatedUserEntitlementsResult();
+        if (string.IsNullOrWhiteSpace(input.DevOpsOrganization)) return new PaginatedMemberEntitlementsResult();
         
         var pageResponse = await azureDevOpsClient.GetMembersEntitlementsAsync(input.DevOpsOrganization, input.ContinuationToken);
         return pageResponse;

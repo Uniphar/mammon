@@ -18,9 +18,9 @@ public class AzureDevOpsClient : IDisposable
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     }
 
-    public async Task<PaginatedUserEntitlementsResult> GetMembersEntitlementsAsync(string organization, string? continuationToken =  null)
+    public async Task<PaginatedMemberEntitlementsResult> GetMembersEntitlementsAsync(string organization, string? continuationToken =  null)
     {
-        var allMembers = new List<MemberEntitlementItem>();
+        var memberEntitlements = new List<MemberEntitlementItem>();
         _logger.LogInformation($"Fetching members from Azure DevOps organization: {organization}");
         
         var url = $"https://vsaex.dev.azure.com/{organization}/_apis/MemberEntitlements?select=license,projects&$orderBy=name Ascending";
@@ -32,6 +32,10 @@ public class AzureDevOpsClient : IDisposable
 
         try
         {
+
+#if (DEBUG || INTTEST)
+            var result = JsonConvert.DeserializeObject<MemberEntitlementsResponse>(await File.ReadAllTextAsync(Consts.MockDevOpsMemberEntitlementsFilePathConfigKey));
+#else
             var response = await _httpClient.GetAsync(url);
 
             if (!response.IsSuccessStatusCode)
@@ -44,9 +48,10 @@ public class AzureDevOpsClient : IDisposable
             var content = await response.Content.ReadAsStringAsync();
             var result = JsonConvert.DeserializeObject<MemberEntitlementsResponse>(content);
 
+#endif
             if (result?.Items != null)
             {
-                allMembers.AddRange(result.Items);
+                memberEntitlements.AddRange(result.Items);
             }
 
             continuationToken = result?.ContinuationToken;
@@ -57,10 +62,10 @@ public class AzureDevOpsClient : IDisposable
             throw;
         }
 
-        _logger.LogInformation($"Returned {allMembers.Count} members and their entitlements");
-        return new PaginatedUserEntitlementsResult
+        _logger.LogInformation($"Returned {memberEntitlements.Count} members and their entitlements");
+        return new PaginatedMemberEntitlementsResult
         {
-            Users = allMembers,
+            Users = memberEntitlements,
             ContinuationToken = continuationToken
         };
     }

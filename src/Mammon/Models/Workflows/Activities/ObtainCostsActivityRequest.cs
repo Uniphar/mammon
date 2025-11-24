@@ -14,12 +14,12 @@ public record ObtainDevOpsUsersActivityRequest
 	public string DevOpsOrganization { get; init; } = string.Empty;
 }
 
-public record PaginatedUserEntitlementsRequest : ObtainDevOpsUsersActivityRequest
+public record PaginatedMemberEntitlementsRequest : ObtainDevOpsUsersActivityRequest
 {
 	public required string? ContinuationToken { get; init; } 
 }
 
-public record PaginatedUserEntitlementsResult
+public record PaginatedMemberEntitlementsResult
 {
 	public List<MemberEntitlementItem> Users { get; init; } = [];
 	public string? ContinuationToken { get; init; }

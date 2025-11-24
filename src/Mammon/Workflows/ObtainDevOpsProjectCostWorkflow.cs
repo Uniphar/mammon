@@ -8,9 +8,9 @@ public class ObtainDevOpsProjectCostWorkflow : Workflow<ObtainDevOpsProjectCostR
 	    string? token = null;
 	    do
 	    {
-		    var page = await context.CallChildWorkflowAsync<PaginatedUserEntitlementsResult>(
+		    var page = await context.CallChildWorkflowAsync<PaginatedMemberEntitlementsResult>(
 			    nameof(ObtainPagedDevOpsMembershipEntitlementsWorkflow),
-			    new PaginatedUserEntitlementsRequest
+			    new PaginatedMemberEntitlementsRequest
 			    {
 				    DevOpsOrganization = input.DevOpsOrganization,
 				    ContinuationToken = token
@@ -21,7 +21,8 @@ public class ObtainDevOpsProjectCostWorkflow : Workflow<ObtainDevOpsProjectCostR
 
 	    } while (token != null);
         
-        return await context.CallActivityAsync<DevOpsProjectsCosts>(nameof(DevOpsProjectCostsActivity),
+        return await context.CallActivityAsync<DevOpsProjectsCosts>(
+			nameof(DevOpsProjectCostsActivity),
 	        new DevOpsMapProjectCostsActivityRequest
 	        {
 		        MemberEntitlements = allUsers,

@@ -83,21 +83,38 @@ public class CostRetrievalService
 
         do
         {
-            if (string.IsNullOrWhiteSpace(subId))
+            List<DevOpsCostResponse> costs;
+
+#if (DEBUG || INTTEST)
+            string? mockApiResponsePath;
+            if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockDevOpsCostAPIResponseFilePathConfigKey])
+                && File.Exists(mockApiResponsePath))
             {
-                subId = GetSubscriptionFullResourceId(request.SubscriptionName);
-                if (string.IsNullOrWhiteSpace(subId))
-                    throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
-                url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
+                var mockResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+                (nextLink, costs) = ParseDevOpsRawJson(mockResponse);
             }
+            else
+            {
+            
+#endif
+                if (string.IsNullOrWhiteSpace(subId))
+                {
+                    subId = GetSubscriptionFullResourceId(request.SubscriptionName);
+                    if (string.IsNullOrWhiteSpace(subId))
+                        throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
+                    url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
+                }
 
-            var requestContent = new StringContent(costApiRequest, Encoding.UTF8, "application/json");
+                var requestContent = new StringContent(costApiRequest, Encoding.UTF8, "application/json");
 
-            using var response = await httpClient.PostAsync(url, requestContent);
+                using var response = await httpClient.PostAsync(url, requestContent);
 
-            response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
 
-            (nextLink, var costs) = ParseDevOpsRawJson(await response.Content.ReadAsStringAsync());
+                (nextLink, costs) = ParseDevOpsRawJson(await response.Content.ReadAsStringAsync());
+#if (DEBUG || INTTEST)
+            }
+#endif
 
             responseData.AddRange(costs);
             nextPageAvailable = !string.IsNullOrWhiteSpace(nextLink);

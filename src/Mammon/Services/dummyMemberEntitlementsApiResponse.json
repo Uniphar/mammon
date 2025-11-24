@@ -1,0 +1,194 @@
+{
+  "items": [
+    {
+      "Member": {
+        "SubjectKind": "user",
+        "MetaType": "guest",
+        "DirectoryAlias": "basic.user1.com#EXT#",
+        "Domain": "f158aabc-95dd-4309-b337-b0e733f7a3df",
+        "PrincipalName": "basic@user1.com",
+        "MailAddress": "basic@user1.com",
+        "Origin": "aad",
+        "OriginId": "f158aabc-95dd-4309-b337-b0e733f7a3df",
+        "DisplayName": "Basic User 1",
+        "Descriptor": "aad.Descriptor1",
+        "Url": "https://vssps.dev.azure.com/UnipharGroup/_apis/Graph/Users/aad.Descriptor"
+      },
+      "Id": "f158aabc-95dd-4309-b337-b0e733f7a3df",
+      "AccessLevel": {
+        "LicensingSource": "account",
+        "AccountLicenseType": "express",
+        "MsdnLicenseType": "none",
+        "GitHubLicenseType": "none",
+        "LicenseDisplayName": "Basic",
+        "Status": "active",
+        "StatusMessage": "",
+        "AssignmentSource": "unknown"
+      },
+      "LastAccessedDate": "2025-06-25T02:54:31.3161887Z",
+      "DateCreated": "2024-12-03T14:27:23.8978909Z",
+      "ProjectEntitlements": [
+        {
+          "Group": {
+            "GroupType": "custom",
+            "DisplayName": "Custom",
+            "Descriptor": ""
+          },
+          "ProjectRef": {
+            "Id": "1f27a1f3-3b7c-4394-a1f7-2dd87dd8f8be",
+            "Name": "DAWN"
+          }
+        }
+      ],
+      "GroupAssignments": [
+
+      ],
+      "DetailedProjectAccess": [
+
+      ]
+    },
+    {
+      "Member": {
+        "SubjectKind": "user",
+        "MetaType": "guest",
+        "DirectoryAlias": "basic.user2.com#EXT#",
+        "Domain": "ac8d0de2-e7aa-400b-9520-f7a9735436fe",
+        "PrincipalName": "basic@user2.com",
+        "MailAddress": "basic@user2.com",
+        "Origin": "aad",
+        "OriginId": "ac8d0de2-e7aa-400b-9520-f7a9735436fe",
+        "DisplayName": "Basic User 2",
+        "Descriptor": "aad.Descriptor2",
+        "Url": "https://vssps.dev.azure.com/UnipharGroup/_apis/Graph/Users/aad.Descriptor2"
+      },
+      "Id": "ac8d0de2-e7aa-400b-9520-f7a9735436fe",
+      "AccessLevel": {
+        "LicensingSource": "account",
+        "AccountLicenseType": "express",
+        "MsdnLicenseType": "none",
+        "GitHubLicenseType": "none",
+        "LicenseDisplayName": "Basic",
+        "Status": "active",
+        "StatusMessage": "",
+        "AssignmentSource": "unknown"
+      },
+      "LastAccessedDate": "2025-06-25T02:54:31.3161887Z",
+      "DateCreated": "2024-12-03T14:27:23.8978909Z",
+      "ProjectEntitlements": [
+        {
+          "Group": {
+            "GroupType": "custom",
+            "DisplayName": "Custom",
+            "Descriptor": ""
+          },
+          "ProjectRef": {
+            "Id": "71bf1797-3bf4-4988-ad0f-ec58a688e43e",
+            "Name": "crm-b2b"
+          }
+        }
+      ],
+      "GroupAssignments": [
+
+      ],
+      "DetailedProjectAccess": [
+
+      ]
+    },
+    {
+      "Member": {
+        "SubjectKind": "user",
+        "MetaType": "guest",
+        "DirectoryAlias": "basic.user3.com#EXT#",
+        "Domain": "931993f6-069e-4376-8c6b-7e18665cb91a",
+        "PrincipalName": "basic@user3.com",
+        "MailAddress": "basic@user3.com",
+        "Origin": "aad",
+        "OriginId": "931993f6-069e-4376-8c6b-7e18665cb91a",
+        "DisplayName": "Basic User 3",
+        "Descriptor": "aad.Descriptor3",
+        "Url": "https://vssps.dev.azure.com/UnipharGroup/_apis/Graph/Users/aad.Descriptor3"
+      },
+      "Id": "931993f6-069e-4376-8c6b-7e18665cb91a",
+      "AccessLevel": {
+        "LicensingSource": "account",
+        "AccountLicenseType": "express",
+        "MsdnLicenseType": "none",
+        "GitHubLicenseType": "none",
+        "LicenseDisplayName": "Basic",
+        "Status": "active",
+        "StatusMessage": "",
+        "AssignmentSource": "unknown"
+      },
+      "LastAccessedDate": "2025-06-25T02:54:31.3161887Z",
+      "DateCreated": "2024-12-03T14:27:23.8978909Z",
+      "ProjectEntitlements": [
+        {
+          "Group": {
+            "GroupType": "projectReader",
+            "DisplayName": "Project Readers",
+            "Descriptor": ""
+          },
+          "ProjectRef": {
+            "Id": "71bf1797-3bf4-4988-ad0f-ec58a688e43e",
+            "Name": "crm-b2b"
+          }
+        }
+      ],
+      "GroupAssignments": [
+
+      ],
+      "DetailedProjectAccess": [
+
+      ]
+    },
+    {
+      "Member": {
+        "SubjectKind": "user",
+        "MetaType": "guest",
+        "DirectoryAlias": "basic.user.plus.test1.com#EXT#",
+        "Domain": "a790cc54-9d1e-44e3-9169-482300ab85a2",
+        "PrincipalName": "basic@userplustest1.com",
+        "MailAddress": "basic@userplustest1.com",
+        "Origin": "aad",
+        "OriginId": "a790cc54-9d1e-44e3-9169-482300ab85a2",
+        "DisplayName": "Basic User Plus Test 1",
+        "Descriptor": "aad.Descriptor4",
+        "Url": "https://vssps.dev.azure.com/UnipharGroup/_apis/Graph/Users/aad.Descriptor4"
+      },
+      "Id": "a790cc54-9d1e-44e3-9169-482300ab85a2",
+      "AccessLevel": {
+        "LicensingSource": "account",
+        "AccountLicenseType": "express",
+        "MsdnLicenseType": "none",
+        "GitHubLicenseType": "none",
+        "LicenseDisplayName": "Basic \u002B Test Plans",
+        "Status": "active",
+        "StatusMessage": "",
+        "AssignmentSource": "unknown"
+      },
+      "LastAccessedDate": "2025-06-25T02:54:31.3161887Z",
+      "DateCreated": "2024-12-03T14:27:23.8978909Z",
+      "ProjectEntitlements": [
+        {
+          "Group": {
+            "GroupType": "projectContributor",
+            "DisplayName": "Project Contributors",
+            "Descriptor": ""
+          },
+          "ProjectRef": {
+            "Id": "1f27a1f3-3b7c-4394-a1f7-2dd87dd8f8be",
+            "Name": "DAWN"
+          }
+        }
+      ],
+      "GroupAssignments": [
+
+      ],
+      "DetailedProjectAccess": [
+
+      ]
+    }
+  ],
+  "continuationToken": null,
+  "totalCount": 3
+}
