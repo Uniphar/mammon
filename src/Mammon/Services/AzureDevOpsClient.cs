@@ -13,6 +13,7 @@ public class AzureDevOpsClient : IDisposable
         _logger = logger;
         _httpClient = new HttpClient();
 
+        // TODO: replace PAT with SP. 
         var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($":{patToken}"));
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", credentials);
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
