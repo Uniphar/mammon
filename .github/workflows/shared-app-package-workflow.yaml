@@ -92,7 +92,7 @@ jobs:
         run: cp ./costcentre-definitions/costCentreRules.json src
 
       - name: add cost centre rule file
-        run: cp ./costcentre-definitions/costCentreDevOpsRules.json
+        run: cp ./costcentre-definitions/costCentreDevOpsRules.json src
 
       - name: docker build - release
         working-directory: ./src

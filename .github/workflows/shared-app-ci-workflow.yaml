@@ -70,7 +70,7 @@ jobs:
         run: cp ./costcentre-definitions/costCentreRules.json src
 
       - name: add devops cost centre rule file
-        run: cp ./costcentre-definitions/costCentreDevOpsRules.json
+        run: cp ./costcentre-definitions/costCentreDevOpsRules.json src
 
       - name: docker build test
         working-directory: ./src/
