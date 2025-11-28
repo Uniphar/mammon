@@ -318,7 +318,6 @@ public class CostRetrievalService
 
     private (string? nextLink, List<DevOpsCostResponse> costs) ParseDevOpsRawJson(string content)
     {
-        // Same workaround you already use
         content = content
             .Replace("'\"", "{\"")
             .Replace("\"'", "\"}");
@@ -339,7 +338,6 @@ public class CostRetrievalService
 
         foreach (var row in rows)
         {
-            // Parse tags → identical logic to your existing parser
             Dictionary<string, string> tags = new();
 
             foreach (var tagElement in ((JsonElement)row[tagsIndex]).EnumerateArray())
