@@ -170,6 +170,15 @@ builder.Services
     .AddHttpMessageHandler<AzureAuthHandler>()
     .AddPolicyHandler(policy);
 
+builder.Services
+    .AddSingleton(sp =>
+    {
+        var config = sp.GetRequiredService<IConfiguration>();
+        var pat = config[Consts.AzureDevOpsPATConfigKey] ?? throw new InvalidOperationException("Couldn't find PAT");
+
+        return new AzureDevOpsClient(sp.GetService<ILogger<AzureDevOpsClient>>()!, pat);
+    });
+
 var app = builder.Build();
 
 CostCentreReportService.ValidateConfiguration(app.Configuration);
