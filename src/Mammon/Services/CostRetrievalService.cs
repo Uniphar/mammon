@@ -331,28 +331,17 @@ public class CostRetrievalService
         int costIndex = columns.FindIndex(x => x.Name == "Cost");
         int productIndex = columns.FindIndex(x => x.Name == "Product");
         int meterSubcatIndex = columns.FindIndex(x => x.Name == "MeterSubcategory");
-        int tagsIndex = columns.FindIndex(x => x.Name == "Tags");
         int currencyIndex = columns.FindIndex(x => x.Name == "Currency");
 
         List<DevOpsCostResponse> costs = new();
 
         foreach (var row in rows)
         {
-            Dictionary<string, string> tags = new();
-
-            foreach (var tagElement in ((JsonElement)row[tagsIndex]).EnumerateArray())
-            {
-                var parsed = ParseOutTag(tagElement.ToString());
-                if (parsed != null)
-                    tags.TryAdd(parsed.Value.Key, parsed.Value.Value);
-            }
-
             costs.Add(new DevOpsCostResponse
             {
                 Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
                 Product = (string)row[productIndex],
-                MeterSubcategory = (string)row[meterSubcatIndex],
-                Tags = tags
+                MeterSubcategory = (string)row[meterSubcatIndex]
             });
         }
 
@@ -364,6 +353,5 @@ public class CostRetrievalService
         public ResourceCost Cost { get; set; } = default!;
         public string Product { get; set; } = string.Empty;
         public string MeterSubcategory { get; set; } = string.Empty;
-        public Dictionary<string, string> Tags { get; set; } = new();
     }
 }
