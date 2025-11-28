@@ -39,9 +39,11 @@ public class TenantWorkflowTests
 		 */
 
 		var costCentreFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "../../../../../../costcentre-definitions/costCentreRules.json");
+		var costCentreDevOpsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "../../../../../../costcentre-definitions/costCentreDevOpsRules.json");
 
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
-			new(Consts.CostCentreRuleEngineFilePathConfigKey, costCentreFile)
+			new(Consts.CostCentreRuleEngineFilePathConfigKey, costCentreFile),
+			new(Consts.CostCentreRuleEngineDevOpsConfigKey, costCentreDevOpsFile)
 		};
 
 		HostApplicationBuilder builder = new();
