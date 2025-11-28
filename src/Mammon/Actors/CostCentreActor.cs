@@ -57,7 +57,7 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Failure in CostCentreActor.AddCost (ActorId:{Id})");
+            logger.LogError(ex, $"Failure in CostCentreActor.AddDevOpsUnassignedCostAsync (ActorId:{Id})");
             throw;
         }
     }
@@ -84,7 +84,7 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, $"Failure in CostCentreActor.AddCost (ActorId:{Id})");
+            logger.LogError(ex, $"Failure in CostCentreActor.AddDevOpsLicenseCostAsync (ActorId:{Id})");
             throw;
         }
     }
