@@ -46,6 +46,9 @@
     <None Update="Services\costApiResponse.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Services\testCostCentreDevOpsRules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Services\testCostCentreReport.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

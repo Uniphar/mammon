@@ -1,0 +1,21 @@
+{
+  "Rules": [
+    {
+      "CostCentre": "DAWN",
+      "ProjectNameMatchPattern": "dawn-(.)+"
+    },
+    {
+      "CostCentre": "DAWN",
+      "ProjectNameMatchPattern": "innov-(.)+"
+    },
+    {
+      "CostCentre": "DevOps",
+      "ProjectNameMatchPattern": "1"
+    },
+    {
+      "CostCentre": "B2B",
+      "ProjectNameMatchPattern": "(?i).*b2b.*"
+    }
+  ],
+  "DefaultCostCentre": "DAWN"
+}
