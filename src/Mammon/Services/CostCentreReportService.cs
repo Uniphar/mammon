@@ -61,6 +61,35 @@ public class CostCentreReportService(
                             }
                         }
                     }
+
+                    if (existing.DevOpsProjectCosts is null)
+                    {
+                        existing.DevOpsProjectCosts = subCostCentreState.Value.DevOpsProjectCosts;
+                }
+                    else if (subCostCentreState.Value.DevOpsProjectCosts is not null)
+                    {
+                        foreach(var devOpsProject in subCostCentreState.Value.DevOpsProjectCosts)
+                        {
+                            if (existing.DevOpsProjectCosts.TryGetValue(devOpsProject.Key, out var existingDevOpsProject))
+                            {
+                                foreach(var devOpsProjectGroupContributor in devOpsProject.Value)
+                                {
+                                    if (existingDevOpsProject.TryGetValue(devOpsProjectGroupContributor.Key, out var existingDevOpsProjectGroupContributor))
+                                    {
+                                        existingDevOpsProjectGroupContributor = new ResourceCost([existingDevOpsProjectGroupContributor, devOpsProjectGroupContributor.Value]);
+                                    }
+                else
+                {
+                                        existingDevOpsProject.Add(devOpsProjectGroupContributor.Key, devOpsProjectGroupContributor.Value);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                existing.DevOpsProjectCosts[devOpsProject.Key] = devOpsProject.Value;
+                            }
+                        }
+                    }
                 }
                 else
                 {
