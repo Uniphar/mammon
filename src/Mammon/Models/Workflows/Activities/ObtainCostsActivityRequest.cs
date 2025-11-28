@@ -11,7 +11,7 @@ public record ObtainCostsActivityRequest
 
 public record ObtainDevOpsUsersActivityRequest
 {
-	public string DevOpsOrganization { get; init; } = string.Empty;
+	public required string DevOpsOrganization { get; init; }
 }
 
 public record PaginatedMemberEntitlementsRequest : ObtainDevOpsUsersActivityRequest
@@ -27,14 +27,14 @@ public record PaginatedMemberEntitlementsResult
 
 public record ObtainDevOpsCostsActivityRequest : ObtainDevOpsUsersActivityRequest
 {
-	public required string SubscriptionName { get; init; } = string.Empty;
+	public required string SubscriptionName { get; init; }
     public required DateTime CostFrom { get; init; }
     public required DateTime CostTo { get; init; }
 }
 
 public record ObtainDevOpsProjectCostRequest : ObtainDevOpsUsersActivityRequest
 {
-	public required string ReportId { get; init; } = string.Empty;
+	public required string ReportId { get; init; }
 	public required ObtainLicensesCostWorkflowResult LicenseCosts { get; init; }
 }
 

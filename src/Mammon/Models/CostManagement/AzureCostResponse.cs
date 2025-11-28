@@ -1,6 +1,4 @@
-﻿using JsonIgnoreAttribute = Newtonsoft.Json.JsonIgnoreAttribute;
-
-namespace Mammon.Models.CostManagement;
+﻿namespace Mammon.Models.CostManagement;
 
 public class AzureCostResponse : List<ResourceCostResponse>
 {

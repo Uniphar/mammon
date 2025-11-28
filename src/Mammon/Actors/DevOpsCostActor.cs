@@ -20,7 +20,7 @@ public class DevOpsCostActor(
 
 		try
 		{
-
+			// { "CostCentre" : { "ProjectName : { "GroupName" : { "Cost" : 100, Currency: "EUR" }, }, }, }
 			Dictionary<string, Dictionary<string, Dictionary<string, ResourceCost>>> costCentreCosts = [];
 
 			foreach (var projectCost in request.DevOpsProjectCosts.ProjectCosts)
@@ -67,7 +67,7 @@ public class DevOpsCostActor(
         }
 		catch (Exception ex)
 		{
-			logger.LogError(ex, $"Failure in DevOpsCostActor.SplitCost (ActorId:{Id})");
+			logger.LogError(ex, $"Failure in DevOpsCostActor.SplitCostAsync (ActorId:{Id})");
 			throw;
 		}
 	}

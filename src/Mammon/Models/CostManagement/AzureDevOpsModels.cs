@@ -8,7 +8,7 @@ public class MemberEntitlementItem
     public Member Member { get; set; } = new();
 
     [JsonProperty("id")]
-    public string Id { get; set; } = string.Empty;
+    public required string Id { get; set; }
 
     [JsonProperty("accessLevel")]
     public AccessLevel AccessLevel { get; set; } = new();
