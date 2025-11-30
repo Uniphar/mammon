@@ -2,8 +2,8 @@
 
 public class ObtainDevOpsCostsActivity(CostRetrievalService costService) : WorkflowActivity<ObtainDevOpsCostsActivityRequest, ObtainLicensesCostWorkflowResult>
 {
-    private const string BasicLicenseProductName = "Azure Repos and Boards (Basic)";
-    private const string BasicPlusTestPlansLicenseProductName = "Azure Test Plans - Standard";
+    public const string BasicLicenseProductName = "Azure Repos and Boards (Basic)";
+    public const string BasicPlusTestPlansLicenseProductName = "Azure Test Plans - Standard";
 
     public override async Task<ObtainLicensesCostWorkflowResult> RunAsync(WorkflowActivityContext context, ObtainDevOpsCostsActivityRequest request)
     {

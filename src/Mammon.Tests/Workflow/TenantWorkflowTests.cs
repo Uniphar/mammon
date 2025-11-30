@@ -196,11 +196,11 @@ public class TenantWorkflowTests
 	{
 		decimal total = 0m;
 
-		foreach (var subscription in _costCentreRuleEngine!.SubscriptionNames)
+		foreach (var subscription in _costCentreRuleEngine!.Subscriptions)
 		{
 			var request = new ObtainCostsActivityRequest
 			{
-				SubscriptionName = subscription,
+				SubscriptionName = subscription.SubscriptionName,
 				CostFrom = _reportRequest.CostFrom,
 				CostTo = _reportRequest.CostTo,
 				PageIndex = 0,
@@ -212,6 +212,25 @@ public class TenantWorkflowTests
 
 			var response = await _costRetrievalService!.QueryResourceCostForSubAsync(request);
 			total += response.TotalCost;
+
+			if (!string.IsNullOrWhiteSpace(subscription.DevOpsOrganization))
+			{
+				var devOpsRequest = new ObtainDevOpsCostsActivityRequest
+				{
+					SubscriptionName = subscription.SubscriptionName,
+					CostFrom = _reportRequest.CostFrom,
+					CostTo = _reportRequest.CostTo,
+					DevOpsOrganization = subscription.DevOpsOrganization
+				};
+
+				var devOpsCost = await _costRetrievalService!.QueryDevOpsCostForSubAsync(devOpsRequest);
+
+				decimal basicLicensesCost = devOpsCost.SingleOrDefault(t => t.Product == ObtainDevOpsCostsActivity.BasicLicenseProductName)?.Cost.Cost ?? 0m;
+				total += basicLicensesCost;
+
+                decimal testPlansLicensesCost = devOpsCost.SingleOrDefault(t => t.Product == ObtainDevOpsCostsActivity.BasicPlusTestPlansLicenseProductName)?.Cost.Cost ?? 0m;
+				total += testPlansLicensesCost;
+            }
 		}
 
 		return total;
