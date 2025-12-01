@@ -1,0 +1,62 @@
+﻿{
+  "id": "subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/providers/Microsoft.CostManagement/query/096099e2-ab92-4be4-9ed2-10fc84b584f0",
+  "name": "096099e2-ab92-4be4-9ed2-10fc84b584f0",
+  "type": "Microsoft.CostManagement/query",
+  "location": null,
+  "sku": null,
+  "eTag": null,
+  "properties": {
+    "nextLink": null,
+    "columns": [
+      {
+        "name": "Cost",
+        "type": "Number"
+      },
+      {
+        "name": "Product",
+        "type": "String"
+      },
+      {
+        "name": "MeterSubcategory",
+        "type": "String"
+      },
+      {
+        "name": "Tags",
+        "type": "Array"
+      },
+      {
+        "name": "Currency",
+        "type": "String"
+      }
+    ],
+    "rows": [
+      [
+        50.00,
+        "Azure Pipelines - Microsoft-hosted CI/CD",
+        "Azure Pipelines",
+        [
+          "\"_organizationname_\":\"uniphargroup\""
+        ],
+        "EUR"
+      ],
+      [
+        300.00,
+        "Azure Repos and Boards (Basic)",
+        "Azure Repos and Boards (Basic)",
+        [
+          "\"_organizationname_\":\"uniphargroup\""
+        ],
+        "EUR"
+      ],
+      [
+        100.00,
+        "Azure Test Plans - Standard",
+        "Azure Test Plans",
+        [
+          "\"_organizationname_\":\"uniphargroup\""
+        ],
+        "EUR"
+      ]
+    ]
+  }
+}

@@ -1,0 +1,89 @@
+﻿using Newtonsoft.Json;
+using System.Net.Http.Headers;
+
+namespace Mammon.Services;
+
+public class AzureDevOpsClient : IDisposable
+{
+    private readonly ILogger<AzureDevOpsClient> _logger;
+    private readonly HttpClient _httpClient;
+
+    public AzureDevOpsClient(
+        HttpClient httpClient,
+        ILogger<AzureDevOpsClient> logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+
+        _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    }
+
+    public async Task<PaginatedMemberEntitlementsResult> GetMembersEntitlementsAsync(string organization, string? continuationToken =  null)
+    {
+        var memberEntitlements = new List<MemberEntitlementItem>();
+        _logger.LogInformation($"Fetching members from Azure DevOps organization: {organization}");
+        
+        var url = $"https://vsaex.dev.azure.com/{organization}/_apis/MemberEntitlements?select=license,projects&$orderBy=name Ascending";
+
+        if (!string.IsNullOrEmpty(continuationToken))
+        {
+            url += $"&continuationToken={Uri.EscapeDataString(continuationToken)}";
+        }
+
+        try
+        {
+
+#if (DEBUG || INTTEST)
+            var result = JsonConvert.DeserializeObject<MemberEntitlementsResponse>(await File.ReadAllTextAsync(Consts.MockDevOpsMemberEntitlementsFilePathConfigKey));
+#else
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Failed to fetch members. Status: {response.StatusCode}, Error: {errorContent}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<MemberEntitlementsResponse>(content);
+
+#endif
+            if (result?.Items != null)
+            {
+                memberEntitlements.AddRange(result.Items);
+            }
+
+            continuationToken = result?.ContinuationToken;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"Error fetching members: {ex.Message}");
+            throw;
+        }
+
+        _logger.LogInformation($"Returned {memberEntitlements.Count} members and their entitlements");
+        return new PaginatedMemberEntitlementsResult
+        {
+            Users = memberEntitlements,
+            ContinuationToken = continuationToken
+        };
+    }
+
+    public class MemberEntitlementsResponse
+    {
+        [JsonProperty("items")]
+        public List<MemberEntitlementItem> Items { get; set; } = new();
+
+        [JsonProperty("continuationToken")]
+        public string? ContinuationToken { get; set; }
+
+        [JsonProperty("totalCount")]
+        public int TotalCount { get; set; }
+    }
+
+    public void Dispose()
+    {
+        _httpClient?.Dispose();
+    }
+}

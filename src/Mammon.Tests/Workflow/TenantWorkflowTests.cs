@@ -39,9 +39,11 @@ public class TenantWorkflowTests
 		 */
 
 		var costCentreFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "../../../../../../costcentre-definitions/costCentreRules.json");
+		var costCentreDevOpsFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, "../../../../../../costcentre-definitions/costCentreDevOpsRules.json");
 
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
-			new(Consts.CostCentreRuleEngineFilePathConfigKey, costCentreFile)
+			new(Consts.CostCentreRuleEngineFilePathConfigKey, costCentreFile),
+			new(Consts.CostCentreRuleEngineDevOpsConfigKey, costCentreDevOpsFile)
 		};
 
 		HostApplicationBuilder builder = new();
@@ -56,6 +58,11 @@ public class TenantWorkflowTests
 			.AddHttpClient("costRetrievalHttpClient")
 			.AddHttpMessageHandler<AzureAuthHandler>()
 			.AddPolicyHandler(policy);
+
+		builder.Services
+			.AddTransient<AzureDevOpsAuthHandler>()
+			.AddHttpClient("azureDevOpsHttpClient")
+			.AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 		_host = builder.Build();
 		
@@ -99,7 +106,9 @@ public class TenantWorkflowTests
     [TestMethod, TestCategory("MockedIntegrationTest")]
     public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
 	{
-		decimal expectedTotal = 11675.26m;
+		var expectedResourcesTotal = 11675.26m;
+		var expectedDevOpsLicensesTotal = 400.0m;
+		decimal expectedTotal = expectedResourcesTotal + expectedDevOpsLicensesTotal;
 
         await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
         {
@@ -192,11 +201,11 @@ public class TenantWorkflowTests
 	{
 		decimal total = 0m;
 
-		foreach (var subscription in _costCentreRuleEngine!.SubscriptionNames)
+		foreach (var subscription in _costCentreRuleEngine!.Subscriptions)
 		{
 			var request = new ObtainCostsActivityRequest
 			{
-				SubscriptionName = subscription,
+				SubscriptionName = subscription.SubscriptionName,
 				CostFrom = _reportRequest.CostFrom,
 				CostTo = _reportRequest.CostTo,
 				PageIndex = 0,
@@ -206,8 +215,27 @@ public class TenantWorkflowTests
 			var httpClientFactory = _host!.Services.GetRequiredService<IHttpClientFactory>();
 			CostRetrievalService _costRetrievalService = new(new ArmClient(new DefaultAzureCredential()), httpClientFactory.CreateClient("costRetrievalHttpClient"), _config!, Mock.Of<ILogger<CostRetrievalService>>());
 
-			var response = await _costRetrievalService!.QueryForSubAsync(request);
+			var response = await _costRetrievalService!.QueryResourceCostForSubAsync(request);
 			total += response.TotalCost;
+
+			if (!string.IsNullOrWhiteSpace(subscription.DevOpsOrganization))
+			{
+				var devOpsRequest = new ObtainDevOpsCostsActivityRequest
+				{
+					SubscriptionName = subscription.SubscriptionName,
+					CostFrom = _reportRequest.CostFrom,
+					CostTo = _reportRequest.CostTo,
+					DevOpsOrganization = subscription.DevOpsOrganization
+				};
+
+				var devOpsCost = await _costRetrievalService!.QueryDevOpsCostForSubAsync(devOpsRequest);
+
+				decimal basicLicensesCost = devOpsCost.SingleOrDefault(t => t.Product == ObtainDevOpsCostsActivity.BasicLicenseProductName)?.Cost.Cost ?? 0m;
+				total += basicLicensesCost;
+
+                decimal testPlansLicensesCost = devOpsCost.SingleOrDefault(t => t.Product == ObtainDevOpsCostsActivity.BasicPlusTestPlansLicenseProductName)?.Cost.Cost ?? 0m;
+				total += testPlansLicensesCost;
+            }
 		}
 
 		return total;

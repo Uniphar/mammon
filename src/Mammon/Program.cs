@@ -21,7 +21,6 @@ global using Dapr.Client;
 global using Dapr.Workflow;
 global using DotFlyer.Common.Payload;
 global using FluentValidation;
-global using Grpc.Core;
 global using Mammon;
 global using Mammon.Actors;
 global using Mammon.Extensions;
@@ -36,6 +35,7 @@ global using Mammon.Utils;
 global using Mammon.Workflows;
 global using Mammon.Workflows.Activities;
 global using Mammon.Workflows.Activities.AKS;
+global using Mammon.Workflows.Activities.DevOps;
 global using Mammon.Workflows.Activities.LogAnalytics;
 global using Mammon.Workflows.Activities.MySQL;
 global using Mammon.Workflows.Activities.SQLPool;
@@ -93,19 +93,27 @@ builder.Services
         config.RegisterWorkflow<GroupSubWorkflow>();
         config.RegisterWorkflow<TenantWorkflow>();
         config.RegisterWorkflow<LAWorkspaceWorkflow>();
+        config.RegisterWorkflow<SplitDevopsCostsWorkflow>();
         config.RegisterWorkflow<AKSVMSSWorkflow>();
         config.RegisterWorkflow<SQLPoolWorkflow>();
         config.RegisterWorkflow<VDIWorkflow>();
         config.RegisterWorkflow<ObtainCostByPageWorkflow>();
+        config.RegisterWorkflow<ObtainDevOpsCostWorkflow>();
+        config.RegisterWorkflow<ObtainPagedDevOpsMembershipEntitlementsWorkflow>();
+        config.RegisterWorkflow<ObtainDevOpsProjectCostWorkflow>();
         config.RegisterWorkflow<MySQLWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
+        config.RegisterActivity<ObtainDevOpsCostsActivity>();
+        config.RegisterActivity<DevOpsProjectCostsActivity>();
+        config.RegisterActivity<ObtainPagedDevOpsMembershipEntitlementsActivity>();
         config.RegisterActivity<CallResourceActorActivity>();
         config.RegisterActivity<AssignCostCentreActivity>();
         config.RegisterActivity<SendReportViaEmail>();
         config.RegisterActivity<ExecuteLAWorkspaceDataQueryActivity>();
         config.RegisterActivity<IdenfityLAWorkspaceRefGapsActivity>();
         config.RegisterActivity<SplitLAWorkspaceCostsActivity>();
+        config.RegisterActivity<SplitDevopsCostsActivity>();
         config.RegisterActivity<AKSVMSSObtainUsageDataActivity>();
         config.RegisterActivity<AKSSplitUsageCostActivity>();
         config.RegisterActivity<SQLPoolObtainUsageDataActivity>();
@@ -119,6 +127,7 @@ builder.Services
         options.Actors.RegisterActor<ResourceActor>();
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
+        options.Actors.RegisterActor<DevOpsCostActor>();
         options.Actors.RegisterActor<AKSVMSSActor>();
         options.Actors.RegisterActor<SQLPoolActor>();
         options.Actors.RegisterActor<SplittableVDIPoolActor>();
@@ -133,6 +142,7 @@ builder.Services
 builder.Services
     .AddTransient((sp) => new ArmClient(defaultAzureCredentials))
     .AddTransient<AzureAuthHandler>()
+    .AddTransient<AzureDevOpsAuthHandler>()
     .AddSingleton(defaultAzureCredentials)
     .AddSingleton<CostCentreRuleEngine>()
     .AddSingleton<CostCentreReportService>()
@@ -165,20 +175,19 @@ builder.Services
     .AddHttpMessageHandler<AzureAuthHandler>()
     .AddPolicyHandler(policy);
 
+builder.Services
+    .AddHttpClient<AzureDevOpsClient>()
+    .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
+
 var app = builder.Build();
 
 CostCentreReportService.ValidateConfiguration(app.Configuration);
 
 app.UseRouting();
-
 app.MapActorsHandlers();
-
 app.MapRazorPages();
-
 app.MapControllers();
-
 app.MapSubscribeHandler();
-
 app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());
 
 app.Run();

@@ -38,13 +38,124 @@ public class CostRetrievalService
         return subByName?.Id ?? string.Empty;
     }
 
-    public async Task<AzureCostResponse> QueryForSubAsync(ObtainCostsActivityRequest request)
+    public async Task<List<DevOpsCostResponse>> QueryDevOpsCostForSubAsync(ObtainDevOpsCostsActivityRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.DevOpsOrganization)) return [];
+
+        var costApiRequest = $$"""
+                               {
+                                   "type": "ActualCost",
+                                   "dataSet": {
+                                   "granularity": "None",
+                                   "aggregation": {
+                                       "totalCost": {
+                                       "name": "Cost",
+                                       "function": "Sum"
+                                       }
+                                   },
+                                   "grouping": [
+                                       { "type": "Dimension", "name": "Product" },
+                                       { "type": "Dimension", "name": "MeterSubcategory" }
+                                   ],
+                                   "include": [ "Tags" ],
+                                   "filter": {
+                                       "tags": {
+                                       "name": "_organizationname_",
+                                       "operator": "In",
+                                       "values": [ "{{request.DevOpsOrganization}}" ]
+                                       }
+                                   }
+                                   },
+                                   "timeframe": "Custom",
+                                   "timePeriod": {
+                                   "from": "{{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}}",
+                                   "to": "{{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}}"
+                                   }
+                               }
+                       """;
+
+        bool nextPageAvailable;
+        List<DevOpsCostResponse> responseData = [];
+
+        string? nextLink = null;
+        string? url = null;
+        string? subId = null;
+
+        do
+        {
+            List<DevOpsCostResponse> costs;
+
+#if (DEBUG || INTTEST)
+            string? mockApiResponsePath;
+            if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockDevOpsCostAPIResponseFilePathConfigKey])
+                && File.Exists(mockApiResponsePath))
+            {
+                var mockResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+                (nextLink, costs) = ParseDevOpsRawJson(mockResponse);
+            }
+            else
+            {
+            
+#endif
+                if (string.IsNullOrWhiteSpace(subId))
+                {
+                    subId = GetSubscriptionFullResourceId(request.SubscriptionName);
+                    if (string.IsNullOrWhiteSpace(subId))
+                        throw new InvalidOperationException($"Unable to find subscription {request.SubscriptionName}");
+                    url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version={costAPIVersion}";
+                }
+
+                var requestContent = new StringContent(costApiRequest, Encoding.UTF8, "application/json");
+
+                using var response = await httpClient.PostAsync(url, requestContent);
+
+                response.EnsureSuccessStatusCode();
+
+                (nextLink, costs) = ParseDevOpsRawJson(await response.Content.ReadAsStringAsync());
+#if (DEBUG || INTTEST)
+            }
+#endif
+
+            responseData.AddRange(costs);
+            nextPageAvailable = !string.IsNullOrWhiteSpace(nextLink);
+            url = nextLink;
+        } while(nextPageAvailable);
+
+        return responseData;
+    }
+
+    public async Task<AzureCostResponse> QueryResourceCostForSubAsync(ObtainCostsActivityRequest request)
     {
         //new CostReportSubscriptionRequestValidator().ValidateAndThrow(request);
 
         var groupingProperty = request.GroupingMode == GroupingMode.Resource ? "ResourceId" : "SubscriptionId";
 
-        var costApirequest = $"{{\"type\":\"ActualCost\",\"dataSet\":{{\"granularity\":\"None\",\"aggregation\":{{\"totalCost\":{{\"name\":\"Cost\",\"function\":\"Sum\"}}}},\"grouping\":[{{\"type\":\"Dimension\",\"name\":\"{groupingProperty}\"}}],\"include\":[\"Tags\"]}},\"timeframe\":\"Custom\",\"timePeriod\":{{\"from\":\"{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}\",\"to\":\"{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}\"}}}}";
+        var costApirequest = $@"
+        {{
+          ""type"": ""ActualCost"",
+          ""dataSet"": {{
+            ""granularity"": ""None"",
+            ""aggregation"": {{
+              ""totalCost"": {{
+                ""name"": ""Cost"",
+                ""function"": ""Sum""
+              }}
+            }},
+            ""grouping"": [
+              {{
+                ""type"": ""Dimension"",
+                ""name"": ""{groupingProperty}""
+              }}
+            ],
+            ""include"": [ ""Tags"" ]
+          }},
+          ""timeframe"": ""Custom"",
+          ""timePeriod"": {{
+            ""from"": ""{request.CostFrom:yyyy-MM-ddTHH:mm:ss+00:00}"",
+            ""to"": ""{request.CostTo:yyyy-MM-ddTHH:mm:ss+00:00}""
+          }}
+        }}";
+
 
         //TODO: check no granularity support via https://learn.microsoft.com/en-us/dotnet/api/azure.resourcemanager.costmanagement.models.granularitytype.-ctor?view=azure-dotnet#azure-resourcemanager-costmanagement-models-granularitytype-ctor(system-string)
         bool nextPageAvailable;
@@ -203,5 +314,44 @@ public class CostRetrievalService
     {
         public string Name { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;
+    }
+
+    private (string? nextLink, List<DevOpsCostResponse> costs) ParseDevOpsRawJson(string content)
+    {
+        content = content
+            .Replace("'\"", "{\"")
+            .Replace("\"'", "\"}");
+
+        var result = JsonSerializer.Deserialize<IntermediateUsageQueryResult>(content, jsonSerializerOptions)
+                     ?? throw new InvalidOperationException("failed to deserialize DevOps cost management api");
+
+        var columns = result.Properties!.Columns!;
+        var rows = result.Properties.Rows!;
+
+        int costIndex = columns.FindIndex(x => x.Name == "Cost");
+        int productIndex = columns.FindIndex(x => x.Name == "Product");
+        int meterSubcatIndex = columns.FindIndex(x => x.Name == "MeterSubcategory");
+        int currencyIndex = columns.FindIndex(x => x.Name == "Currency");
+
+        List<DevOpsCostResponse> costs = new();
+
+        foreach (var row in rows)
+        {
+            costs.Add(new DevOpsCostResponse
+            {
+                Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
+                Product = (string)row[productIndex],
+                MeterSubcategory = (string)row[meterSubcatIndex]
+            });
+        }
+
+        return (result.Properties!.NextLink, costs);
+    }
+
+    public sealed class DevOpsCostResponse
+    {
+        public ResourceCost Cost { get; set; } = default!;
+        public string Product { get; set; } = string.Empty;
+        public string MeterSubcategory { get; set; } = string.Empty;
     }
 }

@@ -43,7 +43,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 				var rgID = group.First().ResourceIdentifier.GetResourceGroupIdentifier();
 
 				await context.CallChildWorkflowAsync<bool>(nameof(VDIWorkflow),
-					new SplittableResourceGroupRequest { ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId ), Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
+					new SplittableResourceGroupRequest { ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId), Resources = group.ToList(), ResourceGroupId = rgID.ToString() },
 					new ChildWorkflowTaskOptions { InstanceId = $"{nameof(VDIWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}{rgID.Name}".ToSanitizedInstanceId() });
 
 			}
@@ -86,7 +86,41 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			await TriggerSplittableWorkflowAsync<LAWorkspaceWorkflow>(context, input, laWorkspace);
 		}
 
-		return true;
+		if (string.IsNullOrEmpty(input.DevOpsOrganization)) return true;
+
+		// Get total license costs
+		var devOpsLicenseCosts = await context.CallChildWorkflowAsync<ObtainLicensesCostWorkflowResult>(
+			nameof(ObtainDevOpsCostWorkflow),
+            new ObtainDevOpsCostsActivityRequest
+            {
+                SubscriptionName = input.SubscriptionName,
+                CostFrom = input.ReportRequest.CostFrom,
+                CostTo = input.ReportRequest.CostTo,
+                DevOpsOrganization = input.DevOpsOrganization
+            });
+
+		// Get project costs from group contributions
+		var projectsCosts = await context.CallChildWorkflowAsync<DevOpsProjectsCosts>(
+			nameof(ObtainDevOpsProjectCostWorkflow),
+			new ObtainDevOpsProjectCostRequest
+			{
+				DevOpsOrganization = input.DevOpsOrganization,
+				LicenseCosts = devOpsLicenseCosts,
+				ReportId = input.ReportRequest.ReportId,
+			},
+			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainDevOpsProjectCostWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
+
+		// Split DevOps costs across cost centres
+		await context.CallChildWorkflowAsync<bool>(
+			nameof(SplitDevopsCostsWorkflow),
+            new DevopsResourceRequest()
+            {
+                ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId),
+                DevOpsProjectCosts = projectsCosts,
+            }, 
+			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SplitDevopsCostsWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
+
+        return true;
     }
 
 	private static async Task TriggerSplittableWorkflowAsync<T>(WorkflowContext context, CostReportSubscriptionRequest input, ResourceCostResponse resourceToSplit) where T: Workflow<SplittableResourceRequest,bool>

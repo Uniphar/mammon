@@ -21,8 +21,8 @@ public class ResourceCostResponse
 {
 	public required string ResourceId { get; set; }
 
-	[JsonIgnore]
-	public ResourceIdentifier ResourceIdentifier => new(ResourceId);
+    [JsonIgnore]
+    public ResourceIdentifier ResourceIdentifier => new(ResourceId);
 
 	public required ResourceCost Cost { get; set; }
 	public required Dictionary<string, string> Tags { get; set; }

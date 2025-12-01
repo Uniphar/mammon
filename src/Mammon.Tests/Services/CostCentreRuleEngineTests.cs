@@ -192,7 +192,8 @@ public class CostCentreRuleEngineTests
     private static CostCentreRuleEngine GetInstance()
     {
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
-			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json")
+			new(Consts.CostCentreRuleEngineFilePathConfigKey, "./Services/testCostCentreRules.json"),
+			new(Consts.CostCentreRuleEngineDevOpsConfigKey, "./Services/testCostCentreDevOpsRules.json")
 		};
 
 		IConfiguration configuration = new ConfigurationBuilder()

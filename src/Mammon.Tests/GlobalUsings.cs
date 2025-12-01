@@ -18,6 +18,7 @@ global using Mammon.Models.Workflows.Activities;
 global using Mammon.Services;
 global using Mammon.Tests.Extensions;
 global using Mammon.Utils;
+global using Mammon.Workflows.Activities;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Hosting;

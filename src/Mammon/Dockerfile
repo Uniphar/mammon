@@ -15,10 +15,12 @@ RUN dotnet publish "Mammon.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:Us
 
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 ENV COST_CENTRE_DEF_FILE=costCentreRules.json
+ENV COST_CENTRE_DEV_OPS_DEF_FILE=costCentreDevOpsRules.json
 WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8082
 EXPOSE 8082
 COPY --from=publish /app/publish .
 COPY $COST_CENTRE_DEF_FILE /app
+COPY $COST_CENTRE_DEV_OPS_DEF_FILE /app
 USER app
 ENTRYPOINT ["dotnet", "Mammon.dll"]

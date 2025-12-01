@@ -10,6 +10,9 @@ public interface ICostCentreActor : IActor
     /// <returns></returns>
     Task AddCostAsync(string resourceId, ResourceCost cost);
 
+    Task AddDevOpsLicenseCostAsync(Dictionary<string, Dictionary<string, ResourceCost>> projectToGroupCosts);
+    Task AddDevOpsUnassignedCostAsync(ResourceCost cost);
+
     /// <summary>
     /// get cost centre state associated with this actor instance
     /// </summary>

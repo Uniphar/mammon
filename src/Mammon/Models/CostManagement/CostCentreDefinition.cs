@@ -14,6 +14,12 @@ public record CostCentreDefinition
     public IDictionary<string, double>? StaticMySQLMapping { get; set; } = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
 }
 
+public record DevOpsCostCentreDefinition
+{
+    public required List<DevOpsCostCentreRule> Rules { get; set; } = new();
+    public required string DefaultCostCentre { get; set; } = string.Empty;
+}
+
 public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinition>
 {
     public CostCentreDefinitionValidator()
@@ -29,6 +35,24 @@ public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinit
 		RuleForEach(x => x.GroupIDMapping).Must(x => !string.IsNullOrWhiteSpace(x.Key) && !string.IsNullOrWhiteSpace(x.Value)).WithMessage("Group ID Mapping must have both key and value");
         RuleFor(x => x.StaticMySQLMapping).SetValidator(x => new StaticMySQLMappingValidator());
 	}
+}
+
+public class DevOpsCostCentreDefinitionValidator : AbstractValidator<DevOpsCostCentreDefinition>
+{
+    public DevOpsCostCentreDefinitionValidator()
+    {
+        RuleFor(x => x.DefaultCostCentre).NotEmpty().WithMessage("Default Cost Centre must be specified");
+        RuleForEach(x => x.Rules).SetValidator(x => new DevOpsCostCentreRuleValidator());
+    }
+}
+
+public class DevOpsCostCentreRuleValidator : AbstractValidator<DevOpsCostCentreRule>
+{
+    public DevOpsCostCentreRuleValidator()
+    {
+        RuleFor(t => t.CostCentre).NotEmpty().WithMessage("Cost Centre must be specified");
+        RuleFor(t => t.ProjectNameMatchPattern).NotEmpty().WithMessage("Project Name Pattern must be specified");
+    }
 }
 
 public class StaticMySQLMappingValidator : AbstractValidator<IDictionary<string, double>?>
