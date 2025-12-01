@@ -224,7 +224,7 @@ public class CostCentreReportService(
                     {
                         var environment = envCost.Key;
                         var cost = envCost.Value;
-                        emailReportModel.AddLeaf(costCentre.Key, projectName, environment, cost, "DevOps Project");
+                        emailReportModel.AddLeaf(costCentre.Key, projectName, environment, cost, "Azure DevOps Project");
                     }
                 }
             }

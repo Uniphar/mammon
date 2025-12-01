@@ -48,7 +48,7 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
             }))
             {
                 //log this - this is either logical error or dapr retrying actor call
-                logger.LogWarning($"Unassigned DevOps cost already exists in cost centre {Id}");
+                logger.LogWarning($"Unassigned Azure DevOps cost already exists in cost centre {Id}");
 
             }
 
@@ -75,7 +75,7 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
                 if (!state.DevOpsProjectCosts.TryAdd(project.Key, project.Value))
                 {
                     //log this - this is either logical error or dapr retrying actor call
-                    logger.LogWarning($"DevOps Project {project.Key} already exists in cost centre {Id}");
+                    logger.LogWarning($"Azure DevOps Project {project.Key} already exists in cost centre {Id}");
                 }
             }
 
