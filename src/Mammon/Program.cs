@@ -142,6 +142,7 @@ builder.Services
 builder.Services
     .AddTransient((sp) => new ArmClient(defaultAzureCredentials))
     .AddTransient<AzureAuthHandler>()
+    .AddTransient<AzureDevOpsAuthHandler>()
     .AddSingleton(defaultAzureCredentials)
     .AddSingleton<CostCentreRuleEngine>()
     .AddSingleton<CostCentreReportService>()
@@ -175,13 +176,8 @@ builder.Services
     .AddPolicyHandler(policy);
 
 builder.Services
-    .AddSingleton(sp =>
-    {
-        var config = sp.GetRequiredService<IConfiguration>();
-        var pat = config[Consts.AzureDevOpsPATConfigKey] ?? throw new InvalidOperationException("Couldn't find PAT");
-
-        return new AzureDevOpsClient(sp.GetService<ILogger<AzureDevOpsClient>>()!, pat);
-    });
+    .AddHttpClient<AzureDevOpsClient>()
+    .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 var app = builder.Build();
 

@@ -59,6 +59,11 @@ public class TenantWorkflowTests
 			.AddHttpMessageHandler<AzureAuthHandler>()
 			.AddPolicyHandler(policy);
 
+		builder.Services
+			.AddTransient<AzureDevOpsAuthHandler>()
+			.AddHttpClient("azureDevOpsHttpClient")
+			.AddHttpMessageHandler<AzureDevOpsAuthHandler>();
+
 		_host = builder.Build();
 		
 		ConfigurationBuilder configurationBuilder = new();
