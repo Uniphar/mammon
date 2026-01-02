@@ -22,6 +22,7 @@ spec:
         dapr.io/app-port: "{{ .Values.dapr.port }}"
         dapr.io/enable-api-logging: "true"
         dapr.io/config: {{ .Chart.Name }}-featureconfig
+        dapr.io/max-body-size: "16Mi"
     spec:
       serviceAccountName: {{ .Values.AKSClusterSAName }}
       containers:
