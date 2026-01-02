@@ -63,6 +63,7 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
 global using Westwind.AspNetCore.Views;
+using Grpc.Net.Client;
 
 #if (DEBUG)
 Debugger.Launch();
@@ -122,6 +123,11 @@ builder.Services
         config.RegisterActivity<VDIGroupSplitUsageActivity>();
         config.RegisterActivity<MySQLServerSplitUsageActivity>();
 
+        config.UseGrpcChannelOptions(new GrpcChannelOptions
+        {
+            MaxReceiveMessageSize = 16 * 1024 * 1024,
+            MaxSendMessageSize = 16 * 1024 * 1024,
+        });
     })
     .AddActors(options => {
         options.Actors.RegisterActor<ResourceActor>();
@@ -138,15 +144,6 @@ builder.Services
             Enabled = false
         };
     });
-
-builder.Services.AddDaprClient(builder =>
-{
-    builder.UseGrpcChannelOptions(new Grpc.Net.Client.GrpcChannelOptions
-    {
-        MaxSendMessageSize = 16 * 1024 * 1024,
-        MaxReceiveMessageSize = 16 * 1024 * 1024
-    });
-});
 
 builder.Services
     .AddTransient((sp) => new ArmClient(defaultAzureCredentials))
