@@ -139,6 +139,15 @@ builder.Services
         };
     });
 
+builder.Services.AddDaprClient(builder =>
+{
+    builder.UseGrpcChannelOptions(new Grpc.Net.Client.GrpcChannelOptions
+    {
+        MaxSendMessageSize = 16 * 1024 * 1024,
+        MaxReceiveMessageSize = 16 * 1024 * 1024
+    });
+});
+
 builder.Services
     .AddTransient((sp) => new ArmClient(defaultAzureCredentials))
     .AddTransient<AzureAuthHandler>()
