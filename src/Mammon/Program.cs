@@ -21,6 +21,7 @@ global using Dapr.Client;
 global using Dapr.Workflow;
 global using DotFlyer.Common.Payload;
 global using FluentValidation;
+global using Grpc.Net.Client;
 global using Mammon;
 global using Mammon.Actors;
 global using Mammon.Extensions;
@@ -63,7 +64,6 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
 global using Westwind.AspNetCore.Views;
-using Grpc.Net.Client;
 
 #if (DEBUG)
 Debugger.Launch();
