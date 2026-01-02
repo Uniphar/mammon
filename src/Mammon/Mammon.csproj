@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>47ece60e-f306-4e4b-9245-0480438b730f</UserSecretsId>
@@ -24,7 +24,7 @@
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />
     <PackageReference Include="CsvHelper" Version="*" />
     <PackageReference Include="Dapr.AspNetCore" Version="*" />
-    <PackageReference Include="DotFlyer.Common" Version="1.2.0" />
+    <PackageReference Include="DotFlyer.Common" Version="*" />
     <PackageReference Include="FluentValidation" Version="*" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="*" />
