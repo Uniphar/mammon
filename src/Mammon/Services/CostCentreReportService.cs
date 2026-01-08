@@ -228,6 +228,16 @@ public class CostCentreReportService(
                     }
                 }
             }
+
+            if (costCentre.Value.VisualStudioLicensesCosts is not null)
+            {
+                foreach(var vsLicenseCost in costCentre.Value.VisualStudioLicensesCosts)
+                {
+                    var licenseType = vsLicenseCost.Key;
+                    var cost = vsLicenseCost.Value;
+                    emailReportModel.AddLeaf(costCentre.Key, licenseType, "N/A", cost, "Visual Studio License");
+                }
+            }
         }
 
         return emailReportModel;

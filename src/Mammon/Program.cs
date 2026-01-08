@@ -64,6 +64,8 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
 global using Westwind.AspNetCore.Views;
+using Mammon.Workflows.Activities.VisualStudioSubscriptions;
+using Mammon.Workflows.VisualStudioSubscriptions;
 
 #if (DEBUG)
 Debugger.Launch();
@@ -103,6 +105,8 @@ builder.Services
         config.RegisterWorkflow<ObtainPagedDevOpsMembershipEntitlementsWorkflow>();
         config.RegisterWorkflow<ObtainDevOpsProjectCostWorkflow>();
         config.RegisterWorkflow<MySQLWorkflow>();
+        config.RegisterWorkflow<ObtainVisualStudioSubscriptionsCostWorkflow>();
+        config.RegisterWorkflow<SplitVisualStudioSubscriptionsCostsWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<ObtainDevOpsCostsActivity>();
@@ -122,6 +126,8 @@ builder.Services
         config.RegisterActivity<VDIGroupSplitObtainUsageActivity>();
         config.RegisterActivity<VDIGroupSplitUsageActivity>();
         config.RegisterActivity<MySQLServerSplitUsageActivity>();
+        config.RegisterActivity<ObtainVisualStudioSubscriptionsCostActivity>();
+        config.RegisterActivity<SplitVisualStudioSubscriptionsCostsActivity>();
 
         config.UseGrpcChannelOptions(new GrpcChannelOptions
         {
@@ -134,6 +140,7 @@ builder.Services
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
         options.Actors.RegisterActor<DevOpsCostActor>();
+        options.Actors.RegisterActor<VisualStudioSubscriptionCostActor>();
         options.Actors.RegisterActor<AKSVMSSActor>();
         options.Actors.RegisterActor<SQLPoolActor>();
         options.Actors.RegisterActor<SplittableVDIPoolActor>();

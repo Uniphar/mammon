@@ -9,6 +9,13 @@ public record ObtainCostsActivityRequest
 	public required int PageIndex { get; set; }	 // 0-based
 }
 
+public record ObtainVisualStudioSubscriptionCostActivityRequest
+{
+	public required string SubscriptionName { get; set; }
+    public required DateTime CostFrom { get; set; }
+    public required DateTime CostTo { get; set; }
+}
+
 public record ObtainDevOpsUsersActivityRequest
 {
 	public required string DevOpsOrganization { get; init; }
