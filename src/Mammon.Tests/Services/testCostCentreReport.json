@@ -27,5 +27,13 @@
         "tagBName": "tagBValue"
       }
     }
-  ]
+  ],
+  "StaticVisualStudioLicensesMapping": {
+    "DAWN": 8,
+    "TechOps": 5
+  },
+  "VisualStudioEnterpriseMonthlyLicenseCost": 100,
+  "VisualStudioEnterpriseAnnualLicenseCost": 110,
+  "VisualStudioProfessionalMonthlyLicenseCost": 120,
+  "VisualStudioProfessionalAnnualLicenseCost": 130
 }
