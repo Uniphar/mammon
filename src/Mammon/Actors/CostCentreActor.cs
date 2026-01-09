@@ -62,14 +62,14 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
         }
     }
 
-    public async Task AddVisualStudioSubscriptionCostAsync(ResourceCost cost)
+    public async Task AddVisualStudioSubscriptionCostAsync(string visualStudioLicenseProductName, ResourceCost cost)
     {
         try
         {
             var state = await GetStateAsync(CostStateName);
             state.VisualStudioLicensesCosts ??= [];
 
-            if (!state.VisualStudioLicensesCosts.TryAdd("VisualStudioSubscriptionLicenses", cost))
+            if (!state.VisualStudioLicensesCosts.TryAdd(visualStudioLicenseProductName, cost))
             {
                 //log this - this is either logical error or dapr retrying actor call
                 logger.LogWarning($"Visual Studio Subscription cost already exists in cost centre {Id}");
@@ -136,7 +136,7 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
                 : new ResourceCost([totalCost, resourceCosts]);
         }
 
-        if (state.VisualStudioLicensesCosts is not null)
+        if (state.VisualStudioLicensesCosts is not null && state.VisualStudioLicensesCosts.Count > 0)
         {
             var visualStudioCosts = new ResourceCost(state.VisualStudioLicensesCosts.Values);
             totalCost = totalCost is null 

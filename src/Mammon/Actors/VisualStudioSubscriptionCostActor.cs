@@ -20,54 +20,56 @@ public class VisualStudioSubscriptionCostActor(
 
         try
         {
-            Dictionary<string, ResourceCost> costCentreCosts = [];
+            Dictionary<string, Dictionary<string, ResourceCost>> costCentreCosts = [];
 
-            foreach (var vs in request.VisualStudioSubscriptionCosts)
+            foreach (var visualStudioSubscriptionCost in request.VisualStudioSubscriptionCosts)
             {
-                var billedTotal = vs.Cost.Cost;
-                var billedCurrency = vs.Cost.Currency;
+                var billedTotal = visualStudioSubscriptionCost.Cost.Cost;
+                var billedCurrency = visualStudioSubscriptionCost.Cost.Currency;
 
-                var unitCost = ResolveUnitCost(vs.Product);
+                var unitCost = ResolveUnitCost(visualStudioSubscriptionCost);
 
                 if (!string.Equals(unitCost.Currency, billedCurrency, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException(
-                        $"Currency mismatch for '{vs.Product}': billed={billedCurrency}, unit={unitCost.Currency}");
+                        $"Currency mismatch for '{visualStudioSubscriptionCost.Product}': billed={billedCurrency}, unit={unitCost.Currency}");
 
                 decimal allocatedSoFar = 0m;
 
                 foreach (var kvp in costCentreRuleEngine.StaticVisualStudioLicensesMapping)
                 {
                     var department = kvp.Key;
-                    var licenseCount = kvp.Value; // double in your model
+                    var licenseCount = kvp.Value;
 
                     if (licenseCount <= 0)
                         continue;
 
                     var desired = unitCost.Cost * (decimal)licenseCount;
 
-                    // Cap so we never allocate more than what was billed for that product.
                     var remaining = billedTotal - allocatedSoFar;
                     if (remaining <= 0)
                         break;
 
                     var allocated = desired <= remaining ? desired : remaining;
 
-                    AddCost(costCentreCosts, department, new ResourceCost(allocated, billedCurrency));
+                    AddCost(costCentreCosts, visualStudioSubscriptionCost.Product, department, new ResourceCost(allocated, billedCurrency));
                     allocatedSoFar += allocated;
                 }
 
                 // Remainder to default cost centre
                 var remainder = billedTotal - allocatedSoFar;
                 if (remainder > 0)
-                    AddCost(costCentreCosts, costCentreRuleEngine.DefaultCostCentre, new ResourceCost(remainder, billedCurrency));
+                    AddCost(costCentreCosts, visualStudioSubscriptionCost.Product, costCentreRuleEngine.DefaultCostCentre, new ResourceCost(remainder, billedCurrency));
             }
 
             foreach(var costCentreCost in costCentreCosts)
             {
-                await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+                foreach(var subCostCentreCost in costCentreCost.Value)
+                {
+                    await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
                     CostCentreActor.GetActorId(request.ReportRequest.ReportId, costCentreCost.Key, request.ReportRequest.SubscriptionId),
                     nameof(CostCentreActor),
-                    async (p) => await p.AddVisualStudioSubscriptionCostAsync(costCentreCost.Value));
+                    async (p) => await p.AddVisualStudioSubscriptionCostAsync(subCostCentreCost.Key, subCostCentreCost.Value));
+                }
             }
         }
         catch (Exception ex)
@@ -78,29 +80,39 @@ public class VisualStudioSubscriptionCostActor(
     }
 
     static void AddCost(
-        Dictionary<string, ResourceCost> target,
+        Dictionary<string, Dictionary<string, ResourceCost>> target,
+        string product,
         string costCentre,
         ResourceCost cost)
     {
         if (target.TryGetValue(costCentre, out var existing))
         {
-            target[costCentre] = new ResourceCost([existing, cost]);
-            return;
+            if (existing.TryGetValue(product, out var existingCost))
+            {
+                existing[product] = new ResourceCost(existingCost.Cost + cost.Cost, cost.Currency);
+            }
+            else
+            {
+                existing[product] = cost;
+            }
         }
 
-        target[costCentre] = cost;
+        target[costCentre] = new Dictionary<string, ResourceCost>
+        {
+            {  product, cost }
+        };
     }
 
 
-    private ResourceCost ResolveUnitCost(string product)
+    private ResourceCost ResolveUnitCost(VisualStudioSubscriptionCostResponse vsSubCost)
     {
-        return product switch
+        return vsSubCost.Product switch
         {
-            "Visual Studio Subscription - Enterprise Monthly" => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseMonthlyLicenseCost, "EUR"),
-            "Visual Studio Subscription - Enterprise Annual" => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseAnnualLicenseCost, "EUR"),
-            "Visual Studio Subscription - Professional Monthly" => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalMonthlyLicenseCost, "EUR"),
-            "Visual Studio Subscription - Professional Annual" => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalAnnualLicenseCost, "EUR"),
-            _ => throw new InvalidOperationException($"Unknown Visual Studio product '{product}'")
+            "Visual Studio Subscription - Enterprise Monthly" => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseMonthlyLicenseCost, vsSubCost.Cost.Currency),
+            "Visual Studio Subscription - Enterprise Annual" => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseAnnualLicenseCost, vsSubCost.Cost.Currency),
+            "Visual Studio Subscription - Professional Monthly" => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalMonthlyLicenseCost, vsSubCost.Cost.Currency),
+            "Visual Studio Subscription - Professional Annual" => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalAnnualLicenseCost, vsSubCost.Cost.Currency),
+            _ => throw new InvalidOperationException($"Unknown Visual Studio product '{vsSubCost.Product}'")
         };
     }
 

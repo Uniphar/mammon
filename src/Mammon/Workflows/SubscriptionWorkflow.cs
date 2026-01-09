@@ -148,7 +148,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		return true;
     }
 
-	private static async Task TriggerSplittableWorkflowAsync<T>(WorkflowContext context, CostReportSubscriptionRequest input, ResourceCostResponse resourceToSplit) where T: Workflow<SplittableResourceRequest,bool>
+	private static async Task TriggerSplittableWorkflowAsync<T>(WorkflowContext context, CostReportSubscriptionRequest input, ResourceCostResponse resourceToSplit) where T : Workflow<SplittableResourceRequest, bool>
 	{
 		var workflowTypeName = typeof(T).Name;
 
