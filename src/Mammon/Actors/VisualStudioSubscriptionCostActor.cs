@@ -96,11 +96,13 @@ public class VisualStudioSubscriptionCostActor(
                 existing[product] = cost;
             }
         }
-
-        target[costCentre] = new Dictionary<string, ResourceCost>
+        else
         {
-            {  product, cost }
-        };
+            target[costCentre] = new Dictionary<string, ResourceCost>
+            {
+                {  product, cost }
+            };
+        }
     }
 
 

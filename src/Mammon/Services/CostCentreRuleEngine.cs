@@ -79,6 +79,9 @@ public class CostCentreRuleEngine
         StaticMySQLMapping = definition.StaticMySQLMapping ?? new Dictionary<string, double>();
         StaticVisualStudioLicensesMapping = definition.StaticVisualStudioLicensesMapping;
         VisualStudioEnterpriseMonthlyLicenseCost = definition.VisualStudioEnterpriseMonthlyLicenseCost;
+        VisualStudioEnterpriseAnnualLicenseCost = definition.VisualStudioEnterpriseAnnualLicenseCost;
+        VisualStudioProfessionalMonthlyLicenseCost = definition.VisualStudioProfessionalMonthlyLicenseCost;
+        VisualStudioProfessionalAnnualLicenseCost = definition.VisualStudioProfessionalAnnualLicenseCost;
 
         InitializeCostCentres();
     }
