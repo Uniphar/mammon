@@ -41,9 +41,9 @@ public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinit
         RuleFor(x => x.StaticMySQLMapping).SetValidator(x => new StaticMySQLMappingValidator());
         RuleFor(x => x.StaticVisualStudioLicensesMapping).SetValidator(x => new StaticVisualStudioLicensesMapping());
         RuleFor(x => x.VisualStudioEnterpriseMonthlyLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Enterprise Monthly License Cost must be non-negative");
-        RuleFor(x => x.VisualStudioEnterpriseAnnualLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Enterprise Annualy License Cost must be non-negative");
+        RuleFor(x => x.VisualStudioEnterpriseAnnualLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Enterprise Annual License Cost must be non-negative");
         RuleFor(x => x.VisualStudioProfessionalMonthlyLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Professional Monthly License Cost must be non-negative");
-        RuleFor(x => x.VisualStudioProfessionalAnnualLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Professional Monthly License Cost must be non-negative");
+        RuleFor(x => x.VisualStudioProfessionalAnnualLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Professional Annual License Cost must be non-negative");
     }
 }
 
