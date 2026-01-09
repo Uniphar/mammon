@@ -1,0 +1,32 @@
+﻿{
+  "id": "subscriptions/1620bff3-d3be-4da6-b073-b3b6c2001716/providers/Microsoft.CostManagement/query/b1592e04-14b5-48a9-9d44-e40e6c10cdcf",
+  "name": "b1592e04-14b5-48a9-9d44-e40e6c10cdcf",
+  "type": "Microsoft.CostManagement/query",
+  "location": null,
+  "sku": null,
+  "eTag": null,
+  "properties": {
+    "nextLink": null,
+    "columns": [
+      {
+        "name": "Cost",
+        "type": "Number"
+      },
+      {
+        "name": "Product",
+        "type": "String"
+      },
+      {
+        "name": "Currency",
+        "type": "String"
+      }
+    ],
+    "rows": [
+      [
+        100,
+        "Visual Studio Subscription - Enterprise Monthly",
+        "EUR"
+      ]
+    ]
+  }
+}

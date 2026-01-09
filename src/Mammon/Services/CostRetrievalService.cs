@@ -86,24 +86,41 @@ public class CostRetrievalService
               }}
             }}";
 
-        var subId = GetSubscriptionFullResourceId(request.SubscriptionName)
-                    ?? throw new InvalidOperationException(
-                        $"Unable to find subscription {request.SubscriptionName}");
+        CostManagementQueryResult parsed;
 
-        var url =
-            $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version=2023-11-01";
+#if(DEBUG || INTTEST)
+        string? mockApiResponsePath;
+        if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockVisualStudioSubscriptionsCostsApiResponseFilePathConfigKey])
+            && File.Exists(mockApiResponsePath))
+        {
+            var mockResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+            parsed = JsonSerializer.Deserialize<CostManagementQueryResult>(
+                             mockResponse, jsonSerializerOptions)
+                         ?? throw new InvalidOperationException(
+                             "Failed to deserialize cost query response");
+        }
+        else
+        {
+#endif
+            var subId = GetSubscriptionFullResourceId(request.SubscriptionName)
+                        ?? throw new InvalidOperationException(
+                            $"Unable to find subscription {request.SubscriptionName}");
+            var url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version=2023-11-01";
 
-        using var content = new StringContent(requestPayload, Encoding.UTF8, "application/json");
-        using var response = await httpClient.PostAsync(url, content);
+            using var content = new StringContent(requestPayload, Encoding.UTF8, "application/json");
+            using var response = await httpClient.PostAsync(url, content);
 
-        response.EnsureSuccessStatusCode();
+            response.EnsureSuccessStatusCode();
 
-        var json = await response.Content.ReadAsStringAsync();
+            var json = await response.Content.ReadAsStringAsync();
 
-        var parsed = JsonSerializer.Deserialize<CostManagementQueryResult>(
-                         json, jsonSerializerOptions)
-                     ?? throw new InvalidOperationException(
-                         "Failed to deserialize cost query response");
+            parsed = JsonSerializer.Deserialize<CostManagementQueryResult>(
+                             json, jsonSerializerOptions)
+                         ?? throw new InvalidOperationException(
+                             "Failed to deserialize cost query response");
+#if (DEBUG || INTTEST)
+        }
+#endif
 
         var productIndex = parsed.Properties.Columns.FindIndex(c => c.Name == "Product");
         var costIndex = parsed.Properties.Columns.FindIndex(c => c.Name == "Cost");
@@ -282,7 +299,7 @@ public class CostRetrievalService
         {
             List<ResourceCostResponse> costs;
 
-#if (DEBUG || INTTEST)
+#if (INTTEST)
             string? mockApiResponsePath;
 
             if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePathConfigKey])
@@ -314,7 +331,7 @@ public class CostRetrievalService
                 response.EnsureSuccessStatusCode();
 
                 (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync(), subId, request.GroupingMode);
-#if (DEBUG || INTTEST)
+#if (INTTEST)
             }
 #endif
 
