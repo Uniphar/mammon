@@ -35,10 +35,10 @@ public class VisualStudioSubscriptionCostActor(
 
                 decimal allocatedSoFar = 0m;
 
-                foreach (var kvp in costCentreRuleEngine.StaticVisualStudioLicensesMapping)
+                foreach (var costCentreLicenseAllocation in costCentreRuleEngine.StaticVisualStudioLicensesMapping)
                 {
-                    var department = kvp.Key;
-                    var licenseCount = kvp.Value;
+                    var department = costCentreLicenseAllocation.Key;
+                    var licenseCount = costCentreLicenseAllocation.Value;
 
                     if (licenseCount <= 0)
                         continue;
@@ -79,7 +79,7 @@ public class VisualStudioSubscriptionCostActor(
         }
     }
 
-    static void AddCost(
+    private static void AddCost(
         Dictionary<string, Dictionary<string, ResourceCost>> target,
         string product,
         string costCentre,
@@ -117,5 +117,4 @@ public class VisualStudioSubscriptionCostActor(
             _ => throw new InvalidOperationException($"Unknown Visual Studio product '{vsSubCost.Product}'")
         };
     }
-
 }

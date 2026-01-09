@@ -238,13 +238,13 @@ public class TenantWorkflowTests
 				total += testPlansLicensesCost;
             }
 
-			var visualStudioLicenseCostRequest = new ObtainVisualStudioSubscriptionCostActivityRequest
+			var visualStudioSubscriptionCostRequest = new ObtainVisualStudioSubscriptionCostActivityRequest
 			{
 				SubscriptionName = subscription.SubscriptionName,
 				CostFrom = _reportRequest.CostFrom,
 				CostTo = _reportRequest.CostTo
 			};
-			var visualStudioLicenseCost = await _costRetrievalService!.QueryVisualStudioLicensesForSubAsync(visualStudioLicenseCostRequest);
+			var visualStudioLicenseCost = await _costRetrievalService!.QueryVisualStudioSubscriptionCostForSubAsync(visualStudioSubscriptionCostRequest);
 			if (visualStudioLicenseCost != null)
 			{
                 total += visualStudioLicenseCost.Sum(t => t.Cost.Cost);

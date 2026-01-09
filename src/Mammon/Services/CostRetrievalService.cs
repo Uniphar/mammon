@@ -48,7 +48,7 @@ public class CostRetrievalService
         return subByName?.Id ?? string.Empty;
     }
 
-    public async Task<List<VisualStudioSubscriptionCostResponse>?> QueryVisualStudioLicensesForSubAsync(
+    public async Task<List<VisualStudioSubscriptionCostResponse>?> QueryVisualStudioSubscriptionCostForSubAsync(
         ObtainVisualStudioSubscriptionCostActivityRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.SubscriptionName))
@@ -159,7 +159,6 @@ public class CostRetrievalService
 
         return result;
     }
-
 
     public sealed class VisualStudioLicenseCostItem
     {

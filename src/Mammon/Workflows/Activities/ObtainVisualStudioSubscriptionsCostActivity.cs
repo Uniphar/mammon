@@ -4,6 +4,6 @@ public class ObtainVisualStudioSubscriptionsCostActivity(CostRetrievalService co
 {
     public override async Task<List<VisualStudioSubscriptionCostResponse>?> RunAsync(WorkflowActivityContext context, ObtainVisualStudioSubscriptionCostActivityRequest input)
     {
-        return await costService.QueryVisualStudioLicensesForSubAsync(input);
+        return await costService.QueryVisualStudioSubscriptionCostForSubAsync(input);
     }
 }

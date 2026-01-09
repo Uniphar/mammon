@@ -4,8 +4,8 @@ namespace Mammon.Workflows;
 
 public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool>
 {
-    public async override Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
-    {
+	public async override Task<bool> RunAsync(WorkflowContext context, CostReportSubscriptionRequest input)
+	{
 		List<ResourceCostResponse> costs = [];
 
 		ObtainCostByPageWorkflowResult pageResponse;
@@ -108,8 +108,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			await context.CallChildWorkflowAsync<bool>(
 				nameof(SplitVisualStudioSubscriptionsCostsWorkflow),
 				visualStudioLicensesCostSplitRequest,
-                new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SplitVisualStudioSubscriptionsCostsWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
-        }
+				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SplitVisualStudioSubscriptionsCostsWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
+		}
 
 		if (string.IsNullOrEmpty(input.DevOpsOrganization)) return true;
 
@@ -146,7 +146,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SplitDevopsCostsWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
 
 		return true;
-    }
+	}
 
 	private static async Task TriggerSplittableWorkflowAsync<T>(WorkflowContext context, CostReportSubscriptionRequest input, ResourceCostResponse resourceToSplit) where T : Workflow<SplittableResourceRequest, bool>
 	{
