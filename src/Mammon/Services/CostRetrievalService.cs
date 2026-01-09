@@ -160,13 +160,6 @@ public class CostRetrievalService
         return result;
     }
 
-    public sealed class VisualStudioLicenseCostItem
-    {
-        public string Product { get; init; } = string.Empty;
-        public decimal Cost { get; init; }
-        public string Currency { get; init; } = string.Empty;
-    }
-
     public async Task<List<DevOpsCostResponse>> QueryDevOpsCostForSubAsync(ObtainDevOpsCostsActivityRequest request)
     {
         if (string.IsNullOrWhiteSpace(request.DevOpsOrganization)) return [];
