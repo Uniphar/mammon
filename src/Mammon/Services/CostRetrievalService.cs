@@ -291,7 +291,7 @@ public class CostRetrievalService
         {
             List<ResourceCostResponse> costs;
 
-#if (INTTEST)
+#if (DEBUG || INTTEST)
             string? mockApiResponsePath;
 
             if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockCostAPIResponseFilePathConfigKey])
@@ -323,7 +323,7 @@ public class CostRetrievalService
                 response.EnsureSuccessStatusCode();
 
                 (nextLink, costs) = ParseRawJson(await response.Content.ReadAsStringAsync(), subId, request.GroupingMode);
-#if (INTTEST)
+#if (DEBUG || INTTEST)
             }
 #endif
 
