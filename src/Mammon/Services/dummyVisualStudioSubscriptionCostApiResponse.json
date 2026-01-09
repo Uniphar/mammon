@@ -23,8 +23,13 @@
     ],
     "rows": [
       [
-        100,
+        500,
         "Visual Studio Subscription - Enterprise Monthly",
+        "EUR"
+      ],
+      [
+        300,
+        "Visual Studio Subscription - Professional Monthly",
         "EUR"
       ]
     ]

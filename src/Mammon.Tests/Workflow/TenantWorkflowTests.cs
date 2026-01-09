@@ -108,7 +108,7 @@ public class TenantWorkflowTests
 	{
 		var expectedResourcesTotal = 11675.26m;
 		var expectedDevOpsLicensesTotal = 400.0m;
-		var expectedVisualStudioLicenseTotal = 300.0m;
+		var expectedVisualStudioLicenseTotal = 2400.0m;
 		decimal expectedTotal = expectedResourcesTotal + expectedDevOpsLicensesTotal + expectedVisualStudioLicenseTotal;
 
         await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
