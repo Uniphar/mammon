@@ -6,6 +6,22 @@ public class VisualStudioSubscriptionCostActor(
     CostCentreRuleEngine costCentreRuleEngine)
     : ActorBase<CoreResourceActorState>(actorHost), IVisualStudioSubscriptionCostActor
 {
+    private readonly IReadOnlyDictionary<string, Func<string, ResourceCost>> _unitCostResolvers =
+        new Dictionary<string, Func<string, ResourceCost>>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Visual Studio Subscription - Enterprise Monthly"] =
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseMonthlyLicenseCost, currency),
+
+            ["Visual Studio Subscription - Enterprise Annual"] =
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseAnnualLicenseCost, currency),
+
+            ["Visual Studio Subscription - Professional Monthly"] =
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalMonthlyLicenseCost, currency),
+
+            ["Visual Studio Subscription - Professional Annual"] =
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalAnnualLicenseCost, currency),
+        };
+
     public async Task SplitCostAsync(VisualStudioSubscriptionsSplittableResourceRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -105,16 +121,14 @@ public class VisualStudioSubscriptionCostActor(
         }
     }
 
-
     private ResourceCost ResolveUnitCost(VisualStudioSubscriptionCostResponse vsSubCost)
     {
-        return vsSubCost.Product switch
+        if (_unitCostResolvers.TryGetValue(vsSubCost.Product, out var resolver))
         {
-            "Visual Studio Subscription - Enterprise Monthly" => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseMonthlyLicenseCost, vsSubCost.Cost.Currency),
-            "Visual Studio Subscription - Enterprise Annual" => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseAnnualLicenseCost, vsSubCost.Cost.Currency),
-            "Visual Studio Subscription - Professional Monthly" => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalMonthlyLicenseCost, vsSubCost.Cost.Currency),
-            "Visual Studio Subscription - Professional Annual" => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalAnnualLicenseCost, vsSubCost.Cost.Currency),
-            _ => throw new InvalidOperationException($"Unknown Visual Studio product '{vsSubCost.Product}'")
-        };
+            return resolver(vsSubCost.Cost.Currency);
+        }
+
+        throw new InvalidOperationException(
+            $"Unknown Visual Studio product '{vsSubCost.Product}'");
     }
 }
