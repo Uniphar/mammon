@@ -41,11 +41,13 @@ global using Mammon.Workflows.Activities.LogAnalytics;
 global using Mammon.Workflows.Activities.MySQL;
 global using Mammon.Workflows.Activities.SQLPool;
 global using Mammon.Workflows.Activities.VDI;
+global using Mammon.Workflows.Activities.VisualStudioSubscriptions;
 global using Mammon.Workflows.AKS;
 global using Mammon.Workflows.LogAnalytics;
 global using Mammon.Workflows.MySQL;
 global using Mammon.Workflows.SQLPool;
 global using Mammon.Workflows.VDI;
+global using Mammon.Workflows.VisualStudioSubscriptions;
 global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
@@ -64,8 +66,6 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Text.RegularExpressions;
 global using Westwind.AspNetCore.Views;
-using Mammon.Workflows.Activities.VisualStudioSubscriptions;
-using Mammon.Workflows.VisualStudioSubscriptions;
 
 #if (DEBUG)
 Debugger.Launch();

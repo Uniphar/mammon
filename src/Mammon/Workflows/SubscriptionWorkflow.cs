@@ -1,6 +1,4 @@
-﻿using Mammon.Workflows.VisualStudioSubscriptions;
-
-namespace Mammon.Workflows;
+﻿namespace Mammon.Workflows;
 
 public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool>
 {

@@ -1,7 +1,4 @@
-﻿
-using Mammon.Workflows.Activities.VisualStudioSubscriptions;
-
-namespace Mammon.Workflows.VisualStudioSubscriptions;
+﻿namespace Mammon.Workflows.VisualStudioSubscriptions;
 
 public class SplitVisualStudioSubscriptionsCostsWorkflow : Workflow<VisualStudioSubscriptionsSplittableResourceRequest, bool>
 {
