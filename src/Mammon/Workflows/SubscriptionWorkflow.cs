@@ -86,7 +86,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			await TriggerSplittableWorkflowAsync<LAWorkspaceWorkflow>(context, input, laWorkspace);
 		}
 
-		var visualStudioLicensesCost = await context.CallChildWorkflowAsync<List<VisualStudioSubscriptionCostResponse>?>(
+        // Get Visual Studio subscription costs
+        var visualStudioSubscriptionsCosts = await context.CallChildWorkflowAsync<List<VisualStudioSubscriptionCostResponse>?>(
 			nameof(ObtainVisualStudioSubscriptionsCostWorkflow),
 			new ObtainVisualStudioSubscriptionCostActivityRequest
 			{
@@ -95,12 +96,12 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 				CostTo = input.ReportRequest.CostTo
 			});
 
-		if (visualStudioLicensesCost is not null)
+		if (visualStudioSubscriptionsCosts is not null)
 		{
 			var visualStudioLicensesCostSplitRequest = new VisualStudioSubscriptionsSplittableResourceRequest
 			{
 				ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId),
-				VisualStudioSubscriptionCosts = visualStudioLicensesCost!
+				VisualStudioSubscriptionCosts = visualStudioSubscriptionsCosts!
 			};
 
 			await context.CallChildWorkflowAsync<bool>(

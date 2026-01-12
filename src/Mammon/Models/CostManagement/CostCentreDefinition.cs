@@ -12,11 +12,11 @@ public record CostCentreDefinition
 	public IDictionary<string, string> SQLDatabaseMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 	public IDictionary<string, string> GroupIDMapping { get; set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     public IDictionary<string, double>? StaticMySQLMapping { get; set; } = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
-    public IDictionary<string, double> StaticVisualStudioLicensesMapping { get; set; } = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
-    public required decimal VisualStudioEnterpriseMonthlyLicenseCost { get; set; }
-    public required decimal VisualStudioEnterpriseAnnualLicenseCost { get; set; }
-    public required decimal VisualStudioProfessionalMonthlyLicenseCost { get; set; }
-    public required decimal VisualStudioProfessionalAnnualLicenseCost { get; set; }
+    public IDictionary<string, double> StaticVisualStudioSubscriptionsMapping { get; set; } = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+    public required decimal VisualStudioEnterpriseMonthlySubscriptionCost { get; set; }
+    public required decimal VisualStudioEnterpriseAnnualSubscriptionCost { get; set; }
+    public required decimal VisualStudioProfessionalMonthlySubscriptionCost { get; set; }
+    public required decimal VisualStudioProfessionalAnnualSubscriptionCost { get; set; }
 }
 
 public record DevOpsCostCentreDefinition
@@ -39,11 +39,11 @@ public class CostCentreDefinitionValidator : AbstractValidator<CostCentreDefinit
 		RuleForEach(x => x.SQLDatabaseMapping).Must(x => !string.IsNullOrWhiteSpace(x.Key) && !string.IsNullOrWhiteSpace(x.Value)).WithMessage("SQL Database Mapping must have both key and value");
 		RuleForEach(x => x.GroupIDMapping).Must(x => !string.IsNullOrWhiteSpace(x.Key) && !string.IsNullOrWhiteSpace(x.Value)).WithMessage("Group ID Mapping must have both key and value");
         RuleFor(x => x.StaticMySQLMapping).SetValidator(x => new StaticMySQLMappingValidator());
-        RuleFor(x => x.StaticVisualStudioLicensesMapping).SetValidator(x => new StaticVisualStudioLicensesMapping());
-        RuleFor(x => x.VisualStudioEnterpriseMonthlyLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Enterprise Monthly License Cost must be non-negative");
-        RuleFor(x => x.VisualStudioEnterpriseAnnualLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Enterprise Annual License Cost must be non-negative");
-        RuleFor(x => x.VisualStudioProfessionalMonthlyLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Professional Monthly License Cost must be non-negative");
-        RuleFor(x => x.VisualStudioProfessionalAnnualLicenseCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Professional Annual License Cost must be non-negative");
+        RuleFor(x => x.StaticVisualStudioSubscriptionsMapping).SetValidator(x => new StaticVisualStudioLicensesMapping());
+        RuleFor(x => x.VisualStudioEnterpriseMonthlySubscriptionCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Enterprise Monthly Subscription Cost must be non-negative");
+        RuleFor(x => x.VisualStudioEnterpriseAnnualSubscriptionCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Enterprise Annual Subscription Cost must be non-negative");
+        RuleFor(x => x.VisualStudioProfessionalMonthlySubscriptionCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Professional Monthly Subscription Cost must be non-negative");
+        RuleFor(x => x.VisualStudioProfessionalAnnualSubscriptionCost).GreaterThanOrEqualTo(0).WithMessage("Visual Studio Professional Annual Subscription Cost must be non-negative");
     }
 }
 
@@ -84,8 +84,8 @@ public class StaticVisualStudioLicensesMapping : AbstractValidator<IDictionary<s
 {
     public StaticVisualStudioLicensesMapping()
     {
-        RuleForEach(x => x).Must(x => !string.IsNullOrWhiteSpace(x.Key) && x.Value >= 0).WithMessage("Static Visual Studio Licenses Mapping must have both key and non-negative value");
-        RuleFor(x => x).Must(HaveUniqueKeys).WithMessage("Static Visual Studio Licenses Mapping must have unique keys");
+        RuleForEach(x => x).Must(x => !string.IsNullOrWhiteSpace(x.Key) && x.Value >= 0).WithMessage("Static Visual Studio Subscriptions Mapping must have both key and non-negative value");
+        RuleFor(x => x).Must(HaveUniqueKeys).WithMessage("Static Visual Studio Subscriptions Mapping must have unique keys");
     }
     private static bool HaveUniqueKeys<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
     {

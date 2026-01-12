@@ -22,11 +22,11 @@ public class CostCentreRuleEngine
     public IDictionary<string, string> GroupIDMapping { get; internal set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     public IDictionary<Regex, string> SQLDatabaseMapping { get; internal set; } = new Dictionary<Regex, string>();
     public IDictionary<string, double> StaticMySQLMapping { get; internal set; } = new Dictionary<string, double>();
-    public IDictionary<string, double> StaticVisualStudioLicensesMapping { get; internal set; } = new Dictionary<string, double>();
-    public decimal VisualStudioEnterpriseMonthlyLicenseCost { get; internal set; }
-    public decimal VisualStudioEnterpriseAnnualLicenseCost { get; internal set; }
-    public decimal VisualStudioProfessionalMonthlyLicenseCost { get; internal set; }
-    public decimal VisualStudioProfessionalAnnualLicenseCost { get; internal set; }
+    public IDictionary<string, double> StaticVisualStudioSubscriptionsMapping { get; internal set; } = new Dictionary<string, double>();
+    public decimal VisualStudioEnterpriseMonthlySubscriptionCost { get; internal set; }
+    public decimal VisualStudioEnterpriseAnnualSubscriptionCost { get; internal set; }
+    public decimal VisualStudioProfessionalMonthlySubscriptionCost { get; internal set; }
+    public decimal VisualStudioProfessionalAnnualSubscriptionCost { get; internal set; }
 
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -77,11 +77,11 @@ public class CostCentreRuleEngine
         GroupIDMapping = definition.GroupIDMapping;
         ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
         StaticMySQLMapping = definition.StaticMySQLMapping ?? new Dictionary<string, double>();
-        StaticVisualStudioLicensesMapping = definition.StaticVisualStudioLicensesMapping;
-        VisualStudioEnterpriseMonthlyLicenseCost = definition.VisualStudioEnterpriseMonthlyLicenseCost;
-        VisualStudioEnterpriseAnnualLicenseCost = definition.VisualStudioEnterpriseAnnualLicenseCost;
-        VisualStudioProfessionalMonthlyLicenseCost = definition.VisualStudioProfessionalMonthlyLicenseCost;
-        VisualStudioProfessionalAnnualLicenseCost = definition.VisualStudioProfessionalAnnualLicenseCost;
+        StaticVisualStudioSubscriptionsMapping = definition.StaticVisualStudioSubscriptionsMapping;
+        VisualStudioEnterpriseMonthlySubscriptionCost = definition.VisualStudioEnterpriseMonthlySubscriptionCost;
+        VisualStudioEnterpriseAnnualSubscriptionCost = definition.VisualStudioEnterpriseAnnualSubscriptionCost;
+        VisualStudioProfessionalMonthlySubscriptionCost = definition.VisualStudioProfessionalMonthlySubscriptionCost;
+        VisualStudioProfessionalAnnualSubscriptionCost = definition.VisualStudioProfessionalAnnualSubscriptionCost;
 
         InitializeCostCentres();
     }

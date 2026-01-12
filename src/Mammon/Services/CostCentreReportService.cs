@@ -91,22 +91,22 @@ public class CostCentreReportService(
                         }
                     }
 
-                    if (existing.VisualStudioLicensesCosts is null)
+                    if (existing.VisualStudioSubscriptionsCosts is null)
                     {
-                        existing.VisualStudioLicensesCosts = subCostCentreState.Value.VisualStudioLicensesCosts;
+                        existing.VisualStudioSubscriptionsCosts = subCostCentreState.Value.VisualStudioSubscriptionsCosts;
                     }
-                    else if (subCostCentreState.Value.VisualStudioLicensesCosts is not null)
+                    else if (subCostCentreState.Value.VisualStudioSubscriptionsCosts is not null)
                     {
-                        foreach(var vsLicenseCost in subCostCentreState.Value.VisualStudioLicensesCosts)
+                        foreach(var vsLicenseCost in subCostCentreState.Value.VisualStudioSubscriptionsCosts)
                         {
-                            if (existing.VisualStudioLicensesCosts.TryGetValue(vsLicenseCost.Key, out var existingVsLicenseCost))
+                            if (existing.VisualStudioSubscriptionsCosts.TryGetValue(vsLicenseCost.Key, out var existingVsLicenseCost))
                             {
                                 existingVsLicenseCost = new ResourceCost([existingVsLicenseCost, vsLicenseCost.Value]);
-                                existing.VisualStudioLicensesCosts[vsLicenseCost.Key] = existingVsLicenseCost;
+                                existing.VisualStudioSubscriptionsCosts[vsLicenseCost.Key] = existingVsLicenseCost;
                             }
                             else
                             {
-                                existing.VisualStudioLicensesCosts[vsLicenseCost.Key] = vsLicenseCost.Value;
+                                existing.VisualStudioSubscriptionsCosts[vsLicenseCost.Key] = vsLicenseCost.Value;
                             }
                         }
                     }
@@ -249,9 +249,9 @@ public class CostCentreReportService(
                 }
             }
 
-            if (costCentre.Value.VisualStudioLicensesCosts is not null)
+            if (costCentre.Value.VisualStudioSubscriptionsCosts is not null)
             {
-                foreach(var vsLicenseCost in costCentre.Value.VisualStudioLicensesCosts)
+                foreach(var vsLicenseCost in costCentre.Value.VisualStudioSubscriptionsCosts)
                 {
                     var licenseType = vsLicenseCost.Key;
                     var cost = vsLicenseCost.Value;

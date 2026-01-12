@@ -10,16 +10,16 @@ public class VisualStudioSubscriptionCostActor(
         new Dictionary<string, Func<string, ResourceCost>>(StringComparer.OrdinalIgnoreCase)
         {
             ["Visual Studio Subscription - Enterprise Monthly"] =
-            currency => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseMonthlyLicenseCost, currency),
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseMonthlySubscriptionCost, currency),
 
             ["Visual Studio Subscription - Enterprise Annual"] =
-            currency => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseAnnualLicenseCost, currency),
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioEnterpriseAnnualSubscriptionCost, currency),
 
             ["Visual Studio Subscription - Professional Monthly"] =
-            currency => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalMonthlyLicenseCost, currency),
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalMonthlySubscriptionCost, currency),
 
             ["Visual Studio Subscription - Professional Annual"] =
-            currency => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalAnnualLicenseCost, currency),
+            currency => new ResourceCost(costCentreRuleEngine.VisualStudioProfessionalAnnualSubscriptionCost, currency),
         };
 
     public async Task SplitCostAsync(VisualStudioSubscriptionsSplittableResourceRequest request)
@@ -36,6 +36,7 @@ public class VisualStudioSubscriptionCostActor(
 
         try
         {
+            // { "DAWN": { "Visual Studio Subscription - Enterprise Monthly": { Cost, Currency } } }
             Dictionary<string, Dictionary<string, ResourceCost>> costCentreCosts = [];
 
             foreach (var visualStudioSubscriptionCost in request.VisualStudioSubscriptionCosts)
@@ -51,23 +52,23 @@ public class VisualStudioSubscriptionCostActor(
 
                 decimal allocatedSoFar = 0m;
 
-                foreach (var costCentreLicenseAllocation in costCentreRuleEngine.StaticVisualStudioLicensesMapping)
+                foreach (var costCentreLicenseAllocation in costCentreRuleEngine.StaticVisualStudioSubscriptionsMapping)
                 {
-                    var department = costCentreLicenseAllocation.Key;
+                    var costCentre = costCentreLicenseAllocation.Key;
                     var licenseCount = costCentreLicenseAllocation.Value;
 
                     if (licenseCount <= 0)
                         continue;
 
-                    var desired = unitCost.Cost * (decimal)licenseCount;
+                    var costForCurrentCostCentre = unitCost.Cost * (decimal)licenseCount;
 
                     var remaining = billedTotal - allocatedSoFar;
                     if (remaining <= 0)
                         break;
 
-                    var allocated = desired <= remaining ? desired : remaining;
+                    var allocated = costForCurrentCostCentre <= remaining ? costForCurrentCostCentre : remaining;
 
-                    AddCost(costCentreCosts, visualStudioSubscriptionCost.Product, department, new ResourceCost(allocated, billedCurrency));
+                    AddCost(costCentreCosts, visualStudioSubscriptionCost.Product, costCentre, new ResourceCost(allocated, billedCurrency));
                     allocatedSoFar += allocated;
                 }
 
@@ -82,9 +83,9 @@ public class VisualStudioSubscriptionCostActor(
                 foreach(var subCostCentreCost in costCentreCost.Value)
                 {
                     await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
-                    CostCentreActor.GetActorId(request.ReportRequest.ReportId, costCentreCost.Key, request.ReportRequest.SubscriptionId),
-                    nameof(CostCentreActor),
-                    async (p) => await p.AddVisualStudioSubscriptionCostAsync(subCostCentreCost.Key, subCostCentreCost.Value));
+                        CostCentreActor.GetActorId(request.ReportRequest.ReportId, costCentreCost.Key, request.ReportRequest.SubscriptionId),
+                        nameof(CostCentreActor),
+                        async (p) => await p.AddVisualStudioSubscriptionCostAsync(subCostCentreCost.Key, subCostCentreCost.Value));
                 }
             }
         }
@@ -96,27 +97,27 @@ public class VisualStudioSubscriptionCostActor(
     }
 
     private static void AddCost(
-        Dictionary<string, Dictionary<string, ResourceCost>> target,
-        string product,
+        Dictionary<string, Dictionary<string, ResourceCost>> costCentreStates,
+        string visualStudioSubscriptionProductName,
         string costCentre,
         ResourceCost cost)
     {
-        if (target.TryGetValue(costCentre, out var existing))
+        if (costCentreStates.TryGetValue(costCentre, out var existingCostCentre))
         {
-            if (existing.TryGetValue(product, out var existingCost))
+            if (existingCostCentre.TryGetValue(visualStudioSubscriptionProductName, out var existingCost))
             {
-                existing[product] = new ResourceCost(existingCost.Cost + cost.Cost, cost.Currency);
+                existingCostCentre[visualStudioSubscriptionProductName] = new ResourceCost(existingCost.Cost + cost.Cost, cost.Currency);
             }
             else
             {
-                existing[product] = cost;
+                existingCostCentre[visualStudioSubscriptionProductName] = cost;
             }
         }
         else
         {
-            target[costCentre] = new Dictionary<string, ResourceCost>
+            costCentreStates[costCentre] = new Dictionary<string, ResourceCost>
             {
-                {  product, cost }
+                {  visualStudioSubscriptionProductName, cost }
             };
         }
     }

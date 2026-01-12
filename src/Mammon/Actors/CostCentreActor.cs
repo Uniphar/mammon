@@ -62,14 +62,16 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
         }
     }
 
-    public async Task AddVisualStudioSubscriptionCostAsync(string visualStudioLicenseProductName, ResourceCost cost)
+    public async Task AddVisualStudioSubscriptionCostAsync(string visualStudioSubscriptionProductName, ResourceCost cost)
     {
         try
         {
-            var state = await GetStateAsync(CostStateName);
-            state.VisualStudioLicensesCosts ??= [];
+            ArgumentException.ThrowIfNullOrWhiteSpace(visualStudioSubscriptionProductName);
 
-            if (!state.VisualStudioLicensesCosts.TryAdd(visualStudioLicenseProductName, cost))
+            var state = await GetStateAsync(CostStateName);
+            state.VisualStudioSubscriptionsCosts ??= [];
+
+            if (!state.VisualStudioSubscriptionsCosts.TryAdd(visualStudioSubscriptionProductName, cost))
             {
                 //log this - this is either logical error or dapr retrying actor call
                 logger.LogWarning($"Visual Studio Subscription cost already exists in cost centre {Id}");
@@ -136,12 +138,12 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
                 : new ResourceCost([totalCost, resourceCosts]);
         }
 
-        if (state.VisualStudioLicensesCosts is not null && state.VisualStudioLicensesCosts.Count > 0)
+        if (state.VisualStudioSubscriptionsCosts is not null && state.VisualStudioSubscriptionsCosts.Count > 0)
         {
-            var visualStudioCosts = new ResourceCost(state.VisualStudioLicensesCosts.Values);
+            var visualStudioSubscriptionsCosts = new ResourceCost(state.VisualStudioSubscriptionsCosts.Values);
             totalCost = totalCost is null 
-                ? visualStudioCosts
-                : new ResourceCost([totalCost, visualStudioCosts]);
+                ? visualStudioSubscriptionsCosts
+                : new ResourceCost([totalCost, visualStudioSubscriptionsCosts]);
         }
 
         state.TotalCost = totalCost;
