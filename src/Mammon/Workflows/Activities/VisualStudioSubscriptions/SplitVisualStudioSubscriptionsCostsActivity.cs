@@ -8,7 +8,7 @@ public class SplitVisualStudioSubscriptionsCostsActivity : WorkflowActivity<Visu
         if (input.VisualStudioSubscriptionCosts.Count == 0) return false;
 
         await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IVisualStudioSubscriptionCostActor>(
-            VisualStudioSubscriptionCostActor.GetActorId(input.ReportRequest.ReportId, "VisualStudioLicenses", input.ReportRequest.SubscriptionId),
+            VisualStudioSubscriptionCostActor.GetActorId(input.ReportRequest.ReportId, "VisualStudioSubscriptions", input.ReportRequest.SubscriptionId),
             nameof(VisualStudioSubscriptionCostActor),
             async (p) => await p.SplitCostAsync(input));
 

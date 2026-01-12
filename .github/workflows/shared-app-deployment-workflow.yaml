@@ -71,7 +71,7 @@ jobs:
         with:
           path: costcentre-definitions
           repository: Uniphar/costcentre-definitions
-          ref: main
+          ref: aandrei/visual_studio_split
           token: ${{ steps.gh-app.outputs.token }}
 
       - name: azure login
