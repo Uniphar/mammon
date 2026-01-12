@@ -52,6 +52,8 @@ spec:
             value: ./Services/dummyCostAPIResponse.json
           - name: "Mammon__MockDevopsCostAPIResponseFilePath"
             value: ./Services/dummyDevOpsCostApiResponse.json
+          - name: "Mammon__MockVisualStudioSubscriptionsCostsApiResponseFilePath"
+            value: ./Services/dummyVisualStudioSubscriptionCostApiResponse.json
 {{- end }}
           - name: "Mammon__StateStoreName"
             value: {{ .Chart.Name }}-actor-state-store

@@ -41,11 +41,13 @@ global using Mammon.Workflows.Activities.LogAnalytics;
 global using Mammon.Workflows.Activities.MySQL;
 global using Mammon.Workflows.Activities.SQLPool;
 global using Mammon.Workflows.Activities.VDI;
+global using Mammon.Workflows.Activities.VisualStudioSubscriptions;
 global using Mammon.Workflows.AKS;
 global using Mammon.Workflows.LogAnalytics;
 global using Mammon.Workflows.MySQL;
 global using Mammon.Workflows.SQLPool;
 global using Mammon.Workflows.VDI;
+global using Mammon.Workflows.VisualStudioSubscriptions;
 global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
@@ -103,6 +105,8 @@ builder.Services
         config.RegisterWorkflow<ObtainPagedDevOpsMembershipEntitlementsWorkflow>();
         config.RegisterWorkflow<ObtainDevOpsProjectCostWorkflow>();
         config.RegisterWorkflow<MySQLWorkflow>();
+        config.RegisterWorkflow<ObtainVisualStudioSubscriptionsCostWorkflow>();
+        config.RegisterWorkflow<SplitVisualStudioSubscriptionsCostsWorkflow>();
 
         config.RegisterActivity<ObtainCostsActivity>();
         config.RegisterActivity<ObtainDevOpsCostsActivity>();
@@ -122,6 +126,8 @@ builder.Services
         config.RegisterActivity<VDIGroupSplitObtainUsageActivity>();
         config.RegisterActivity<VDIGroupSplitUsageActivity>();
         config.RegisterActivity<MySQLServerSplitUsageActivity>();
+        config.RegisterActivity<ObtainVisualStudioSubscriptionsCostActivity>();
+        config.RegisterActivity<SplitVisualStudioSubscriptionsCostsActivity>();
 
         config.UseGrpcChannelOptions(new GrpcChannelOptions
         {
@@ -134,6 +140,7 @@ builder.Services
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
         options.Actors.RegisterActor<DevOpsCostActor>();
+        options.Actors.RegisterActor<VisualStudioSubscriptionCostActor>();
         options.Actors.RegisterActor<AKSVMSSActor>();
         options.Actors.RegisterActor<SQLPoolActor>();
         options.Actors.RegisterActor<SplittableVDIPoolActor>();

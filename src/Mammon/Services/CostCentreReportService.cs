@@ -65,7 +65,7 @@ public class CostCentreReportService(
                     if (existing.DevOpsProjectCosts is null)
                     {
                         existing.DevOpsProjectCosts = subCostCentreState.Value.DevOpsProjectCosts;
-                }
+                    }
                     else if (subCostCentreState.Value.DevOpsProjectCosts is not null)
                     {
                         foreach(var devOpsProject in subCostCentreState.Value.DevOpsProjectCosts)
@@ -78,8 +78,8 @@ public class CostCentreReportService(
                                     {
                                         existingDevOpsProjectGroupContributor = new ResourceCost([existingDevOpsProjectGroupContributor, devOpsProjectGroupContributor.Value]);
                                     }
-                else
-                {
+                                    else
+                                    {
                                         existingDevOpsProject.Add(devOpsProjectGroupContributor.Key, devOpsProjectGroupContributor.Value);
                                     }
                                 }
@@ -87,6 +87,26 @@ public class CostCentreReportService(
                             else
                             {
                                 existing.DevOpsProjectCosts[devOpsProject.Key] = devOpsProject.Value;
+                            }
+                        }
+                    }
+
+                    if (existing.VisualStudioSubscriptionsCosts is null)
+                    {
+                        existing.VisualStudioSubscriptionsCosts = subCostCentreState.Value.VisualStudioSubscriptionsCosts;
+                    }
+                    else if (subCostCentreState.Value.VisualStudioSubscriptionsCosts is not null)
+                    {
+                        foreach(var vsLicenseCost in subCostCentreState.Value.VisualStudioSubscriptionsCosts)
+                        {
+                            if (existing.VisualStudioSubscriptionsCosts.TryGetValue(vsLicenseCost.Key, out var existingVsLicenseCost))
+                            {
+                                existingVsLicenseCost = new ResourceCost([existingVsLicenseCost, vsLicenseCost.Value]);
+                                existing.VisualStudioSubscriptionsCosts[vsLicenseCost.Key] = existingVsLicenseCost;
+                            }
+                            else
+                            {
+                                existing.VisualStudioSubscriptionsCosts[vsLicenseCost.Key] = vsLicenseCost.Value;
                             }
                         }
                     }
@@ -228,6 +248,16 @@ public class CostCentreReportService(
                     }
                 }
             }
+
+            if (costCentre.Value.VisualStudioSubscriptionsCosts is not null)
+            {
+                foreach(var vsLicenseCost in costCentre.Value.VisualStudioSubscriptionsCosts)
+                {
+                    var licenseType = vsLicenseCost.Key;
+                    var cost = vsLicenseCost.Value;
+                    emailReportModel.AddLeaf(costCentre.Key, licenseType, "N/A", cost, "Visual Studio License");
+                }
+            }
         }
 
         return emailReportModel;
@@ -245,7 +275,6 @@ public class CostCentreReportService(
             From = new Contact { Email = EmailFromAddress, Name = EmailFromAddress },
             Subject = string.Format(EmailSubject, reportRequest.ReportId),
             To = EmailToAddresses.Select(x => new Contact { Email = x, Name = x }).ToList(),
-            //To = [new Contact() { Email = "aandrei@uniphar.ie", Name = "Andrei Andrei" }], //TODO: remove test address]
             Attachments = [attachmentUri]
         };
 

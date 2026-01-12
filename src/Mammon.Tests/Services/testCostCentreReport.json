@@ -27,5 +27,12 @@
         "tagBName": "tagBValue"
       }
     }
-  ]
+  ],
+  "StaticVisualStudioSubscriptionsMapping": {
+    "DAWN": 8
+  },
+  "VisualStudioEnterpriseMonthlySubscriptionCost": 240,
+  "VisualStudioEnterpriseAnnualSubscriptionCost": 2880,
+  "VisualStudioProfessionalMonthlySubscriptionCost": 120,
+  "VisualStudioProfessionalAnnualSubscriptionCost": 1440
 }

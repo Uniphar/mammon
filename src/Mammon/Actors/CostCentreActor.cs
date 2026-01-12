@@ -62,6 +62,30 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
         }
     }
 
+    public async Task AddVisualStudioSubscriptionCostAsync(string visualStudioSubscriptionProductName, ResourceCost cost)
+    {
+        try
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(visualStudioSubscriptionProductName);
+
+            var state = await GetStateAsync(CostStateName);
+            state.VisualStudioSubscriptionsCosts ??= [];
+
+            if (!state.VisualStudioSubscriptionsCosts.TryAdd(visualStudioSubscriptionProductName, cost))
+            {
+                //log this - this is either logical error or dapr retrying actor call
+                logger.LogWarning($"Visual Studio Subscription cost already exists in cost centre {Id}");
+            }
+            UpdateTotalCost(state);
+            await SaveStateAsync(CostStateName, state);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, $"Failure in CostCentreActor.AddVisualStudioSubscriptionCostAsync (ActorId:{Id})");
+            throw;
+        }
+    }
+
     public async Task AddDevOpsLicenseCostAsync(Dictionary<string, Dictionary<string, ResourceCost>> projectToGroupCosts)
     {
         try
@@ -112,6 +136,14 @@ public class CostCentreActor(ActorHost host, ILogger<CostCentreActor> logger) : 
             totalCost = totalCost is null
                 ? resourceCosts
                 : new ResourceCost([totalCost, resourceCosts]);
+        }
+
+        if (state.VisualStudioSubscriptionsCosts is not null && state.VisualStudioSubscriptionsCosts.Count > 0)
+        {
+            var visualStudioSubscriptionsCosts = new ResourceCost(state.VisualStudioSubscriptionsCosts.Values);
+            totalCost = totalCost is null 
+                ? visualStudioSubscriptionsCosts
+                : new ResourceCost([totalCost, visualStudioSubscriptionsCosts]);
         }
 
         state.TotalCost = totalCost;

@@ -16,6 +16,16 @@ public class CostRetrievalService
     private const string currencyColumnName = "Currency";
     private const string tagsColumnName = "Tags";
 
+    private static readonly HashSet<string> VisualStudioProductNames =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+        "Visual Studio Subscription - Enterprise Monthly",
+        "Visual Studio Subscription - Enterprise Annual",
+        "Visual Studio Subscription - Professional Monthly",
+        "Visual Studio Subscription - Professional Annual"
+        };
+
+
     private const int PageSize = 1000; //TODO: make configurable?
 
     public CostRetrievalService(
@@ -36,6 +46,118 @@ public class CostRetrievalService
         var subByName = armClient.GetSubscriptions().FirstOrDefault((s) => s.Data.DisplayName == subscriptionName);
 
         return subByName?.Id ?? string.Empty;
+    }
+
+    public async Task<List<VisualStudioSubscriptionCostResponse>?> QueryVisualStudioSubscriptionCostForSubAsync(
+        ObtainVisualStudioSubscriptionCostActivityRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.SubscriptionName))
+            throw new ArgumentException(nameof(request.SubscriptionName));
+
+        if (request.CostFrom.Kind != DateTimeKind.Utc ||
+            request.CostTo.Kind != DateTimeKind.Utc)
+            throw new ArgumentException("CostFrom and CostTo must be UTC");
+
+        if (request.CostFrom >= request.CostTo)
+            throw new ArgumentException("CostFrom must be < CostTo");
+
+        var requestPayload = $@"
+            {{
+              ""type"": ""ActualCost"",
+              ""timeframe"": ""Custom"",
+              ""timePeriod"": {{
+                ""from"": ""{request.CostFrom:yyyy-MM-ddTHH:mm:ssZ}"",
+                ""to"": ""{request.CostTo:yyyy-MM-ddTHH:mm:ssZ}""
+              }},
+              ""dataSet"": {{
+                ""granularity"": ""None"",
+                ""aggregation"": {{
+                  ""totalCost"": {{
+                    ""name"": ""Cost"",
+                    ""function"": ""Sum""
+                  }}
+                }},
+                ""grouping"": [
+                  {{
+                    ""type"": ""Dimension"",
+                    ""name"": ""Product""
+                  }}
+                ]
+              }}
+            }}";
+
+        CostManagementQueryResult parsed;
+
+#if(DEBUG || INTTEST)
+        string? mockApiResponsePath;
+        if (!string.IsNullOrWhiteSpace(mockApiResponsePath = configuration[Consts.MockVisualStudioSubscriptionsCostsApiResponseFilePathConfigKey])
+            && File.Exists(mockApiResponsePath))
+        {
+            var mockResponse = await File.ReadAllTextAsync(mockApiResponsePath);
+            parsed = JsonSerializer.Deserialize<CostManagementQueryResult>(
+                             mockResponse, jsonSerializerOptions)
+                         ?? throw new InvalidOperationException(
+                             "Failed to deserialize cost query response");
+        }
+        else
+        {
+#endif
+            var subId = GetSubscriptionFullResourceId(request.SubscriptionName)
+                        ?? throw new InvalidOperationException(
+                            $"Unable to find subscription {request.SubscriptionName}");
+            var url = $"https://management.azure.com{subId}/providers/Microsoft.CostManagement/query?api-version=2023-11-01";
+
+            using var content = new StringContent(requestPayload, Encoding.UTF8, "application/json");
+            using var response = await httpClient.PostAsync(url, content);
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            parsed = JsonSerializer.Deserialize<CostManagementQueryResult>(
+                             json, jsonSerializerOptions)
+                         ?? throw new InvalidOperationException(
+                             "Failed to deserialize cost query response");
+#if (DEBUG || INTTEST)
+        }
+#endif
+
+        var productIndex = parsed.Properties.Columns.FindIndex(c => c.Name == "Product");
+        var costIndex = parsed.Properties.Columns.FindIndex(c => c.Name == "Cost");
+        var currencyIndex = parsed.Properties.Columns.FindIndex(c => c.Name == "Currency");
+
+        if (productIndex < 0 || costIndex < 0)
+            throw new InvalidOperationException(
+                "Expected columns not present in cost query result");
+
+        var vsRows = parsed.Properties.Rows
+            .Select(row => new
+            {
+                Product = row[productIndex]?.ToString(),
+                Cost = Convert.ToDecimal(row[costIndex]),
+                Currency = currencyIndex >= 0
+                    ? row[currencyIndex]?.ToString() ?? "Unknown"
+                    : "Unknown"
+            })
+            .Where(r => r.Product != null &&
+                        VisualStudioProductNames.Contains(r.Product))
+            .ToList();
+
+        if (vsRows.Count == 0)
+            return null;
+
+        var result = vsRows
+            .GroupBy(r => r.Product!)
+            .Select(g => new VisualStudioSubscriptionCostResponse
+            {
+                Product = g.Key,
+                Cost = new ResourceCost(
+                    g.Sum(x => x.Cost),
+                    g.First().Currency)
+            })
+            .ToList();
+
+        return result;
     }
 
     public async Task<List<DevOpsCostResponse>> QueryDevOpsCostForSubAsync(ObtainDevOpsCostsActivityRequest request)
@@ -311,6 +433,24 @@ public class CostRetrievalService
     }
 
     public class Column
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+    }
+
+
+    public sealed class CostManagementQueryResult
+    {
+        public CostManagementQueryProperties Properties { get; set; } = null!;
+    }
+
+    public sealed class CostManagementQueryProperties
+    {
+        public List<CostManagementColumn> Columns { get; set; } = [];
+        public List<List<object>> Rows { get; set; } = [];
+    }
+
+    public sealed class CostManagementColumn
     {
         public string Name { get; set; } = string.Empty;
         public string Type { get; set; } = string.Empty;

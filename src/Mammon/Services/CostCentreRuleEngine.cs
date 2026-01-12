@@ -22,6 +22,11 @@ public class CostCentreRuleEngine
     public IDictionary<string, string> GroupIDMapping { get; internal set; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     public IDictionary<Regex, string> SQLDatabaseMapping { get; internal set; } = new Dictionary<Regex, string>();
     public IDictionary<string, double> StaticMySQLMapping { get; internal set; } = new Dictionary<string, double>();
+    public IDictionary<string, double> StaticVisualStudioSubscriptionsMapping { get; internal set; } = new Dictionary<string, double>();
+    public decimal VisualStudioEnterpriseMonthlySubscriptionCost { get; internal set; }
+    public decimal VisualStudioEnterpriseAnnualSubscriptionCost { get; internal set; }
+    public decimal VisualStudioProfessionalMonthlySubscriptionCost { get; internal set; }
+    public decimal VisualStudioProfessionalAnnualSubscriptionCost { get; internal set; }
 
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
@@ -72,6 +77,11 @@ public class CostCentreRuleEngine
         GroupIDMapping = definition.GroupIDMapping;
         ResourceGroupTokenClassMap = definition.ResourceGroupTokenClassMap ?? new Dictionary<string, string>();
         StaticMySQLMapping = definition.StaticMySQLMapping ?? new Dictionary<string, double>();
+        StaticVisualStudioSubscriptionsMapping = definition.StaticVisualStudioSubscriptionsMapping;
+        VisualStudioEnterpriseMonthlySubscriptionCost = definition.VisualStudioEnterpriseMonthlySubscriptionCost;
+        VisualStudioEnterpriseAnnualSubscriptionCost = definition.VisualStudioEnterpriseAnnualSubscriptionCost;
+        VisualStudioProfessionalMonthlySubscriptionCost = definition.VisualStudioProfessionalMonthlySubscriptionCost;
+        VisualStudioProfessionalAnnualSubscriptionCost = definition.VisualStudioProfessionalAnnualSubscriptionCost;
 
         InitializeCostCentres();
     }

@@ -13,16 +13,16 @@
   <ItemGroup>
 	<PackageReference Include="AwesomeAssertions" Version="*" />
 	<PackageReference Include="coverlet.collector" Version="*" />
-    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="8.*" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="*" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
     <PackageReference Include="Moq" Version="*" />
     <PackageReference Include="MSTest.TestAdapter" Version="*" />
     <PackageReference Include="MSTest.TestFramework" Version="*" />
     <PackageReference Include="RichardSzalay.MockHttp" Version="*" />
     <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="*" />
     <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="*" />
-    <PackageReference Include="System.Formats.Asn1" Version="8.*" />
-    <PackageReference Include="System.Text.Json" Version="9.*" />
+    <PackageReference Include="System.Formats.Asn1" Version="*" />
+    <PackageReference Include="System.Text.Json" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

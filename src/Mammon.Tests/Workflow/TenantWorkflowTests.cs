@@ -108,7 +108,8 @@ public class TenantWorkflowTests
 	{
 		var expectedResourcesTotal = 11675.26m;
 		var expectedDevOpsLicensesTotal = 400.0m;
-		decimal expectedTotal = expectedResourcesTotal + expectedDevOpsLicensesTotal;
+		var expectedVisualStudioSubscriptionsCostTotal = 2400.0m;
+		decimal expectedTotal = expectedResourcesTotal + expectedDevOpsLicensesTotal + expectedVisualStudioSubscriptionsCostTotal;
 
         await _serviceBusSender!.SendMessageAsync(new ServiceBusMessage
         {
@@ -236,7 +237,19 @@ public class TenantWorkflowTests
                 decimal testPlansLicensesCost = devOpsCost.SingleOrDefault(t => t.Product == ObtainDevOpsCostsActivity.BasicPlusTestPlansLicenseProductName)?.Cost.Cost ?? 0m;
 				total += testPlansLicensesCost;
             }
-		}
+
+			var visualStudioSubscriptionCostRequest = new ObtainVisualStudioSubscriptionCostActivityRequest
+			{
+				SubscriptionName = subscription.SubscriptionName,
+				CostFrom = _reportRequest.CostFrom,
+				CostTo = _reportRequest.CostTo
+			};
+			var visualStudioSubscriptionCost = await _costRetrievalService!.QueryVisualStudioSubscriptionCostForSubAsync(visualStudioSubscriptionCostRequest);
+			if (visualStudioSubscriptionCost != null)
+			{
+                total += visualStudioSubscriptionCost.Sum(t => t.Cost.Cost);
+            }
+        }
 
 		return total;
 	}

@@ -104,5 +104,12 @@
   "StaticMySQLMapping": {
     "CostCentreA": 20,
     "CostCentreB": 80
-  }
+  },
+  "StaticVisualStudioSubscriptionsMapping": {
+    "DAWN": 8
+  },
+  "VisualStudioEnterpriseMonthlySubscriptionCost": 240,
+  "VisualStudioEnterpriseAnnualSubscriptionCost": 2880,
+  "VisualStudioProfessionalMonthlySubscriptionCost": 120,
+  "VisualStudioProfessionalAnnualSubscriptionCost": 1440
 }
