@@ -29,11 +29,10 @@
     }
   ],
   "StaticVisualStudioSubscriptionsMapping": {
-    "DAWN": 8,
-    "TechOps": 5
+    "DAWN": 8
   },
-  "VisualStudioEnterpriseMonthlySubscriptionCost": 100,
-  "VisualStudioEnterpriseAnnualSubscriptionCost": 110,
+  "VisualStudioEnterpriseMonthlySubscriptionCost": 240,
+  "VisualStudioEnterpriseAnnualSubscriptionCost": 2880,
   "VisualStudioProfessionalMonthlySubscriptionCost": 120,
-  "VisualStudioProfessionalAnnualSubscriptionCost": 130
+  "VisualStudioProfessionalAnnualSubscriptionCost": 1440
 }
