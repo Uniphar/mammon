@@ -29,6 +29,7 @@ public class CostRetrievalServiceTests
         var result = await service.QueryResourceCostForSubAsync(
             new ObtainCostsActivityRequest
 			{
+                ReportId = "some-report-id",
                 SubscriptionName = "blah",               
                 CostFrom = DateTime.UtcNow.AddDays(-1),
                 CostTo = DateTime.UtcNow,

@@ -1,38 +1,54 @@
 ﻿namespace Mammon.Workflows.Activities;
 
-public class CallResourceActorActivity(DaprClient client, IConfiguration configuration) : WorkflowActivity<CallResourceActorActivityRequest, CallResourceActorActivityResponse>
+public class CallResourceActorActivity(
+    DaprClient client, 
+    IConfiguration configuration,
+    ILogger<CallResourceActorActivity> logger) : WorkflowActivity<CallResourceActorActivityRequest, CallResourceActorActivityResponse>
 {
 	public override async Task<CallResourceActorActivityResponse> RunAsync(WorkflowActivityContext context, CallResourceActorActivityRequest request)
-	{
-		var storeName = configuration[Consts.StateStoreNameConfigKey];
+    {
+        ArgumentNullException.ThrowIfNull(request);
 
-		ArgumentNullException.ThrowIfNull(request);
+        try
+        {
+            return await RunInternalAsync(request);
+        }
+        catch (Exception)
+        {
+            logger.LogError("Error calling Resource Actor for ReportId: {ReportId}, ResourceId: {ResourceId}", request.ReportId, request.Cost?.ResourceId);
+            throw;
+        }
+    }
 
-		var parentResourceId = request.Cost!.ResourceId.ToParentResourceId();
+    private async Task<CallResourceActorActivityResponse> RunInternalAsync(CallResourceActorActivityRequest request)
+    {
+        var storeName = configuration[Consts.StateStoreNameConfigKey];
 
-		var stateKey = $"ResourceActorIdMap_{request.ReportId}_{new string(parentResourceId.Where(char.IsLetterOrDigit).ToArray())}";
-		///Actor ID has limitations as to the length, with some ResourceIds being long (AKS Node VHD Image as an example)
-		///we now resort to computing hash
-		var stateKeyHash = stateKey.ToSHA256();
+        var parentResourceId = request.Cost!.ResourceId.ToParentResourceId();
 
-		var actorIdStateEntry = await client.GetStateAsync<string>(storeName, stateKeyHash);
+        var stateKey = $"ResourceActorIdMap_{request.ReportId}_{new string(parentResourceId.Where(char.IsLetterOrDigit).ToArray())}";
+        ///Actor ID has limitations as to the length, with some ResourceIds being long (AKS Node VHD Image as an example)
+        ///we now resort to computing hash
+        var stateKeyHash = stateKey.ToSHA256();
 
-		var actorGuid = string.Empty;
+        var actorIdStateEntry = await client.GetStateAsync<string>(storeName, stateKeyHash);
 
-		if (string.IsNullOrWhiteSpace(actorIdStateEntry))
-		{
-			actorGuid = Guid.NewGuid().ToString("N");
-			await client.SaveStateAsync(storeName, stateKey, actorGuid);
-		}
-		else
-		{
-			actorGuid = actorIdStateEntry;
-		}
+        var actorGuid = string.Empty;
 
-		var actorId = $"ResourceActor{actorGuid}";
+        if (string.IsNullOrWhiteSpace(actorIdStateEntry))
+        {
+            actorGuid = Guid.NewGuid().ToString("N");
+            await client.SaveStateAsync(storeName, stateKey, actorGuid);
+        }
+        else
+        {
+            actorGuid = actorIdStateEntry;
+        }
 
-		await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, nameof(ResourceActor), async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
+        var actorId = $"ResourceActor{actorGuid}";
 
-		return new CallResourceActorActivityResponse { ResourceActorId = actorId, ResourceId = parentResourceId };
-	}
+        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, nameof(ResourceActor), async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
+
+        return new CallResourceActorActivityResponse { ResourceActorId = actorId, ResourceId = parentResourceId };
+    }
 }
