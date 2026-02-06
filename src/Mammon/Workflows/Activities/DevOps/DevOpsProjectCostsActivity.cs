@@ -1,6 +1,7 @@
 ﻿namespace Mammon.Workflows.Activities.DevOps;
 
-public class DevOpsProjectCostsActivity : WorkflowActivity<DevOpsMapProjectCostsActivityRequest, DevOpsProjectsCosts>
+public class DevOpsProjectCostsActivity
+    (ILogger<DevOpsProjectCostsActivity> logger): WorkflowActivity<DevOpsMapProjectCostsActivityRequest, DevOpsProjectsCosts>
 {
     private const string BasicLicenseName = "Basic";
     private const string BasicPlusTestPlansLicenseName = "Basic + Test Plans";
@@ -19,6 +20,19 @@ public class DevOpsProjectCostsActivity : WorkflowActivity<DevOpsMapProjectCosts
     ];
 
     public override async Task<DevOpsProjectsCosts> RunAsync(WorkflowActivityContext context, DevOpsMapProjectCostsActivityRequest input)
+    {
+        try
+        {
+            return RunInternalAsync(input);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error mapping DevOps project costs for ReportId: {ReportId}", input.ReportId);
+            throw;
+        }
+    }
+
+    private static DevOpsProjectsCosts RunInternalAsync(DevOpsMapProjectCostsActivityRequest input)
     {
         var currency = input.LicenseCosts.TotalBasicLicensesCost.Currency;
 

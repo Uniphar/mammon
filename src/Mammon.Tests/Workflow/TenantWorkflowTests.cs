@@ -206,7 +206,8 @@ public class TenantWorkflowTests
 		{
 			var request = new ObtainCostsActivityRequest
 			{
-				SubscriptionName = subscription.SubscriptionName,
+                ReportId = "some-report-id",
+                SubscriptionName = subscription.SubscriptionName,
 				CostFrom = _reportRequest.CostFrom,
 				CostTo = _reportRequest.CostTo,
 				PageIndex = 0,
@@ -223,7 +224,8 @@ public class TenantWorkflowTests
 			{
 				var devOpsRequest = new ObtainDevOpsCostsActivityRequest
 				{
-					SubscriptionName = subscription.SubscriptionName,
+                    ReportId = "some-report-id",
+                    SubscriptionName = subscription.SubscriptionName,
 					CostFrom = _reportRequest.CostFrom,
 					CostTo = _reportRequest.CostTo,
 					DevOpsOrganization = subscription.DevOpsOrganization
@@ -240,7 +242,8 @@ public class TenantWorkflowTests
 
 			var visualStudioSubscriptionCostRequest = new ObtainVisualStudioSubscriptionCostActivityRequest
 			{
-				SubscriptionName = subscription.SubscriptionName,
+                ReportId = "some-report-id",
+                SubscriptionName = subscription.SubscriptionName,
 				CostFrom = _reportRequest.CostFrom,
 				CostTo = _reportRequest.CostTo
 			};

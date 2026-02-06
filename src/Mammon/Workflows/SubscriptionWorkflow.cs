@@ -13,7 +13,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			//obtain cost items from Cost API
 			var costRequest = new ObtainCostsActivityRequest
 			{
-				CostFrom = input.ReportRequest.CostFrom,
+				ReportId = input.ReportRequest.ReportId,
+                CostFrom = input.ReportRequest.CostFrom,
 				CostTo = input.ReportRequest.CostTo,
 				GroupingMode = input.GroupingMode,
 				PageIndex = pageIndex,
@@ -91,7 +92,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			nameof(ObtainVisualStudioSubscriptionsCostWorkflow),
 			new ObtainVisualStudioSubscriptionCostActivityRequest
 			{
-				SubscriptionName = input.SubscriptionName,
+				ReportId = input.ReportRequest.ReportId,
+                SubscriptionName = input.SubscriptionName,
 				CostFrom = input.ReportRequest.CostFrom,
 				CostTo = input.ReportRequest.CostTo
 			});
@@ -117,7 +119,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 			nameof(ObtainDevOpsCostWorkflow),
 			new ObtainDevOpsCostsActivityRequest
 			{
-				SubscriptionName = input.SubscriptionName,
+				ReportId = input.ReportRequest.ReportId,
+                SubscriptionName = input.SubscriptionName,
 				CostFrom = input.ReportRequest.CostFrom,
 				CostTo = input.ReportRequest.CostTo,
 				DevOpsOrganization = input.DevOpsOrganization

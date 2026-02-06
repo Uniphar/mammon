@@ -2,7 +2,8 @@
 
 public record ObtainCostsActivityRequest
 {
-	public required string SubscriptionName { get; set; }
+    public required string ReportId { get; init; }
+    public required string SubscriptionName { get; set; }
 	public required GroupingMode GroupingMode { get; set; } = GroupingMode.Resource;
 	public required DateTime CostFrom { get; set; }
 	public required DateTime CostTo { get; set;}
@@ -11,7 +12,8 @@ public record ObtainCostsActivityRequest
 
 public record ObtainVisualStudioSubscriptionCostActivityRequest
 {
-	public required string SubscriptionName { get; set; }
+    public required string ReportId { get; init; }
+    public required string SubscriptionName { get; set; }
     public required DateTime CostFrom { get; set; }
     public required DateTime CostTo { get; set; }
 }
@@ -34,7 +36,8 @@ public record PaginatedMemberEntitlementsResult
 
 public record ObtainDevOpsCostsActivityRequest : ObtainDevOpsUsersActivityRequest
 {
-	public required string SubscriptionName { get; init; }
+    public required string ReportId { get; init; }
+    public required string SubscriptionName { get; init; }
     public required DateTime CostFrom { get; init; }
     public required DateTime CostTo { get; init; }
 }
