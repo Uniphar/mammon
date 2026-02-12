@@ -96,7 +96,7 @@ jobs:
             $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
             $AKSClusterSAName =  Resolve-UniKubeWorkloadSAName  '${{ inputs.environment }}' 'platform-mammon'
             $AKSClusterSAID = Get-AzADServicePrincipal -DisplayName $AKSClusterSAName | Select-Object -ExpandProperty Id
-            $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'devops' '${{ inputs.environment }}').AppId
+            $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'platform-mammon' '${{ inputs.environment }}').AppId
             $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
             $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
             $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
