@@ -1,3 +1,13 @@
+global using System.Data;
+global using System.Diagnostics;
+global using System.Diagnostics.CodeAnalysis;
+global using System.Globalization;
+global using System.Net;
+global using System.Security.Cryptography;
+global using System.Text;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+global using System.Text.RegularExpressions;
 global using Azure;
 global using Azure.Core;
 global using Azure.Identity;
@@ -48,23 +58,13 @@ global using Mammon.Workflows.MySQL;
 global using Mammon.Workflows.SQLPool;
 global using Mammon.Workflows.VDI;
 global using Mammon.Workflows.VisualStudioSubscriptions;
-global using Microsoft.ApplicationInsights;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
 global using Microsoft.Extensions.Azure;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
-global using System.Data;
-global using System.Diagnostics;
-global using System.Diagnostics.CodeAnalysis;
-global using System.Globalization;
-global using System.Net;
-global using System.Security.Cryptography;
-global using System.Text;
-global using System.Text.Json;
-global using System.Text.Json.Serialization;
-global using System.Text.RegularExpressions;
+global using Uniphar.Platform.Telemetry;
 global using Westwind.AspNetCore.Views;
 
 #if (DEBUG)
@@ -77,21 +77,22 @@ var builder = WebApplication.CreateBuilder(args);
 
 var configKVURL = builder.Configuration[Consts.ConfigKeyVaultConfigEnvironmentVariable]?.ToString();
 if (string.IsNullOrWhiteSpace(configKVURL))
-	throw new InvalidOperationException($"{Consts.ConfigKeyVaultConfigEnvironmentVariable} environment variable is not set");
+    throw new InvalidOperationException($"{Consts.ConfigKeyVaultConfigEnvironmentVariable} environment variable is not set");
 
 builder.Configuration.AddAzureKeyVault(
-	new Uri(configKVURL),
-	defaultAzureCredentials);
+    new Uri(configKVURL),
+    defaultAzureCredentials);
 
 builder.Configuration.AddEnvironmentVariables();
-builder.Services.AddApplicationInsightsTelemetry();
+builder.RegisterOpenTelemetry("mammon").Build();
 
 builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
 
 builder.Services
-    .AddDaprWorkflow((config) => { 
+    .AddDaprWorkflow((config) =>
+    {
         config.RegisterWorkflow<SubscriptionWorkflow>();
         config.RegisterWorkflow<GroupSubWorkflow>();
         config.RegisterWorkflow<TenantWorkflow>();
@@ -135,7 +136,8 @@ builder.Services
             MaxSendMessageSize = 16 * 1024 * 1024,
         });
     })
-    .AddActors(options => {
+    .AddActors(options =>
+    {
         options.Actors.RegisterActor<ResourceActor>();
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
@@ -168,11 +170,11 @@ builder.Services
     .AddSingleton((sp) => TimeProvider.System)
     .AddAzureClients(clientBuilder =>
     {
-        var blobServiceConnectionString = builder.Configuration[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey] 
+        var blobServiceConnectionString = builder.Configuration[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]
             ?? throw new InvalidOperationException("DotFlyer Blob Storage connection string is invalid");
 
         clientBuilder.AddLogsQueryClient();
-		clientBuilder.AddBlobServiceClient(new Uri(blobServiceConnectionString));
+        clientBuilder.AddBlobServiceClient(new Uri(blobServiceConnectionString));
         clientBuilder.AddServiceBusClientWithNamespace(builder.Configuration[Consts.DotFlyerSBConnectionStringConfigKey] ?? throw new InvalidOperationException("DotFlyer SB connection string is invalid"));
         clientBuilder.UseCredential(defaultAzureCredentials);
     });
@@ -201,6 +203,5 @@ app.MapActorsHandlers();
 app.MapRazorPages();
 app.MapControllers();
 app.MapSubscribeHandler();
-app.Lifetime.ApplicationStopped.Register(() => app.Services.GetRequiredService<TelemetryClient>().FlushAsync(default).Wait());
 
 app.Run();
