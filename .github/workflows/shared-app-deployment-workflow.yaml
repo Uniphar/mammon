@@ -5,40 +5,40 @@ on:
     secrets:
       AZURE_TENANT_ID:
         required: true
-        description: 'Azure Tenant ID'
+        description: "Azure Tenant ID"
       AZURE_CLIENT_ID:
         required: true
-        description: 'Azure Client ID'
+        description: "Azure Client ID"
       AZURE_SUBSCRIPTION_ID:
         required: true
-        description: 'Azure Subscription ID'
+        description: "Azure Subscription ID"
       ACTIONS_AUTH_APP_ID:
         required: true
-        description: 'GitHub App ID'
+        description: "GitHub App ID"
       ACTIONS_AUTH_APP_PRIVATE_KEY:
         required: true
-        description: 'GitHub App Private Key'
+        description: "GitHub App Private Key"
     inputs:
       environment:
         type: string
         required: true
-        description: 'Environment'
+        description: "Environment"
       applicationFolder:
         type: string
         required: true
-        description: 'Application Folder'
+        description: "Application Folder"
       applicationName:
         type: string
         required: true
-        description: 'Application Name'
+        description: "Application Name"
       applicationVersion:
         type: string
         required: true
-        description: 'Application Version'
-      mockCostAndLogQueryApis: 
+        description: "Application Version"
+      mockCostAndLogQueryApis:
         type: boolean
         default: false
-        description: 'Mock Log Query Client API calls'
+        description: "Mock Log Query Client API calls"
 
 jobs:
   deploy_app:
@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        regionShortCode: ['ne']
+        regionShortCode: ["ne"]
     steps:
       - name: checkout repo
         uses: actions/checkout@v1
@@ -86,7 +86,7 @@ jobs:
         uses: azure/powershell@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
-        with: 
+        with:
           inlineScript: |
             Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
 
@@ -94,14 +94,14 @@ jobs:
             $ACRName = Resolve-UniResourceName 'acr' $p_computeProject -Context $app_AKS
             $AKSClusterResourceGroup = Resolve-UniResourceName 'resource-group' $p_computeProject -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
             $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
-            $AKSClusterSAName = Resolve-UniComputeDomainSAName '${{ inputs.environment }}' $p_devopsDomain
+            $AKSClusterSAName =  Resolve-UniKubeWorkloadSAName  '${{ inputs.environment }}' 'platform-mammon'
             $AKSClusterSAID = Get-AzADServicePrincipal -DisplayName $AKSClusterSAName | Select-Object -ExpandProperty Id
-            $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'devops' '${{ inputs.environment }}').AppId
+            $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'platform-mammon' '${{ inputs.environment }}').AppId
             $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
             $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
             $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
             $cronDayOfMonth = (ConvertFrom-SecureString $cronDayOfMonthSecret.SecretValue -AsPlainText)
-            
+
             echo "ENVIRONMENT=$Environment" >> $env:GITHUB_ENV
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
@@ -116,14 +116,14 @@ jobs:
             echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
             echo "CRON_DAY_OF_MONTH=$cronDayOfMonth" >> $env:GITHUB_ENV
           azPSVersion: "latest"
-          errorActionPreference: 'stop'
-          failOnStandardError: true  
+          errorActionPreference: "stop"
+          failOnStandardError: true
 
       - name: Powershell
         uses: azure/powershell@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
-        with: 
+        with:
           inlineScript: |
             Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
             . ./devops/Initialize-SubscriptionsRBAC.ps1
@@ -131,7 +131,7 @@ jobs:
             Initialize-MammonWorkload '${{ inputs.environment }}'
             Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json ${{ env.AKS_CLUSTER_SERVICE_ACCOUNT_ID }}
           azPSVersion: "latest"
-          errorActionPreference: 'stop'
+          errorActionPreference: "stop"
           failOnStandardError: true
 
       - name: setup kubectl
@@ -139,14 +139,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          kubelogin-version: 'latest'
+          kubelogin-version: "latest"
 
       - name: Gets K8s context
         uses: azure/aks-set-context@v3
         with:
           resource-group: ${{ env.AKS_CLUSTER_RESOURCE_GROUP }}
           cluster-name: ${{ env.AKS_CLUSTER_NAME }}
-          use-kubelogin: 'true'
+          use-kubelogin: "true"
         id: k8context
 
       - name: setup helm
@@ -179,7 +179,7 @@ jobs:
           --set-string SBNamespaceName="$SB_NAMESPACE"
           --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}
           --set mockCostAndLogQueryApis=${{ inputs.mockCostAndLogQueryApis }}
-          -n devops
+          -n platform-mammon
           --atomic
 
   notify:
@@ -196,9 +196,9 @@ jobs:
 
       - uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: 'shared-failed-build-notification-workflow.yaml'
+          workflow: "shared-failed-build-notification-workflow.yaml"
           inputs: '{
-              "workflowId":"${{ github.run_id }}", 
-              "repository":"${{ github.repository }}"
+            "workflowId":"${{ github.run_id }}",
+            "repository":"${{ github.repository }}"
             }'
           token: ${{ steps.gh-app.outputs.token }}

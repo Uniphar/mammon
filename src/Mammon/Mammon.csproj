@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>47ece60e-f306-4e4b-9245-0480438b730f</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-	<Configurations>Debug;Release;IntTest</Configurations>
+    <Configurations>Debug;Release;IntTest</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,19 +20,19 @@
     <PackageReference Include="Azure.ResourceManager.ContainerService" Version="*" />
     <PackageReference Include="Azure.ResourceManager.CostManagement" Version="*" />
     <PackageReference Include="Azure.ResourceManager.OperationalInsights" Version="*" />
-    <PackageReference Include="Azure.ResourceManager.Sql" Version="*" />    
+    <PackageReference Include="Azure.ResourceManager.Sql" Version="*" />
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />
     <PackageReference Include="CsvHelper" Version="*" />
     <PackageReference Include="Dapr.AspNetCore" Version="*" />
     <PackageReference Include="DotFlyer.Common" Version="*" />
     <PackageReference Include="FluentValidation" Version="*" />
-    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="*" />
     <PackageReference Include="Microsoft.Extensions.Http.Polly" Version="*" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="*" />
     <PackageReference Include="Dapr.Actors" Version="*" />
     <PackageReference Include="Dapr.Workflow" Version="*" />
     <PackageReference Include="Dapr.Actors.AspNetCore" Version="*" />
+    <PackageReference Include="Uniphar.Platform.Telemetry" Version="*" />
     <PackageReference Include="Westwind.AspNetCore" Version="*" />
   </ItemGroup>
 
