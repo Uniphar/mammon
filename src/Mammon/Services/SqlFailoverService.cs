@@ -1,6 +1,4 @@
-﻿using Azure.ResourceManager.Sql.Models;
-
-namespace Mammon.Services;
+﻿namespace Mammon.Services;
 
 public class SqlFailoverService(ArmClient armClient, ILogger<SqlFailoverService> logger)
 {
