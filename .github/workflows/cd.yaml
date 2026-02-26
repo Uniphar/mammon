@@ -19,7 +19,7 @@ jobs:
   Mammon_CD:
     uses: ./.github/workflows/shared-app-cd-workflow.yaml
     secrets:
-      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.ENTRA_PROD_WORKFORCE_TENANT_ID }}
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_PLATFORM_SUBSCRIPTION_ID: ${{ secrets.AZURE_PLATFORM_SUBSCRIPTION_ID }}
       AZURE_DEV_SUBSCRIPTION_ID: ${{ secrets.AZURE_DEV_SUBSCRIPTION_ID }}
