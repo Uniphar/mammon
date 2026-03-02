@@ -311,10 +311,10 @@ public class CostCentreReportService(
     {
         var now = timeProvider.GetLocalNow();
 
-        var first = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
+        var first = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0, DateTimeKind.Utc)
             .AddMonths(-1);
 
-        var last = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0)
+        var last = new DateTime(now.Year, now.Month, ReportBillingPeriodStartDayInMonth, 0, 0, 0, DateTimeKind.Utc)
             .AddSeconds(-1);
 
         return new CostReportRequest { CostFrom = first, CostTo = last, ReportId = first.ToString("yyMM") };
