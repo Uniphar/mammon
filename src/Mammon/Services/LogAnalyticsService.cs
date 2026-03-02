@@ -73,21 +73,32 @@ public class LogAnalyticsService(
 #endif
     }
 
+    /// <summary>
+    /// Example:
+    /// from = 2026-02-01 00:00:00
+    /// to   = 2026-02-28 23:59:59
+    /// Produces:
+    /// 01 00:00:00 -> 10 23:59:59
+    /// 11 00:00:00 -> 20 23:59:59
+    /// 21 00:00:00 -> 28 23:59:59
+    /// </summary>
     private static IEnumerable<(DateTime from, DateTime to)> SplitIntoChunksInclusive(
         DateTime from,
         DateTime to,
         int daysPerChunk)
     {
-        var cursor = from;
+        var cursorStart = from;
 
-        while (cursor <= to)
+        while (cursorStart <= to)
         {
-            var end = cursor.AddDays(daysPerChunk - 1);
-            if (end > to) end = to;
+            var cursorEnd = cursorStart.AddDays(daysPerChunk).AddSeconds(-1);
 
-            yield return (cursor, end);
+            if (cursorEnd > to)
+                cursorEnd = to;
 
-            cursor = end.AddDays(1);
+            yield return (cursorStart, cursorEnd);
+
+            cursorStart = cursorEnd.AddSeconds(1);
         }
     }
 
