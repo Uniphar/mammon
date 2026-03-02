@@ -90,6 +90,7 @@ builder.RegisterOpenTelemetry("mammon").Build();
 builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
+builder.Services.AddDaprClient();
 
 builder.Services
     .AddDaprWorkflow((config) =>
