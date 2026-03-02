@@ -34,9 +34,6 @@ public class LogAnalyticsService(
 
         return (mock.Value, true);
 #else
-        if (to < from)
-            return ([], true);
-
         try
         {
             var workspaceResponse = await armClient
