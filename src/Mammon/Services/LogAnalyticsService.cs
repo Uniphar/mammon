@@ -5,137 +5,56 @@ public class LogAnalyticsService(
     DefaultAzureCredential azureCredential,
     ILogger<LogAnalyticsService> logger) : BaseLogService
 {
-    private const int DaysPerChunk = 10;
-
-    private const string UsageQuery = @"
-        search *
-        | where $table != 'AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
-        | project
-            Size=_BilledSize,
-            Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
-            SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
-        | summarize SizeSum=sum(Size) by Selector, SelectorType
-        | order by Selector desc";
-
-    public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(
-        string laResourceId,
-        DateTime from,
-        DateTime to)
+    public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
 
-#if (DEBUG || INTTEST)
-        var mock = await ParseMockFileAsync<LAWorkspaceQueryResponseItem>(
-            Consts.MockLAQueryResponseFilePathConfigKey,
-            laResourceId);
+        Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
 
-        if (mock.GetRawResponse() == null || mock.GetRawResponse().IsError)
-            return ([], false);
-
-        return (mock.Value, true);
-#else
         try
         {
-            var workspaceResponse = await armClient
-                .GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId))
-                .GetAsync();
+#if (DEBUG || INTTEST)
 
-            var workspace = workspaceResponse.Value;
+            response = await ParseMockFileAsync<LAWorkspaceQueryResponseItem>(Consts.MockLAQueryResponseFilePathConfigKey, laResourceId);
+#else
+            LogsQueryClient client = new(azureCredential);
 
-            if (!workspace.HasData || workspace.Data.CustomerId is null)
-                return ([], false);
+            Response<OperationalInsightsWorkspaceResource>? workspace;
 
-            var customerId = workspace.Data.CustomerId.ToString();
+            workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
 
-            var client = new LogsQueryClient(azureCredential);
-            var allItems = new List<LAWorkspaceQueryResponseItem>();
-
-            foreach (var (chunkFrom, chunkTo) in SplitIntoChunksInclusive(from, to, DaysPerChunk))
+            if (workspace == null || !workspace.Value.HasData || workspace.Value.Data.CustomerId == null)
             {
-                var resp = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(
-                    customerId,
-                    UsageQuery,
-                    new QueryTimeRange(chunkFrom, chunkTo));
-
-                if (resp.GetRawResponse() == null || resp.GetRawResponse().IsError)
-                    return ([], false);
-
-                allItems.AddRange(resp.Value);
+                return ([], false);
             }
 
-            return (MergeAndFilter(allItems), true);
+            response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
+                @$"search * 
+			| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
+			| project
+				Size=_BilledSize,
+				Selector=iff(isempty(PodNamespace), _ResourceId, PodNamespace),
+				SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
+			| summarize SizeSum=sum(Size) by Selector, SelectorType
+			| order by Selector desc",
+                new QueryTimeRange(from, to),
+                new LogsQueryOptions
+                {
+                    ServerTimeout = TimeSpan.FromMinutes(10)
+                });
+#endif
+
+            if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
+            {
+                return ([], false);
+            }
+
+            return (response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || !x.SelectorIdentifier!.IsLogAnalyticsWorkspace()), true);
         }
         catch (RequestFailedException e)
         {
             logger.LogError(e, $"Workspace {laResourceId} not found");
             return ([], false);
         }
-#endif
-    }
-
-    /// <summary>
-    /// Example:
-    /// from = 2026-02-01 00:00:00
-    /// to   = 2026-02-28 23:59:59
-    /// Produces:
-    /// 01 00:00:00 -> 10 23:59:59
-    /// 11 00:00:00 -> 20 23:59:59
-    /// 21 00:00:00 -> 28 23:59:59
-    /// </summary>
-    private static IEnumerable<(DateTime from, DateTime to)> SplitIntoChunksInclusive(
-        DateTime from,
-        DateTime to,
-        int daysPerChunk)
-    {
-        var cursorStart = from;
-
-        while (cursorStart <= to)
-        {
-            var cursorEnd = cursorStart.AddDays(daysPerChunk).AddSeconds(-1);
-
-            if (cursorEnd > to)
-                cursorEnd = to;
-
-            yield return (cursorStart, cursorEnd);
-
-            cursorStart = cursorEnd.AddSeconds(1);
-        }
-    }
-
-    private static IEnumerable<LAWorkspaceQueryResponseItem> MergeAndFilter(
-        IEnumerable<LAWorkspaceQueryResponseItem> items)
-    {
-        var filtered = items.Where(x =>
-            x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType ||
-            x.SelectorIdentifier is null ||
-            !x.SelectorIdentifier.IsLogAnalyticsWorkspace());
-
-        return filtered
-            .GroupBy(
-                x => (x.SelectorType, x.Selector),
-                SelectorKeyComparer.Instance)
-            .Select(g => new LAWorkspaceQueryResponseItem
-            {
-                SelectorType = g.Key.SelectorType,
-                Selector = g.Key.Selector,
-                SizeSum = g.Sum(x => x.SizeSum)
-            })
-            .OrderByDescending(x => x.SizeSum);
-    }
-
-    private sealed class SelectorKeyComparer : IEqualityComparer<(string SelectorType, string Selector)>
-    {
-        public static readonly SelectorKeyComparer Instance = new();
-
-        public bool Equals(
-            (string SelectorType, string Selector) x,
-            (string SelectorType, string Selector) y)
-            => string.Equals(x.SelectorType, y.SelectorType, StringComparison.Ordinal) &&
-               string.Equals(x.Selector, y.Selector, StringComparison.OrdinalIgnoreCase);
-
-        public int GetHashCode((string SelectorType, string Selector) obj)
-            => HashCode.Combine(
-                StringComparer.Ordinal.GetHashCode(obj.SelectorType ?? string.Empty),
-                StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Selector ?? string.Empty));
     }
 }
