@@ -22,7 +22,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
         var workflowInstance = await workflowClient.GetWorkflowStateAsync(workflowName);
 
         // if unknown, just reset
-        if (workflowInstance.RuntimeStatus == WorkflowRuntimeStatus.Unknown)
+        if (workflowInstance?.RuntimeStatus == WorkflowRuntimeStatus.Unknown)
         {
             workflowInstance = null;
         }

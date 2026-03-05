@@ -1,23 +1,23 @@
 ﻿namespace Mammon.Services;
 
 public class LogAnalyticsService(
-	ArmClient armClient,
-	DefaultAzureCredential azureCredential,
-	ILogger<LogAnalyticsService> logger) : BaseLogService
+    ArmClient armClient,
+    DefaultAzureCredential azureCredential,
+    ILogger<LogAnalyticsService> logger) : BaseLogService
 {
-	public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
-	{
-		ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
+    public async Task<(IEnumerable<LAWorkspaceQueryResponseItem>, bool workspaceFound)> CollectUsageData(string laResourceId, DateTime from, DateTime to)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
 
         Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
 
         try
-		{
+        {
 #if (DEBUG || INTTEST)
 
             response = await ParseMockFileAsync<LAWorkspaceQueryResponseItem>(Consts.MockLAQueryResponseFilePathConfigKey, laResourceId);
 #else
-			LogsQueryClient client = new(azureCredential);
+            LogsQueryClient client = new(azureCredential);
 
             Response<OperationalInsightsWorkspaceResource>? workspace;
 
@@ -29,7 +29,7 @@ public class LogAnalyticsService(
             }
 
             response = await client.QueryWorkspaceAsync<LAWorkspaceQueryResponseItem>(workspace.Value.Data.CustomerId.ToString(),
-				@$"search * 
+                @$"search * 
 			| where $table !='AzureActivity' and not(isempty(_ResourceId)) and _BilledSize > 0
 			| project
 				Size=_BilledSize,
@@ -37,21 +37,24 @@ public class LogAnalyticsService(
 				SelectorType=iff(isempty(PodNamespace), 'ResourceId', 'Namespace')
 			| summarize SizeSum=sum(Size) by Selector, SelectorType
 			| order by Selector desc",
-				new QueryTimeRange(from, to));
+                new QueryTimeRange(from, to),
+                new LogsQueryOptions
+                {
+                    ServerTimeout = TimeSpan.FromMinutes(5)
+                });
 #endif
 
             if (response.GetRawResponse() == null || response.GetRawResponse().IsError)
-			{
-				return ([], false);
-			}
+            {
+                return ([], false);
+            }
 
-			return (response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || !x.SelectorIdentifier!.IsLogAnalyticsWorkspace()), true);
-		}
-		catch (RequestFailedException e)
-		{
-			logger.LogError(e, $"Workspace {laResourceId} not found");
-			return ([], false);
-		}
-	}
+            return (response.Value.Where(x => x.SelectorType != Consts.ResourceIdLAWorkspaceSelectorType || !x.SelectorIdentifier!.IsLogAnalyticsWorkspace()), true);
+        }
+        catch (RequestFailedException e)
+        {
+            logger.LogError(e, $"Workspace {laResourceId} not found");
+            return ([], false);
+        }
+    }
 }
-
