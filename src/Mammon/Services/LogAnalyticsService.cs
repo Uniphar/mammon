@@ -40,7 +40,7 @@ public class LogAnalyticsService(
                 new QueryTimeRange(from, to),
                 new LogsQueryOptions
                 {
-                    ServerTimeout = TimeSpan.FromMinutes(10)
+                    ServerTimeout = TimeSpan.FromMinutes(5)
                 });
 #endif
 
