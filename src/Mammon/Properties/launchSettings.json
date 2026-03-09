@@ -16,6 +16,21 @@
         "Mammon__StateStoreName": "actor-state-store"
       },
       "remoteDebugEnabled": false
+    },
+    "daprDirect": {
+      "commandName": "Project",
+      "workingDirectory": "$(ProjectDir)",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "http://+:8082",
+        "MAMMON_CONFIG_KEYVAULT_URL": "https://uni-devops-app-dev-kv.vault.azure.net/",
+        "Mammon__MockCostAPIResponseFilePath": "./Services/dummyCostAPIResponse.json",
+        "Mammon__MockDevopsCostAPIResponseFilePath": "./Services/dummyDevOpsCostApiResponse.json",
+        "Mammon__MockVisualStudioSubscriptionsCostsApiResponseFilePath": "./Services/dummyVisualStudioSubscriptionCostApiResponse.json",
+        "Mammon__CostCentreRuleEngineFilePath": "../../../costcentre-definitions/costCentreRules.json",
+        "Mammon__CostCentreRuleEngineDevOpsConfigFilePath": "../../../costcentre-definitions/costCentreDevOpsRules.json",
+        "Mammon__StateStoreName": "actor-state-store"
+      },
+      "remoteDebugEnabled": false
     }
   },
   "$schema": "http://json.schemastore.org/launchsettings.json"

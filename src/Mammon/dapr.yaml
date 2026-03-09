@@ -1,0 +1,24 @@
+version: 1
+common:
+  appLogDestination: fileAndConsole
+  daprdLogDestination: fileAndConsole
+  resourcesPath: ../LocalComponents/
+  enableAppHealthCheck: false
+  logLevel: debug
+apps:
+  - appID: mammon
+    appDirPath: ./
+    daprHTTPPort: 3500
+    daprGRPCPort: 50001
+    appProtocol: http
+    appPort: 8082
+    command: ["dotnet", "run", "-lp daprDirect --project", "."]
+    env:
+      ASPNETCORE_URLS: "http://+:8082"
+      MAMMON_CONFIG_KEYVAULT_URL: "https://uni-devops-app-dev-kv.vault.azure.net/"
+      Mammon__MockCostAPIResponseFilePath: "./Services/dummyCostAPIResponse.json"
+      Mammon__MockDevopsCostAPIResponseFilePath": "./Services/dummyDevOpsCostApiResponse.json"
+      Mammon__MockVisualStudioSubscriptionsCostsApiResponseFilePath": "./Services/dummyVisualStudioSubscriptionCostApiResponse.json"
+      Mammon__CostCentreRuleEngineFilePath": "../../../costcentre-definitions/costCentreRules.json"
+      Mammon__CostCentreRuleEngineDevOpsConfigFilePath": "../../../costcentre-definitions/costCentreDevOpsRules.json"
+      Mammon__StateStoreName": "actor-state-store"

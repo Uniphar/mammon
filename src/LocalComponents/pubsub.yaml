@@ -3,6 +3,11 @@ kind: Component
 metadata:
   name: mammon-pub-sub
 spec:
-  type: pubsub.in-memory
+  type: pubsub.redis
   version: v1
-  metadata: []
+  initTimeout: 1m
+  metadata:
+  - name: redisHost
+    value: "localhost:6379" # assuming local dapr deploy in docker and docker configured to enable host networking
+  - name: redisPassword
+    value: ""
