@@ -182,26 +182,15 @@ builder.Services
     });
 
 
-var retryPolicy = HttpPolicyExtensions
-    .HandleTransientHttpError() // HttpRequestException, 5xx, 408
-    .OrResult(response => response.StatusCode == HttpStatusCode.TooManyRequests) // 429
-    .Or<Polly.Timeout.TimeoutRejectedException>()
+var policy = HttpPolicyExtensions
+    .HandleTransientHttpError() // HttpRequestException, 5XX and 408
+    .OrResult(response => (int)response.StatusCode == 429) // RetryAfter
     .AddCostManagementRetryPolicy();
 
-var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromMinutes(5));
-
 builder.Services
-    .AddHttpClient<CostRetrievalService>(client =>
-    {
-        client.Timeout = TimeSpan.FromMinutes(6);
-    })
+    .AddHttpClient<CostRetrievalService>(client => client.Timeout = TimeSpan.FromMinutes(5))
     .AddHttpMessageHandler<AzureAuthHandler>()
-    .AddPolicyHandler(retryPolicy)
-    .AddPolicyHandler(timeoutPolicy);
-
-builder.Services
-    .AddHttpClient<AzureDevOpsClient>()
-    .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
+    .AddPolicyHandler(policy);
 
 var app = builder.Build();
 

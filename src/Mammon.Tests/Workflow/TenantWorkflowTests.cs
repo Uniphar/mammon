@@ -50,28 +50,21 @@ public class TenantWorkflowTests
 
 		HostApplicationBuilder builder = new();
 
-        var retryPolicy = HttpPolicyExtensions
-            .HandleTransientHttpError() // HttpRequestException, 5xx, 408
-            .OrResult(response => response.StatusCode == HttpStatusCode.TooManyRequests) // 429
-            .Or<Polly.Timeout.TimeoutRejectedException>()
-            .AddCostManagementRetryPolicy();
-
-		builder.Services
-			.AddTransient<AzureAuthHandler>()
-			.AddHttpClient("costRetrievalHttpClient")
-			.AddHttpMessageHandler<AzureAuthHandler>()
-			.AddPolicyHandler(retryPolicy);
-
-        var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromMinutes(5));
+        var policy = HttpPolicyExtensions
+			.HandleTransientHttpError() // HttpRequestException, 5XX and 408
+			.OrResult(response => (int)response.StatusCode == 429) // RetryAfter
+			.AddCostManagementRetryPolicy();
 
         builder.Services
-            .AddHttpClient<CostRetrievalService>(client =>
-            {
-                client.Timeout = TimeSpan.FromMinutes(6);
-            })
+            .AddTransient<AzureAuthHandler>()
+            .AddHttpClient("costRetrievalHttpClient", client => client.Timeout = TimeSpan.FromMinutes(5))
             .AddHttpMessageHandler<AzureAuthHandler>()
-            .AddPolicyHandler(retryPolicy)
-            .AddPolicyHandler(timeoutPolicy);
+            .AddPolicyHandler(policy);
+
+        builder.Services
+            .AddTransient<AzureDevOpsAuthHandler>()
+            .AddHttpClient("azureDevOpsHttpClient")
+            .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
         _host = builder.Build();
 		
