@@ -55,7 +55,7 @@ public class TenantWorkflowTests
 
         builder.Services
             .AddTransient<AzureAuthHandler>()
-            .AddHttpClient("costRetrievalHttpClient", client => client.Timeout = TimeSpan.FromMinutes(5))
+            .AddHttpClient("costRetrievalHttpClient", client => client.Timeout = Consts.CostApiTimeout)
             .AddHttpMessageHandler<AzureAuthHandler>()
             .AddPolicyHandler(policy);
 

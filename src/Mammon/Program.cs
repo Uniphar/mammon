@@ -188,12 +188,12 @@ var policy = HttpPolicyExtensions
     .AddCostManagementRetryPolicy();
 
 builder.Services
-    .AddHttpClient<CostRetrievalService>(client => client.Timeout = TimeSpan.FromMinutes(5))
+    .AddHttpClient<CostRetrievalService>(client => client.Timeout = Consts.CostApiTimeout)
     .AddHttpMessageHandler<AzureAuthHandler>()
     .AddPolicyHandler(policy);
 
 builder.Services
-    .AddHttpClient<AzureDevOpsClient>(client => client.Timeout = TimeSpan.FromMinutes(5))
+    .AddHttpClient<AzureDevOpsClient>(client => client.Timeout = Consts.CostApiTimeout)
     .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 var app = builder.Build();
