@@ -193,7 +193,7 @@ builder.Services
     .AddPolicyHandler(policy);
 
 builder.Services
-    .AddHttpClient<AzureDevOpsClient>()
+    .AddHttpClient<AzureDevOpsClient>(client => client.Timeout = TimeSpan.FromMinutes(5))
     .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 var app = builder.Build();
