@@ -1,4 +1,6 @@
-﻿namespace Mammon.Tests.Workflow;
+﻿using System.Net;
+
+namespace Mammon.Tests.Workflow;
 
 [TestClass]
 public class TenantWorkflowTests
@@ -48,24 +50,30 @@ public class TenantWorkflowTests
 
 		HostApplicationBuilder builder = new();
 
-		var policy = HttpPolicyExtensions
-			.HandleTransientHttpError() // HttpRequestException, 5XX and 408
-			.OrResult(response => (int)response.StatusCode == 429) // RetryAfter
-			.OrResult(response => (int)response.StatusCode == 408) // RequestTimeout
-			.AddCostManagementRetryPolicy();
+        var retryPolicy = HttpPolicyExtensions
+            .HandleTransientHttpError() // HttpRequestException, 5xx, 408
+            .OrResult(response => response.StatusCode == HttpStatusCode.TooManyRequests) // 429
+            .Or<Polly.Timeout.TimeoutRejectedException>()
+            .AddCostManagementRetryPolicy();
 
 		builder.Services
 			.AddTransient<AzureAuthHandler>()
 			.AddHttpClient("costRetrievalHttpClient")
 			.AddHttpMessageHandler<AzureAuthHandler>()
-			.AddPolicyHandler(policy);
+			.AddPolicyHandler(retryPolicy);
 
-		builder.Services
-			.AddTransient<AzureDevOpsAuthHandler>()
-			.AddHttpClient("azureDevOpsHttpClient")
-			.AddHttpMessageHandler<AzureDevOpsAuthHandler>();
+        var timeoutPolicy = Policy.TimeoutAsync<HttpResponseMessage>(TimeSpan.FromMinutes(5));
 
-		_host = builder.Build();
+        builder.Services
+            .AddHttpClient<CostRetrievalService>(client =>
+            {
+                client.Timeout = TimeSpan.FromMinutes(6);
+            })
+            .AddHttpMessageHandler<AzureAuthHandler>()
+            .AddPolicyHandler(retryPolicy)
+            .AddPolicyHandler(timeoutPolicy);
+
+        _host = builder.Build();
 		
 		ConfigurationBuilder configurationBuilder = new();
 		configurationBuilder.AddAzureKeyVault(new Uri(kvUrl), azureCredential);
