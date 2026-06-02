@@ -49,9 +49,10 @@ public class TenantWorkflowTests
 		HostApplicationBuilder builder = new();
 
 		var policy = HttpPolicyExtensions
-		.HandleTransientHttpError() // HttpRequestException, 5XX and 408
-		.OrResult(response => (int)response.StatusCode == 429) // RetryAfter
-		.AddCostManagementRetryPolicy();
+			.HandleTransientHttpError() // HttpRequestException, 5XX and 408
+			.OrResult(response => (int)response.StatusCode == 429) // RetryAfter
+			.OrResult(response => (int)response.StatusCode == 408) // RequestTimeout
+			.AddCostManagementRetryPolicy();
 
 		builder.Services
 			.AddTransient<AzureAuthHandler>()
