@@ -192,6 +192,10 @@ builder.Services
     .AddHttpMessageHandler<AzureAuthHandler>()
     .AddPolicyHandler(policy);
 
+builder.Services
+    .AddHttpClient<AzureDevOpsClient>()
+    .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
+
 var app = builder.Build();
 
 CostCentreReportService.ValidateConfiguration(app.Configuration);
