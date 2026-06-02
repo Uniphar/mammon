@@ -12,7 +12,8 @@ public static class PolicyBuilderExtensions
             retryCount: 3,
             sleepDurationProvider: (i, resp, ctx) =>
             {
-                if (resp.Result.StatusCode == HttpStatusCode.TooManyRequests)
+                if (resp.Result.StatusCode == HttpStatusCode.TooManyRequests || 
+                    resp.Result.StatusCode == HttpStatusCode.RequestTimeout)
                 {
                     var header = GetHeaderValue(resp.Result, ConsumptionRetryAfter)
                                  ?? GetHeaderValue(resp.Result, ServiceUnavailableRetryAfter);

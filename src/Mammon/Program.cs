@@ -185,6 +185,7 @@ builder.Services
 var policy = HttpPolicyExtensions
     .HandleTransientHttpError() // HttpRequestException, 5XX and 408
     .OrResult(response => (int)response.StatusCode == 429) // RetryAfter
+    .OrResult(response => (int)response.StatusCode == 408)
     .AddCostManagementRetryPolicy();
 
 builder.Services
