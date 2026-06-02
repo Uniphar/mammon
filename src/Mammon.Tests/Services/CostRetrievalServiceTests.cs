@@ -14,7 +14,7 @@ public class CostRetrievalServiceTests
         string sampleResponseNextLink = File.ReadAllText("./Services/costApiResponse-nextLink.json");
 
         mockHttp
-            .When("https://management.azure.com/subscriptions/subId/providers/Microsoft.CostManagement/query?api-version=2024-01-01")
+            .When("https://management.azure.com/subscriptions/subId/providers/Microsoft.CostManagement/query?api-version=2025-03-01")
             .Respond("application/json", sampleResponse);
 
         mockHttp
