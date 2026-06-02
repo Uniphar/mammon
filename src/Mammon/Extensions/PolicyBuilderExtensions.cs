@@ -2,7 +2,7 @@
 
 public static class PolicyBuilderExtensions
 {
-    private const string ConsumptionRetryAfter = "x-ms-ratelimit-microsoft.consumption-retry-after";
+    private const string ConsumptionRetryAfter = "x-ms-ratelimit-microsoft.costmanagement-clienttype-retry-after";
     private const string ServiceUnavailableRetryAfter = "Retry-After";
 
     public static AsyncRetryPolicy<HttpResponseMessage> AddCostManagementRetryPolicy(
