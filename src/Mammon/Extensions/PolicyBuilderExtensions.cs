@@ -2,8 +2,8 @@
 
 public static class PolicyBuilderExtensions
 {
-    private const string EntityRetryAfterHeader = "x-ms-ratelimit-microsoft.costmanagement-entity-retry-after";
-    private const string ClientTypeRetryAfterHeader = "x-ms-ratelimit-microsoft.costmanagement-clienttype-retry-after";
+    private const string ConsumptionRetryAfter = "x-ms-ratelimit-microsoft.consumption-retry-after";
+    private const string ServiceUnavailableRetryAfter = "Retry-After";
 
     public static AsyncRetryPolicy<HttpResponseMessage> AddCostManagementRetryPolicy(
         this PolicyBuilder<HttpResponseMessage> builder)
@@ -14,8 +14,8 @@ public static class PolicyBuilderExtensions
             {
                 if (resp.Result.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    var header = GetHeaderValue(resp.Result, EntityRetryAfterHeader)
-                                 ?? GetHeaderValue(resp.Result, ClientTypeRetryAfterHeader);
+                    var header = GetHeaderValue(resp.Result, ConsumptionRetryAfter)
+                                 ?? GetHeaderValue(resp.Result, ServiceUnavailableRetryAfter);
 
                     if (!string.IsNullOrWhiteSpace(header) && double.TryParse(header, out var seconds))
                     {

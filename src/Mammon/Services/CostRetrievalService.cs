@@ -8,7 +8,7 @@ public class CostRetrievalService
     private readonly ILogger<CostRetrievalService> logger;
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true, AllowTrailingCommas = true };
 
-    private const string costAPIVersion = "2024-01-01";
+    private const string costAPIVersion = "2025-03-01";
 
     private const string costColumnName = "Cost";
     private const string resourceIdColumnName = "ResourceId";
