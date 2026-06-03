@@ -28,8 +28,10 @@ public static class Consts
 
 	public const string MammonSplittablePrefix = "MammonSplittable";
 
+	public static TimeSpan CostApiTimeout = TimeSpan.FromMinutes(5);
+
 #if (DEBUG || INTTEST)
-	public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
+    public const string MockCostAPIResponseFilePathConfigKey = "Mammon:MockCostAPIResponseFilePath";
 	public const string MockDevOpsCostAPIResponseFilePathConfigKey = "Mammon:MockDevopsCostAPIResponseFilePath";
 	public const string MockVisualStudioSubscriptionsCostsApiResponseFilePathConfigKey = "Mammon:MockVisualStudioSubscriptionsCostsApiResponseFilePath";
     public const string MockLAQueryResponseFilePathConfigKey = "./Services/dummyLAQueryApiResponse.json";

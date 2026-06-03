@@ -2,31 +2,31 @@
 
 public static class PolicyBuilderExtensions
 {
-    private const string EntityRetryAfterHeader = "x-ms-ratelimit-microsoft.costmanagement-entity-retry-after";
-    private const string ClientTypeRetryAfterHeader = "x-ms-ratelimit-microsoft.costmanagement-clienttype-retry-after";
+    private const string CostManagementClientTypeRetryAfter = "x-ms-ratelimit-microsoft.costmanagement-clienttype-retry-after";
+    private const string CostManagementEntityRetryAfter = "x-ms-ratelimit-microsoft.costmanagement-entity-retry-after";
 
     public static AsyncRetryPolicy<HttpResponseMessage> AddCostManagementRetryPolicy(
         this PolicyBuilder<HttpResponseMessage> builder)
     {
         return builder.WaitAndRetryAsync(
             retryCount: 3,
-            sleepDurationProvider: (i, resp, ctx) =>
+            sleepDurationProvider: (attempt, outcome, context) =>
             {
-                if (resp.Result.StatusCode == HttpStatusCode.TooManyRequests)
+                if (outcome.Result is { StatusCode: HttpStatusCode.TooManyRequests or HttpStatusCode.RequestTimeout } response)
                 {
-                    var header = GetHeaderValue(resp.Result, EntityRetryAfterHeader)
-                                 ?? GetHeaderValue(resp.Result, ClientTypeRetryAfterHeader);
+                    var header = GetHeaderValue(response, CostManagementClientTypeRetryAfter)
+                                 ?? GetHeaderValue(response, CostManagementEntityRetryAfter);
 
-                    if (!string.IsNullOrWhiteSpace(header) && double.TryParse(header, out var seconds))
+                    if (!string.IsNullOrWhiteSpace(header) &&
+                        double.TryParse(header, NumberStyles.Float, CultureInfo.InvariantCulture, out var seconds))
                     {
                         return TimeSpan.FromSeconds(seconds);
                     }
                 }
 
-                return TimeSpan.FromMinutes(Math.Pow(2, i));
+                return TimeSpan.FromMinutes(Math.Pow(2, attempt));
             },
-            onRetryAsync: (resp, ts, i, ctx) => Task.CompletedTask
-        );
+            onRetryAsync: (outcome, delay, attempt, context) => Task.CompletedTask);
     }
 
     private static string? GetHeaderValue(HttpResponseMessage response, string headerName)
@@ -36,4 +36,3 @@ public static class PolicyBuilderExtensions
             : null;
     }
 }
-
