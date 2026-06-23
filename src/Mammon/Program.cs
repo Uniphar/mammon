@@ -87,7 +87,7 @@ builder.Configuration.AddAzureKeyVault(
 builder.Configuration.AddEnvironmentVariables();
 builder
     .RegisterOpenTelemetry("mammon")
-    .WithAppInsightsEnvironmentVariable("APPLICATIONINSIGHTS:CONNECTIONSTRING")
+        .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
     .Build();
 
 builder.Services.AddRazorPages();
