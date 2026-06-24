@@ -1,15 +1,25 @@
+global using System.Data;
+global using System.Diagnostics;
+global using System.Diagnostics.CodeAnalysis;
+global using System.Globalization;
+global using System.Net;
+global using System.Security.Cryptography;
+global using System.Text;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+global using System.Text.RegularExpressions;
 global using Azure;
 global using Azure.Core;
 global using Azure.Identity;
 global using Azure.Messaging.ServiceBus;
 global using Azure.Monitor.Query;
 global using Azure.ResourceManager;
-global using Azure.ResourceManager.Resources;
-global using Azure.ResourceManager.Sql;
 global using Azure.ResourceManager.ContainerService;
 global using Azure.ResourceManager.DesktopVirtualization;
 global using Azure.ResourceManager.Monitor;
 global using Azure.ResourceManager.OperationalInsights;
+global using Azure.ResourceManager.Resources;
+global using Azure.ResourceManager.Sql;
 global using Azure.ResourceManager.Sql.Models;
 global using Azure.Storage.Blobs;
 global using CsvHelper;
@@ -55,16 +65,6 @@ global using Microsoft.Extensions.Azure;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
-global using System.Data;
-global using System.Diagnostics;
-global using System.Diagnostics.CodeAnalysis;
-global using System.Globalization;
-global using System.Net;
-global using System.Security.Cryptography;
-global using System.Text;
-global using System.Text.Json;
-global using System.Text.Json.Serialization;
-global using System.Text.RegularExpressions;
 global using Uniphar.Platform.Telemetry;
 global using Westwind.AspNetCore.Views;
 
@@ -85,7 +85,10 @@ builder.Configuration.AddAzureKeyVault(
     defaultAzureCredentials);
 
 builder.Configuration.AddEnvironmentVariables();
-builder.RegisterOpenTelemetry("mammon").Build();
+builder
+    .RegisterOpenTelemetry("mammon")
+        .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
+    .Build();
 
 builder.Services.AddRazorPages();
 
