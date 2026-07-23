@@ -43,7 +43,11 @@ on:
         type: boolean
         default: false
         description: "Mock Log Query Client API calls"
-
+      regionCode:
+        type: string
+        required: false
+        description: "Region Code"
+        default: "ne"
 jobs:
   deploy_app:
     environment: ${{ inputs.environment }}
@@ -90,14 +94,13 @@ jobs:
         uses: azure/powershell@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
+          AKS_CLUSTER_NAME: ${{ vars[format('AKS_{0}_{1}_CLUSTER', inputs.regionCode, inputs.environment)] }}
         with:
           inlineScript: |
             Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
 
             $Environment = '${{ inputs.environment }}'
             $ACRName = Resolve-UniResourceName 'acr' $p_computeProject -Context $app_AKS
-            $AKSClusterResourceGroup = Resolve-UniResourceName 'resource-group' $p_computeProject -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
-            $AKSClusterName = Resolve-UniResourceName 'aks' $p_computeProject -Context $app_AKS -Environment '${{ inputs.environment }}' -Region '${{ matrix.regionShortCode }}'
             $AKSClusterSAName =  Resolve-UniKubeWorkloadSAName  '${{ inputs.environment }}' 'platform-mammon'
             $AKSClusterSAID = Get-AzADServicePrincipal -DisplayName $AKSClusterSAName | Select-Object -ExpandProperty Id
             $AKSClusterServiceAccountClientId = (Get-UniDomainServicePrincipalDetail 'platform-mammon' '${{ inputs.environment }}').AppId
@@ -108,8 +111,7 @@ jobs:
 
             echo "ENVIRONMENT=$Environment" >> $env:GITHUB_ENV
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
-            echo "AKS_CLUSTER_RESOURCE_GROUP=$AKSClusterResourceGroup" >> $env:GITHUB_ENV
-            echo "AKS_CLUSTER_NAME=$AKSClusterName" >> $env:GITHUB_ENV
+            echo "AKS_CLUSTER_NAME=$env:AKS_CLUSTER_NAME" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_NAME=$AKSClusterSAName" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_ID=$AKSClusterSAID" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID=$AKSClusterServiceAccountClientId" >> $env:GITHUB_ENV
@@ -148,7 +150,7 @@ jobs:
       - name: Gets K8s context
         uses: azure/aks-set-context@v3
         with:
-          resource-group: ${{ env.AKS_CLUSTER_RESOURCE_GROUP }}
+          resource-group: compute-${{ inputs.regionCode }}-${{ inputs.environment }}
           cluster-name: ${{ env.AKS_CLUSTER_NAME }}
           use-kubelogin: "true"
         id: k8context
