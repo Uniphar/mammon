@@ -19,6 +19,9 @@ on:
       AZURE_DEV_SUBSCRIPTION_ID:
         required: true
         description: "Azure Dev Subscription ID"
+      AZURE_DEV_NEW_SUBSCRIPTION_ID:
+        required: true
+        description: "Azure Dev New Subscription ID"
       AZURE_PROD_SUBSCRIPTION_ID:
         required: true
         description: "Azure Prod Subscription ID"
