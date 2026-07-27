@@ -11,4 +11,4 @@ spec:
     - name: route
       value: "api/mammon/cron"
 scopes:
-  - mammon
+  - platform-mammon

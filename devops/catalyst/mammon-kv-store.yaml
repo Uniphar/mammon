@@ -18,6 +18,6 @@ spec:
     - name: collection
       value: mammon-orchestrator-state
 scopes:
-  - mammon
+  - platform-mammon
 auth:
   secretStore: mammon-azure-keyvault

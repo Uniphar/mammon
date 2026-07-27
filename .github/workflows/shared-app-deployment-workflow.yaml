@@ -48,6 +48,11 @@ on:
         required: false
         description: "Region Code"
         default: "ne"
+      namespace:
+        type: string
+        required: false
+        description: "Namespace"
+        default: "platform-mammon"
 jobs:
   deploy_app:
     environment: ${{ inputs.environment }}
@@ -197,17 +202,31 @@ jobs:
             Write-Error $_
             exit 1
           }
+      - id: setup-diagrid-cli
+        name: Setup Diagrid CLI
+        shell: bash
+        run: |
+          curl -o- https://downloads.diagrid.io/cli/install.sh | bash
+          sudo mv ./diagrid /usr/local/bin
+
+          diagrid version
+
+      - name: Setup dapr workflows
+        shell: pwsh
+        run: |
+          $longRegionName=Resolve-UniRegionName -RegionShortCode ${{ inputs.regionCode }}
+          Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }}
 
       - name: Apply Dapr catalyst components
         working-directory: ./devops/catalyst
         shell: pwsh
         run: |
-          diagrid apply -f ./mammon-azure-keyvault.yaml --project mammon
-          diagrid apply -f ./mammon-kv-store.yaml --project mammon
-          diagrid apply -f ./mammon-resilience.yaml --project mammon
-          diagrid apply -f ./mammon-featureconfig.yaml --project mammon
-          diagrid apply -f ./mammon-cron.yaml --project mammon
-          diagrid apply -f ./mammon-pubsub.yaml --project mammon
+          diagrid apply -f ./mammon-azure-keyvault.yaml --project ${{ inputs.namespace }}
+          diagrid apply -f ./mammon-kv-store.yaml --project ${{ inputs.namespace }}
+          diagrid apply -f ./mammon-resilience.yaml --project ${{ inputs.namespace }}
+          diagrid apply -f ./mammon-featureconfig.yaml --project ${{ inputs.namespace }}
+          diagrid apply -f ./mammon-cron.yaml --project ${{ inputs.namespace }}
+          diagrid apply -f ./mammon-pubsub.yaml --project ${{ inputs.namespace }}
 
       - name: setup helm
         uses: azure/setup-helm@v3
@@ -234,26 +253,7 @@ jobs:
           --set environment="$ENVIRONMENT"
           --set-string ACRName="$ACR_NAME"
           --set mockCostAndLogQueryApis=${{ inputs.mockCostAndLogQueryApis }}
-          -n platform-mammon
-          --atomic
-
-  notify:
-    needs: deploy_app
-    runs-on: ubuntu-latest
-    if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
-    steps:
-      - name: gh-app-install token
-        id: gh-app
-        uses: getsentry/action-github-app-token@v2
-        with:
-          app_id: ${{ secrets.ACTIONS_AUTH_APP_ID }}
-          private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
-
-      - uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: "shared-failed-build-notification-workflow.yaml"
-          inputs: '{
-            "workflowId":"${{ github.run_id }}",
-            "repository":"${{ github.repository }}"
-            }'
-          token: ${{ steps.gh-app.outputs.token }}
+          -n ${{ inputs.namespace }}
+          --wait
+          --timeout 5m
+          --rollback-on-failure

@@ -3,7 +3,7 @@ kind: Resiliency
 metadata:
   name: mammon-resilience
 scopes:
-  - mammon
+  - platform-mammon
 spec:
   policies:
     timeouts:

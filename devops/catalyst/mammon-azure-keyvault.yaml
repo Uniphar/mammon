@@ -13,4 +13,4 @@ spec:
     - name: azureClientId
       value: ${CLIENT_ID}
 scopes:
-  - mammon
+  - platform-mammon

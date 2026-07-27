@@ -11,4 +11,4 @@ spec:
     - name: consumerID
       value: mammon
 scopes:
-  - mammon
+  - platform-mammon
