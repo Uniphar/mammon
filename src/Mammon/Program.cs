@@ -76,12 +76,10 @@ DefaultAzureCredential defaultAzureCredentials = new();
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configKVURL = builder.Configuration[Consts.ConfigKeyVaultConfigEnvironmentVariable]?.ToString();
-if (string.IsNullOrWhiteSpace(configKVURL))
-    throw new InvalidOperationException($"{Consts.ConfigKeyVaultConfigEnvironmentVariable} environment variable is not set");
+var environment = builder.Environment.EnvironmentName ?? throw new NoNullAllowedException("ASPNETCORE_ENVIRONMENT environment variable has to be set.");
 
 builder.Configuration.AddAzureKeyVault(
-    new Uri(configKVURL),
+    new($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
     defaultAzureCredentials);
 
 builder.Configuration.AddEnvironmentVariables();
@@ -93,7 +91,17 @@ builder
 builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
-builder.Services.AddDaprClient();
+
+var httpEndpoint = builder.Configuration["DAPR_HTTP_ENDPOINT"] ?? builder.Configuration["mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException();
+var grpcEndpoint = builder.Configuration["DAPR_GRPC_ENDPOINT"] ?? builder.Configuration["mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException();
+var apiToken = builder.Configuration["DAPR_API_TOKEN"] ?? builder.Configuration["mammon:dapr-api-token"] ?? throw new NoNullAllowedException();
+
+builder.Services.AddSingleton(new DaprClientBuilder()
+    .UseHttpEndpoint(httpEndpoint)
+    .UseGrpcEndpoint(grpcEndpoint)
+    .UseDaprApiToken(apiToken)
+    .UseTimeout(TimeSpan.FromMinutes(3))
+    .Build());
 
 builder.Services
     .AddDaprWorkflow((config) =>

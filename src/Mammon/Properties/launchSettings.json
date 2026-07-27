@@ -7,7 +7,7 @@
       "workingDirectory": "$(ProjectDir)",
       "environmentVariables": {
         "ASPNETCORE_URLS": "http://+:8082",
-        "MAMMON_CONFIG_KEYVAULT_URL": "https://uni-devops-app-dev-kv.vault.azure.net/",
+        "ASPNETCORE_ENVIRONMENT": "dev",
         "Mammon__MockCostAPIResponseFilePath": "./Services/dummyCostAPIResponse.json",
         "Mammon__MockDevopsCostAPIResponseFilePath": "./Services/dummyDevOpsCostApiResponse.json",
         "Mammon__MockVisualStudioSubscriptionsCostsApiResponseFilePath": "./Services/dummyVisualStudioSubscriptionCostApiResponse.json",

@@ -29,8 +29,8 @@ public class TenantWorkflowTests
     {
         _cancellationToken = testContext.CancellationTokenSource.Token;
 
-        var kvUrl = Environment.GetEnvironmentVariable(Consts.ConfigKeyVaultConfigEnvironmentVariable);
-        ArgumentException.ThrowIfNullOrWhiteSpace(kvUrl, nameof(kvUrl));
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "dev";
+        var kvUrl = $"https://uni-devops-app-{environment}-kv.vault.azure.net/";
 
         DefaultAzureCredential azureCredential = new();
 
