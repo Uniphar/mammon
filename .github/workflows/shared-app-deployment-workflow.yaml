@@ -202,12 +202,12 @@ jobs:
         working-directory: ./devops/catalyst
         shell: pwsh
         run: |
-          ./diagrid apply -f ./mammon-azure-keyvault.yaml --project mammon
-          ./diagrid apply -f ./mammon-kv-store.yaml --project mammon
-          ./diagrid apply -f ./mammon-resilience.yaml --project mammon
-          ./diagrid apply -f ./mammon-featureconfig.yaml --project mammon
-          ./diagrid apply -f ./mammon-cron.yaml --project mammon
-          ./diagrid apply -f ./mammon-pubsub.yaml --project mammon
+          diagrid apply -f ./mammon-azure-keyvault.yaml --project mammon
+          diagrid apply -f ./mammon-kv-store.yaml --project mammon
+          diagrid apply -f ./mammon-resilience.yaml --project mammon
+          diagrid apply -f ./mammon-featureconfig.yaml --project mammon
+          diagrid apply -f ./mammon-cron.yaml --project mammon
+          diagrid apply -f ./mammon-pubsub.yaml --project mammon
 
       - name: setup helm
         uses: azure/setup-helm@v3
