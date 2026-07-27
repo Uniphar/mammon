@@ -1,0 +1,12 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: mammon-featureconfig
+spec:
+  features:
+    - enabled: true
+      name: SchedulerReminders
+  metric:
+    enabled: true
+  metrics:
+    enabled: true

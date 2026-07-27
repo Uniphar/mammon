@@ -1,0 +1,23 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: mammon-kv-store
+spec:
+  type: state.azure.cosmosdb
+  version: v1
+  initTimeout: 5m
+  metadata:
+    - name: url
+      value: https://uni-devops-${ENV}-cosmos.documents.azure.com:443
+    - name: masterKey
+      secretKeyRef:
+        name: COSMOS--MASTERKEY
+        key: COSMOS--MASTERKEY
+    - name: database
+      value: devops
+    - name: collection
+      value: mammon-orchestrator-state
+scopes:
+  - mammon
+auth:
+  secretStore: mammon-azure-keyvault

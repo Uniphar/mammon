@@ -104,6 +104,7 @@ jobs:
             $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
             $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
             $cronDayOfMonth = (ConvertFrom-SecureString $cronDayOfMonthSecret.SecretValue -AsPlainText)
+            $azureTenantId = (Get-AzContext).Tenant.Id
 
             echo "ENVIRONMENT=$Environment" >> $env:GITHUB_ENV
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
@@ -112,6 +113,7 @@ jobs:
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_ID=$AKSClusterSAID" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID=$AKSClusterServiceAccountClientId" >> $env:GITHUB_ENV
             echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
+            echo "AZURE_TENANT_ID=$azureTenantId" >> $env:GITHUB_ENV
             echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
             echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
             echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
@@ -151,6 +153,55 @@ jobs:
           use-kubelogin: "true"
         id: k8context
 
+      - name: Prepare Dapr catalyst components
+        working-directory: ./devops/catalyst
+        shell: pwsh
+        run: |
+          try {
+            $replacements = [ordered]@{
+              '${ENV}' = '${{ inputs.environment }}'
+              '${CLIENT_ID}' = $env:AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID
+              '${TENANT_ID}' = $env:AZURE_TENANT_ID
+              '${SB_NAMESPACE}' = $env:SB_NAMESPACE
+              '${CRON_DAY_OF_MONTH}' = $env:CRON_DAY_OF_MONTH
+            }
+
+            foreach ($placeholder in $replacements.Keys) {
+              if ([string]::IsNullOrWhiteSpace($replacements[$placeholder])) {
+                throw "No replacement value resolved for placeholder '$placeholder'."
+              }
+            }
+
+            $files = @('mammon-azure-keyvault.yaml', 'mammon-kv-store.yaml', 'mammon-resilience.yaml', 'mammon-featureconfig.yaml', 'mammon-cron.yaml', 'mammon-pubsub.yaml')
+            foreach ($file in $files) {
+              $content = Get-Content -Path $file -Raw
+              foreach ($placeholder in $replacements.Keys) {
+                $content = $content.Replace($placeholder, $replacements[$placeholder])
+              }
+
+              if ($content.Contains('{') -or $content.Contains('}')) {
+                throw "Unresolved placeholder remains in '$file' after substitution."
+              }
+
+              Set-Content -Path $file -Value $content -NoNewline
+            }
+          }
+          catch {
+            Write-Error $_
+            exit 1
+          }
+
+      - name: Apply Dapr catalyst components
+        working-directory: ./devops/catalyst
+        shell: pwsh
+        run: |
+          ./diagrid apply -f ./mammon-azure-keyvault.yaml --project mammon
+          ./diagrid apply -f ./mammon-kv-store.yaml --project mammon
+          ./diagrid apply -f ./mammon-resilience.yaml --project mammon
+          ./diagrid apply -f ./mammon-featureconfig.yaml --project mammon
+          ./diagrid apply -f ./mammon-cron.yaml --project mammon
+          ./diagrid apply -f ./mammon-pubsub.yaml --project mammon
+
       - name: setup helm
         uses: azure/setup-helm@v3
 
@@ -175,11 +226,6 @@ jobs:
           --set reason="Upgrade to $APPLICATION_VERSION"
           --set environment="$ENVIRONMENT"
           --set-string ACRName="$ACR_NAME"
-          --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
-          --set-string AKSClusterServiceAccountClientId="$AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID"
-          --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
-          --set-string SBNamespaceName="$SB_NAMESPACE"
-          --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}
           --set mockCostAndLogQueryApis=${{ inputs.mockCostAndLogQueryApis }}
           -n platform-mammon
           --atomic

@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: mammon-pub-sub
+spec:
+  type: pubsub.azure.servicebus.topics
+  version: v1
+  metadata:
+    - name: namespaceName
+      value: "${SB_NAMESPACE}.servicebus.windows.net"
+    - name: consumerID
+      value: mammon
+scopes:
+  - mammon

@@ -1,0 +1,14 @@
+apiVersion: dapr.io/v1alpha1
+kind: Resiliency
+metadata:
+  name: mammon-resilience
+scopes:
+  - mammon
+spec:
+  policies:
+    timeouts:
+      DefaultActorTimeoutPolicy: 300s
+  targets:
+    apps:
+      mammon:
+        timeout: DefaultActorTimeoutPolicy
