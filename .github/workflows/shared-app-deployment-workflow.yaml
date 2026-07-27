@@ -122,7 +122,14 @@ jobs:
           azPSVersion: "latest"
           errorActionPreference: "stop"
           failOnStandardError: true
+      - id: setup-diagrid-cli
+        name: Setup Diagrid CLI
+        shell: bash
+        run: |
+          curl -o- https://downloads.diagrid.io/cli/install.sh | bash
+          sudo mv ./diagrid /usr/local/bin
 
+          diagrid version
       - name: Powershell
         uses: azure/powershell@v2
         env:
