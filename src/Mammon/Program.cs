@@ -96,11 +96,6 @@ var httpEndpoint = builder.Configuration["platform-mammon:dapr-http-endpoint"] ?
 var grpcEndpoint = builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException();
 var apiToken = builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException();
 
-// Dapr.Workflow (AddDaprWorkflow) has no HttpEndpoint/GrpcEndpoint/DaprApiToken hooks on WorkflowRuntimeOptions -
-// it resolves its sidecar endpoint and API token internally via Dapr.Common.DaprDefaults, which reads the
-// DAPR_HTTP_ENDPOINT/DAPR_GRPC_ENDPOINT/DAPR_API_TOKEN configuration keys (falling back to the env vars of the
-// same name). Feed the resolved values back into configuration under those exact keys so the workflow runtime,
-// worker and client all connect to the same Catalyst endpoint/token as the DaprClient and actors do.
 builder.Configuration.AddInMemoryCollection(
 [
     new("DAPR_HTTP_ENDPOINT", httpEndpoint),

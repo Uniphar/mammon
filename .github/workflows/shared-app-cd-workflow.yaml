@@ -53,7 +53,16 @@ jobs:
     with:
       applicationFolder: ${{ inputs.applicationFolder }}
       applicationName: ${{ inputs.applicationName }}
-
+  initialize_domain_dev:
+    uses: ./.github/workflows/shared-app-initialization-workflow.yaml
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_DEV_SUBSCRIPTION_ID }}
+      ACTIONS_AUTH_APP_ID: ${{ secrets.ACTIONS_AUTH_APP_ID }}
+      ACTIONS_AUTH_APP_PRIVATE_KEY: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
+    with:
+      environment: dev
   app_deployment_dev_mocked:
     needs: app_package
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
@@ -85,7 +94,8 @@ jobs:
       mockCostAndLogQueryApis: true
 
   app_deployment_dev:
-    needs: [app_package, app_integration_tests_dev_mocked]
+    needs:
+      [app_package, app_integration_tests_dev_mocked, initialize_domain_dev]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
