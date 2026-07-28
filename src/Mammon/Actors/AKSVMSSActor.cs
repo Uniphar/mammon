@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger) : ActorBase<CoreResourceActorState>(host), IAKSVMSSActor
+public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEngine, ILogger<AKSVMSSActor> logger, IActorProxyFactory actorProxyFactory) : ActorBase<CoreResourceActorState>(host), IAKSVMSSActor
 {
 	private const string CostStateName = "AKSVMSSActorState";
 
@@ -34,9 +34,9 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 				}
 
 				if (item.CounterName == Consts.AKSCPUMetricName)
-					value.CPUMetricValue += item.AvgInstanceValue/10e9; //normalize to full core
+					value.CPUMetricValue += item.AvgInstanceValue / 10e9; //normalize to full core
 				else
-					value.MemMetricValue += item.AvgInstanceValue/10e9; //normalize to gigabytes
+					value.MemMetricValue += item.AvgInstanceValue / 10e9; //normalize to gigabytes
 			}
 
 			var totalScore = nsMetrics.Values.Sum(x => x.Score);
@@ -44,9 +44,9 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 			foreach (var nsMetric in nsMetrics)
 			{
 				var cost = new ResourceCost((decimal)(nsMetric.Value.Score / totalScore) * totalCost.Cost, totalCost.Currency);
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
-					CostCentreActor.GetActorId(reportId, nsMetric.Key, request.ReportRequest.SubscriptionId), 
-					nameof(CostCentreActor), 
+				await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					CostCentreActor.GetActorId(reportId, nsMetric.Key, request.ReportRequest.SubscriptionId),
+					nameof(CostCentreActor),
 					async (p) => await p.AddCostAsync(resourceId, cost));
 			}
 
@@ -59,11 +59,11 @@ public class AKSVMSSActor(ActorHost host, CostCentreRuleEngine costCentreRuleEng
 		}
 	}
 
-	internal record NamespaceMetrics 
+	internal record NamespaceMetrics
 	{
 		internal double CPUMetricValue { get; set; }
 		internal double MemMetricValue { get; set; }
 
-		internal double Score=> 2*CPUMetricValue + MemMetricValue;
+		internal double Score => 2 * CPUMetricValue + MemMetricValue;
 	}
 }

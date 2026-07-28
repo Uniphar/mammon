@@ -1,7 +1,7 @@
 ﻿namespace Mammon.Actors;
 
 //TODO: consider abstract pro rata implementation
-public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<MySQLServerActor> logger) : ActorBase<CoreResourceActorState>(actorHost), IMySQLServerActor
+public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<MySQLServerActor> logger, IActorProxyFactory actorProxyFactory) : ActorBase<CoreResourceActorState>(actorHost), IMySQLServerActor
 {
 	private const string CostStateName = "mySQLServerActorState";
 
@@ -44,7 +44,7 @@ public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCent
 
 				foreach (var proRataCost in proRataCosts)
 				{
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
 						CostCentreActor.GetActorId(reportId, proRataCost.Key, request.ReportRequest.SubscriptionId),
 						nameof(CostCentreActor),
 						async (p) => await p.AddCostAsync(resourceId, proRataCost.Value));
@@ -53,7 +53,7 @@ public class MySQLServerActor(ActorHost actorHost, CostCentreRuleEngine costCent
 			else
 			{
 				//no pro rata, assign to mysql server cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+				await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
 					CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags), request.ReportRequest.SubscriptionId),
 					nameof(CostCentreActor),
 					async (p) => await p.AddCostAsync(resourceId, totalCost));

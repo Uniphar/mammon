@@ -1,4 +1,8 @@
-﻿global using AwesomeAssertions;
+﻿global using System.Globalization;
+global using System.Reflection;
+global using System.Text.Json;
+global using System.Text.Json.Serialization;
+global using AwesomeAssertions;
 global using Azure.Core;
 global using Azure.Identity;
 global using Azure.Messaging.ServiceBus;
@@ -6,6 +10,7 @@ global using Azure.ResourceManager;
 global using Azure.Storage.Blobs;
 global using CsvHelper;
 global using CsvHelper.Configuration;
+global using Dapr.Actors.Client;
 global using DotFlyer.Common.Payload;
 global using Kusto.Cloud.Platform.Data;
 global using Kusto.Data;
@@ -28,9 +33,5 @@ global using Moq;
 global using Polly;
 global using Polly.Extensions.Http;
 global using RichardSzalay.MockHttp;
-global using System.Globalization;
-global using System.Reflection;
-global using System.Text.Json;
-global using System.Text.Json.Serialization;
 global using Westwind.Utilities.Extensions;
 
