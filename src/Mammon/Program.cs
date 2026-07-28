@@ -151,6 +151,8 @@ builder.Services
     })
     .AddActors(options =>
     {
+        options.DaprApiToken = apiToken;
+        options.HttpEndpoint = httpEndpoint;
         options.Actors.RegisterActor<ResourceActor>();
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
