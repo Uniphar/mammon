@@ -109,7 +109,6 @@ jobs:
             $SBNamespace = Resolve-UniResourceName 'service-bus' $p_devopsDomain -Environment '${{ inputs.environment }}'
             $cronDayOfMonthSecret = Get-AzKeyVaultSecret -VaultName $AzureKeyVaultName -Name 'Mammon--ReportSettings--BillingPeriodStartDayInMonth'
             $cronDayOfMonth = (ConvertFrom-SecureString $cronDayOfMonthSecret.SecretValue -AsPlainText)
-            $azureTenantId = (Get-AzContext).Tenant.Id
 
             echo "ENVIRONMENT=$Environment" >> $env:GITHUB_ENV
             echo "ACR_NAME=$ACRName" >> $env:GITHUB_ENV
@@ -118,7 +117,7 @@ jobs:
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_ID=$AKSClusterSAID" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID=$AKSClusterServiceAccountClientId" >> $env:GITHUB_ENV
             echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
-            echo "AZURE_TENANT_ID=$azureTenantId" >> $env:GITHUB_ENV
+
             echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
             echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
             echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
@@ -127,14 +126,7 @@ jobs:
           azPSVersion: "latest"
           errorActionPreference: "stop"
           failOnStandardError: true
-      - id: setup-diagrid-cli
-        name: Setup Diagrid CLI
-        shell: bash
-        run: |
-          curl -o- https://downloads.diagrid.io/cli/install.sh | bash
-          sudo mv ./diagrid /usr/local/bin
 
-          diagrid version
       - name: Powershell
         uses: azure/powershell@v2
         env:
@@ -173,7 +165,7 @@ jobs:
             $replacements = [ordered]@{
               '${ENV}' = '${{ inputs.environment }}'
               '${CLIENT_ID}' = $env:AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID
-              '${TENANT_ID}' = $env:AZURE_TENANT_ID
+              '${TENANT_ID}' = ${{ secrets.AZURE_TENANT_ID }}
               '${SB_NAMESPACE}' = $env:SB_NAMESPACE
               '${CRON_DAY_OF_MONTH}' = $env:CRON_DAY_OF_MONTH
             }
