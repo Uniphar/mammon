@@ -92,16 +92,23 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
 
-var httpEndpoint = builder.Configuration["DAPR_HTTP_ENDPOINT"] ?? builder.Configuration["platform-mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException();
-var grpcEndpoint = builder.Configuration["DAPR_GRPC_ENDPOINT"] ?? builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException();
-var apiToken = builder.Configuration["DAPR_API_TOKEN"] ?? builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException();
+var httpEndpoint = builder.Configuration["platform-mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException();
+var grpcEndpoint = builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException();
+var apiToken = builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException();
 
-builder.Services.AddSingleton(new DaprClientBuilder()
-    .UseHttpEndpoint(httpEndpoint)
-    .UseGrpcEndpoint(grpcEndpoint)
-    .UseDaprApiToken(apiToken)
-    .UseTimeout(TimeSpan.FromMinutes(3))
-    .Build());
+// Dapr.Workflow (AddDaprWorkflow) has no HttpEndpoint/GrpcEndpoint/DaprApiToken hooks on WorkflowRuntimeOptions -
+// it resolves its sidecar endpoint and API token internally via Dapr.Common.DaprDefaults, which reads the
+// DAPR_HTTP_ENDPOINT/DAPR_GRPC_ENDPOINT/DAPR_API_TOKEN configuration keys (falling back to the env vars of the
+// same name). Feed the resolved values back into configuration under those exact keys so the workflow runtime,
+// worker and client all connect to the same Catalyst endpoint/token as the DaprClient and actors do.
+builder.Configuration.AddInMemoryCollection(
+[
+    new("DAPR_HTTP_ENDPOINT", httpEndpoint),
+    new("DAPR_GRPC_ENDPOINT", grpcEndpoint),
+    new("DAPR_API_TOKEN", apiToken)
+]);
+
+
 
 builder.Services
     .AddDaprWorkflow((config) =>
@@ -151,8 +158,6 @@ builder.Services
     })
     .AddActors(options =>
     {
-        options.DaprApiToken = apiToken;
-        options.HttpEndpoint = httpEndpoint;
         options.Actors.RegisterActor<ResourceActor>();
         options.Actors.RegisterActor<CostCentreActor>();
         options.Actors.RegisterActor<LAWorkspaceActor>();
