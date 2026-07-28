@@ -92,9 +92,9 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
 
-var httpEndpoint = builder.Configuration["DAPR_HTTP_ENDPOINT"] ?? builder.Configuration["mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException();
-var grpcEndpoint = builder.Configuration["DAPR_GRPC_ENDPOINT"] ?? builder.Configuration["mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException();
-var apiToken = builder.Configuration["DAPR_API_TOKEN"] ?? builder.Configuration["mammon:dapr-api-token"] ?? throw new NoNullAllowedException();
+var httpEndpoint = builder.Configuration["DAPR_HTTP_ENDPOINT"] ?? builder.Configuration["platform-mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException();
+var grpcEndpoint = builder.Configuration["DAPR_GRPC_ENDPOINT"] ?? builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException();
+var apiToken = builder.Configuration["DAPR_API_TOKEN"] ?? builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException();
 
 builder.Services.AddSingleton(new DaprClientBuilder()
     .UseHttpEndpoint(httpEndpoint)

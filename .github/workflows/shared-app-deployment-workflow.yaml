@@ -165,7 +165,7 @@ jobs:
             $replacements = [ordered]@{
               '${ENV}' = '${{ inputs.environment }}'
               '${CLIENT_ID}' = $env:AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID
-              '${TENANT_ID}' = ${{ secrets.AZURE_TENANT_ID }}
+              '${TENANT_ID}' = '${{ secrets.AZURE_TENANT_ID }}'
               '${SB_NAMESPACE}' = $env:SB_NAMESPACE
               '${CRON_DAY_OF_MONTH}' = $env:CRON_DAY_OF_MONTH
             }
@@ -206,6 +206,7 @@ jobs:
       - name: Setup dapr workflows
         shell: pwsh
         run: |
+          Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
           $longRegionName=Resolve-UniRegionName -RegionShortCode ${{ inputs.regionCode }}
           Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }}
 
