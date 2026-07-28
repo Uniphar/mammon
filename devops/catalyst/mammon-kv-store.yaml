@@ -14,7 +14,7 @@ spec:
         name: COSMOS--MASTERKEY
         key: COSMOS--MASTERKEY
     - name: database
-      value: devops
+      value: platform
     - name: collection
       value: mammon-orchestrator-state
 scopes:
