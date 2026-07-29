@@ -185,7 +185,7 @@ jobs:
         run: |
           Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
           $longRegionName=Resolve-UniRegionName -RegionShortCode ${{ inputs.regionCode }}
-          Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }} -EnableManagedWorkflow
+          Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }}
 
       - name: Apply Dapr catalyst components
         working-directory: ./devops/catalyst
