@@ -19,10 +19,10 @@ spec:
         azure.workload.identity/use: "true"
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: mammon
-        dapr.io/app-port: "{{ .Values.dapr.port }}"
+        dapr.io/app-id: platform-{{ .Chart.Name }}
+        dapr.io/app-port: "{{ .Values.port }}"
         dapr.io/enable-api-logging: "true"
-        dapr.io/config: mammon-featureconfig
+        dapr.io/config: platform-{{ .Chart.Name }}-featureconfig
         dapr.io/max-body-size: "16Mi"
     spec:
       containers:
@@ -36,7 +36,7 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - name: mammon-port
-              containerPort: {{ .Values.dapr.port }}
+              containerPort: {{ .Values.port }}
               protocol: TCP
           env:
           - name: "ASPNETCORE_ENVIRONMENT"

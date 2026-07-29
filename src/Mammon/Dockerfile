@@ -17,8 +17,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0
 ENV COST_CENTRE_DEF_FILE=costCentreRules.json
 ENV COST_CENTRE_DEV_OPS_DEF_FILE=costCentreDevOpsRules.json
 WORKDIR /app
-ENV ASPNETCORE_URLS=http://+:8082
-EXPOSE 8082
+ENV ASPNETCORE_URLS=http://+:8080
+EXPOSE 8080
 COPY --from=publish /app/publish .
 COPY $COST_CENTRE_DEF_FILE /app
 COPY $COST_CENTRE_DEV_OPS_DEF_FILE /app

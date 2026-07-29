@@ -17,6 +17,8 @@ spec:
       value: platform
     - name: collection
       value: mammon-orchestrator-state
+    - name: actorStateStore
+      value: "true"
 scopes:
   - platform-mammon
 auth:
