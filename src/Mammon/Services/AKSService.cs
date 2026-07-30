@@ -9,7 +9,7 @@ public class AKSService(
 	{
 		ArgumentException.ThrowIfNullOrWhiteSpace(vmssResourceId);
 
-        Response<IReadOnlyList<AKSVMSSUsageResponseItem>> response;
+        Azure.Response<IReadOnlyList<AKSVMSSUsageResponseItem>> response;
 
         try
 		{

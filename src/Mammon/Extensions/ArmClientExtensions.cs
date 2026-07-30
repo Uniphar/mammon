@@ -29,10 +29,10 @@ public static class ArmClientExtensions
         return rawResponse.Status == (int)HttpStatusCode.NotFound  ? null : data.Value.Data.Tags;
     }
 
-    public static async Task<Response<TResponseType>> ExecuteWithRetries<TResponseType>(this ArmClient armClient, Func<ArmClient, Task<Response<TResponseType>>> execute)
+    public static async Task<Azure.Response<TResponseType>> ExecuteWithRetries<TResponseType>(this ArmClient armClient, Func<ArmClient, Task<Azure.Response<TResponseType>>> execute)
     {
         return await Policy
-            .HandleResult<Response<TResponseType>>((r) => r.GetRawResponse()?.Status == (int)HttpStatusCode.TooManyRequests)
+            .HandleResult<Azure.Response<TResponseType>>((r) => r.GetRawResponse()?.Status == (int)HttpStatusCode.TooManyRequests)
             .WaitAndRetryAsync(10, (i) => TimeSpan.FromSeconds(Math.Pow(2, i)))
             .ExecuteAsync(async () =>
             {
