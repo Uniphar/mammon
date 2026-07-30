@@ -8,8 +8,8 @@ public class StateService(CosmosClient cosmosClient)
 
     public async Task InitializeAsync(CancellationToken cancellationToken = default)
     {
-        // Dapr's Azure CosmosDB actor state store component (mammon-actor-state) requires this container to pre-exist with partition key path "/partitionKey".
+        // Dapr's Azure CosmosDB actor state store component (mammon-orchestrator-state) requires this container to pre-exist with partition key path "/partitionKey".
         var actorStateStoreDatabase = await cosmosClient.CreateDatabaseIfNotExistsAsync("platform", cancellationToken: cancellationToken);
-        await actorStateStoreDatabase.Database.CreateContainerIfNotExistsAsync("mammon-actor-state", "/partitionKey", cancellationToken: cancellationToken);
+        await actorStateStoreDatabase.Database.CreateContainerIfNotExistsAsync("mammon-orchestrator-state", "/partitionKey", cancellationToken: cancellationToken);
     }
 }
