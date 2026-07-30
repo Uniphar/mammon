@@ -6,8 +6,8 @@ spec:
   type: pubsub.azure.servicebus.topics
   version: v1
   metadata:
-    - name: namespaceName
-      value: "${SB_NAMESPACE}.servicebus.windows.net"
+    - name: connectionString
+      value: "Endpoint=sb://${SB_NAMESPACE}.servicebus.windows.net/EntityPath=mammon"
     - name: consumerID
       value: mammon
 scopes:
