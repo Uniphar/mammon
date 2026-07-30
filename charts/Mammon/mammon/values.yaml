@@ -1,6 +1,6 @@
 replicaCount: 1
 revisionHistoryLimit: 2
-
+AKSClusterSAName: TBD by pipeline
 service:
   type: ClusterIP
   port: 80

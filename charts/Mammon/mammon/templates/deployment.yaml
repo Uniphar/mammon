@@ -25,6 +25,7 @@ spec:
         dapr.io/config: platform-{{ .Chart.Name }}-featureconfig
         dapr.io/max-body-size: "16Mi"
     spec:
+      serviceAccountName: {{ .Values.AKSClusterSAName }}
       containers:
         - name: mammon
         
