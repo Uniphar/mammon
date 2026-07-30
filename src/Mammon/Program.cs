@@ -61,6 +61,7 @@ global using Mammon.Workflows.VDI;
 global using Mammon.Workflows.VisualStudioSubscriptions;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
+global using Microsoft.Azure.Cosmos;
 global using Microsoft.Extensions.Azure;
 global using Polly;
 global using Polly.Extensions.Http;
@@ -72,6 +73,7 @@ global using Westwind.AspNetCore.Views;
 Debugger.Launch();
 #endif
 
+const string appPathPrefix = "mammon";
 DefaultAzureCredential defaultAzureCredentials = new();
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,11 +83,12 @@ var environment = builder.Environment.EnvironmentName ?? throw new NoNullAllowed
 builder.Configuration.AddAzureKeyVault(
     new($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
     defaultAzureCredentials);
-
+const string healthUrl = appPathPrefix + "/health";
 builder.Configuration.AddEnvironmentVariables();
 builder
     .RegisterOpenTelemetry("mammon")
-        .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
+    .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
+    .WithFilterExclusion(["/" + healthUrl])
     .Build();
 
 builder.Services.AddRazorPages();
@@ -206,7 +209,9 @@ builder.Services
     .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 var app = builder.Build();
-
+var stateService = app.Services.GetRequiredService<StateService>();
+await stateService.InitializeAsync();
+app.MapHealthChecks(healthUrl);
 CostCentreReportService.ValidateConfiguration(app.Configuration);
 
 app.UseRouting();

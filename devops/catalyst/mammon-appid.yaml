@@ -1,0 +1,15 @@
+apiVersion: cra.diagrid.io/v1beta1
+kind: AppIdentity
+metadata:
+  name: platform-mammon
+spec:
+  appEndpoint:
+    url: http://mammon.platform-mammon.svc.cluster.local:80
+  protocol: http
+  healthCheck:
+    path: /mammon/health
+    probe:
+      enabled: true
+      failureThreshold: 3
+      intervalInSec: 5
+      timeoutInMs: 500
