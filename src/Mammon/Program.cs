@@ -187,6 +187,7 @@ builder.Services
     .AddSingleton<CostCentreService>()
     .AddSingleton<LogAnalyticsService>()
     .AddSingleton<AKSService>()
+.AddSingleton<StateService>()
     .AddSingleton<SQLPoolService>()
     .AddSingleton<VDIService>()
     .AddSingleton<SqlFailoverService>()
