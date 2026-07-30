@@ -4,7 +4,7 @@ metadata:
   name: platform-mammon
 spec:
   appEndpoint:
-    url: http://mammon.platform-mammon.svc.cluster.local:80
+    url: http://mammon-srv.platform-mammon.svc.cluster.local:80
   protocol: http
   healthCheck:
     path: /mammon/health

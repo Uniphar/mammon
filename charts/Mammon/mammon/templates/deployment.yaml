@@ -4,18 +4,18 @@ metadata:
   name: mammon
   labels:
     app: mammon-app
-    service: mammon-svc
+    service: mammon-srv
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   selector:
     matchLabels:
-      service: mammon-svc
+      service: mammon-srv
   template:
     metadata:
       labels:
         app: mammon-app
-        service: mammon-svc
+        service: mammon-srv
         azure.workload.identity/use: "true"
       annotations:
         dapr.io/enabled: "true"
