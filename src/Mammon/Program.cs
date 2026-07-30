@@ -68,6 +68,7 @@ global using Polly.Extensions.Http;
 global using Polly.Retry;
 global using Uniphar.Platform.Telemetry;
 global using Westwind.AspNetCore.Views;
+using Microsoft.Azure.Cosmos.Fluent;
 
 #if (DEBUG)
 Debugger.Launch();
@@ -83,6 +84,14 @@ var environment = builder.Environment.EnvironmentName ?? throw new NoNullAllowed
 builder.Configuration.AddAzureKeyVault(
     new($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
     defaultAzureCredentials);
+
+builder.Services.AddTransient(sp =>
+#if !DEBUG
+	new CosmosClientBuilder(builder.Configuration["Cosmos:ConnectionString"]).WithSystemTextJsonSerializerOptions(JsonSerializerOptions.Default).Build()
+#else
+    new CosmosClientBuilder("AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==").WithSystemTextJsonSerializerOptions(JsonSerializerOptions.Default).Build()
+#endif
+);
 const string healthUrl = appPathPrefix + "/health";
 builder.Configuration.AddEnvironmentVariables();
 builder
