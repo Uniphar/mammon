@@ -182,7 +182,7 @@ jobs:
           diagrid apply -f ./devops/catalyst/ --project ${{ inputs.namespace }}
 
       - name: setup helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4
 
       - name: ACR login
         id: acrLogin
