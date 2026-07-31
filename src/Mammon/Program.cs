@@ -94,6 +94,15 @@ builder.Services.AddTransient(sp =>
 );
 const string healthUrl = appPathPrefix + "/health";
 builder.Configuration.AddEnvironmentVariables();
+// The Dapr .NET SDK (ActorProxy, DaprClient) resolves its endpoint/token from actual process
+// environment variables via Environment.GetEnvironmentVariable, not from IConfiguration.
+// Adding these to IConfiguration alone (e.g. via AddInMemoryCollection) has no effect on the SDK
+// and silently falls back to its default http://localhost:3500 with no API token.
+Environment.SetEnvironmentVariable("DAPR_HTTP_ENDPOINT", builder.Configuration["platform-mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException());
+Environment.SetEnvironmentVariable("DAPR_GRPC_ENDPOINT", builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException());
+Environment.SetEnvironmentVariable("DAPR_API_TOKEN", builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException());
+
+
 builder
     .RegisterOpenTelemetry("mammon")
     .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
@@ -104,15 +113,6 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
 builder.Services.AddDaprClient();
-
-// The Dapr .NET SDK (ActorProxy, DaprClient) resolves its endpoint/token from actual process
-// environment variables via Environment.GetEnvironmentVariable, not from IConfiguration.
-// Adding these to IConfiguration alone (e.g. via AddInMemoryCollection) has no effect on the SDK
-// and silently falls back to its default http://localhost:3500 with no API token.
-Environment.SetEnvironmentVariable("DAPR_HTTP_ENDPOINT", builder.Configuration["platform-mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException());
-Environment.SetEnvironmentVariable("DAPR_GRPC_ENDPOINT", builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException());
-Environment.SetEnvironmentVariable("DAPR_API_TOKEN", builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException());
-
 
 builder.Services
     .AddDaprWorkflow((config) =>
