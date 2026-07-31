@@ -103,6 +103,7 @@ builder
 builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
+builder.Services.AddDaprClient();
 
 // The Dapr .NET SDK (ActorProxy, DaprClient) resolves its endpoint/token from actual process
 // environment variables via Environment.GetEnvironmentVariable, not from IConfiguration.
