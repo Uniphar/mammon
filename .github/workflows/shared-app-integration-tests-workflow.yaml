@@ -117,7 +117,7 @@ jobs:
           done) &
           REFRESH_PID=$!
 
-          dotnet test -v:q --nologo ---filter "TestCategory=${{ inputs.mockCostAndLogQueryApis && 'MockedIntegrationTest' || 'IntegrationTest' }}" --logger "console;verbosity=normal"
+          dotnet test -v:q --nologo --filter "TestCategory=${{ inputs.mockCostAndLogQueryApis && 'MockedIntegrationTest' || 'IntegrationTest' }}" --logger "console;verbosity=normal"
           TEST_EXIT=$?
 
           kill $REFRESH_PID 2>/dev/null || true
