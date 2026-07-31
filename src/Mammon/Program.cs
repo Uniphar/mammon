@@ -85,13 +85,7 @@ builder.Configuration.AddAzureKeyVault(
     new($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
     defaultAzureCredentials);
 
-builder.Services.AddTransient(sp =>
-#if !DEBUG
-	new CosmosClientBuilder(builder.Configuration["Cosmos:ConnectionString"]).WithSystemTextJsonSerializerOptions(JsonSerializerOptions.Default).Build()
-#else
-    new CosmosClientBuilder("AccountEndpoint=https://localhost:8081/;AccountKey=C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==").WithSystemTextJsonSerializerOptions(JsonSerializerOptions.Default).Build()
-#endif
-);
+
 const string healthUrl = appPathPrefix + "/health";
 builder.Configuration.AddEnvironmentVariables();
 // The Dapr .NET SDK (ActorProxy, DaprClient) resolves its endpoint/token from actual process
@@ -109,6 +103,33 @@ builder
     .WithFilterExclusion(["/" + healthUrl])
     .Build();
 
+
+// https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/best-practice-dotnet#best-practices-for-http-connections
+builder.Services.AddSingleton(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) });
+var cosmosMasterKey = builder.Configuration["Cosmos:MasterKey"] ?? throw new NoNullAllowedException("Cosmos:MasterKey configuration has to be set.");
+var cosmosAccountEndpoint = $"https://uni-devops-{environment}-cosmos.documents.azure.com:443/";
+#if LOCAL
+    cosmosAccountEndpoint = "https://localhost:8081/";
+#endif
+var cosmosConnectionString = $"AccountEndpoint={cosmosAccountEndpoint};AccountKey={cosmosMasterKey}";
+builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
+{
+
+    return new CosmosClient(
+       cosmosConnectionString,
+        new CosmosClientOptions
+        {
+#if LOCAL
+            HttpClientFactory = () => new HttpClient(new HttpClientHandler()
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            }),
+            ConnectionMode = ConnectionMode.Gateway,
+#else
+            HttpClientFactory = () => new HttpClient(serviceProvider.GetRequiredService<SocketsHttpHandler>(), false),
+#endif
+        });
+});
 builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
@@ -188,7 +209,6 @@ builder.Services
     .AddSingleton<CostCentreService>()
     .AddSingleton<LogAnalyticsService>()
     .AddSingleton<AKSService>()
-    .AddSingleton<StateService>()
     .AddSingleton<SQLPoolService>()
     .AddSingleton<VDIService>()
     .AddSingleton<SqlFailoverService>()
@@ -220,8 +240,11 @@ builder.Services
     .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 var app = builder.Build();
-var stateService = app.Services.GetRequiredService<StateService>();
-await stateService.InitializeAsync();
+await app
+    .Services
+    .GetRequiredService<CosmosClient>()
+    .GetDatabase("platform")
+    .CreateContainerIfNotExistsAsync(new("mammon-orchestrator-state", "/partitionKey")); ;
 app.MapHealthChecks(healthUrl);
 CostCentreReportService.ValidateConfiguration(app.Configuration);
 
