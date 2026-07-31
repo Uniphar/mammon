@@ -8,32 +8,32 @@ on:
     secrets:
       AZURE_TENANT_ID:
         required: true
-        description: 'Azure Tenant ID'
+        description: "Azure Tenant ID"
       AZURE_CLIENT_ID:
         required: true
-        description: 'Azure Client ID'
+        description: "Azure Client ID"
       AZURE_SUBSCRIPTION_ID:
         required: true
-        description: 'Azure Subscription ID'
+        description: "Azure Subscription ID"
       ACTIONS_AUTH_APP_ID:
         required: true
-        description: 'GitHub App ID'
+        description: "GitHub App ID"
       ACTIONS_AUTH_APP_PRIVATE_KEY:
         required: true
-        description: 'GitHub App Private Key'
+        description: "GitHub App Private Key"
     inputs:
       environment:
         type: string
         required: true
-        description: 'Environment'
+        description: "Environment"
       applicationFolder:
         type: string
         required: true
-        description: 'Application Folder'
-      mockCostAndLogQueryApis: 
+        description: "Application Folder"
+      mockCostAndLogQueryApis:
         type: boolean
         default: false
-        description: 'Mock Log Query Client API calls'
+        description: "Mock Log Query Client API calls"
 
 jobs:
   run_integration_tests:
@@ -43,7 +43,7 @@ jobs:
       - name: checkout repo
         uses: actions/checkout@v3
         with:
-          path: mammon     
+          path: mammon
 
       - name: gh-app-install token
         id: gh-app
@@ -91,7 +91,34 @@ jobs:
               Write-Error $_
               exit 1
             }
-
-      - name: run integration tests
+      - name: Run integration tests
+        id: integration_tests
         working-directory: ./mammon/src/${{ inputs.applicationFolder }}.Tests
-        run: dotnet test --filter "TestCategory=${{ inputs.mockCostAndLogQueryApis && 'MockedIntegrationTest' || 'IntegrationTest' }}" --logger "console;verbosity=normal"
+        shell: bash
+        env:
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+        run: |
+          # The OIDC assertion from azure/login expires after 5 minutes, but tests run for 20+ minutes.
+          # Spawn a background loop that re-authenticates every 4 minutes using a fresh OIDC token
+          # so the Azure CLI credential chain never encounters an expired assertion.
+          (while true; do
+            sleep 240
+            OIDC_TOKEN=$(curl -sS \
+              -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+              "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=api://AzureADTokenExchange" | jq -r '.value')
+            if [ -n "$OIDC_TOKEN" ] && [ "$OIDC_TOKEN" != "null" ]; then
+              az login --service-principal \
+                --username "$AZURE_CLIENT_ID" \
+                --tenant "$AZURE_TENANT_ID" \
+                --federated-token "$OIDC_TOKEN" \
+                --allow-no-subscriptions >/dev/null 2>&1 || true
+            fi
+          done) &
+          REFRESH_PID=$!
+
+          dotnet test -v:q --nologo ---filter "TestCategory=${{ inputs.mockCostAndLogQueryApis && 'MockedIntegrationTest' || 'IntegrationTest' }}" --logger "console;verbosity=normal"
+          TEST_EXIT=$?
+
+          kill $REFRESH_PID 2>/dev/null || true
+          exit $TEST_EXIT
