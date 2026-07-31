@@ -245,7 +245,7 @@ await app
     .Services
     .GetRequiredService<CosmosClient>()
     .GetDatabase("platform")
-    .CreateContainerIfNotExistsAsync(new("mammon-orchestrator-state", "/partitionKey"), throughput); ;
+    .CreateContainerIfNotExistsAsync(new("mammon-orchestrator-state", "/partitionKey"), throughput);
 app.MapHealthChecks(healthUrl);
 CostCentreReportService.ValidateConfiguration(app.Configuration);
 
