@@ -240,11 +240,12 @@ builder.Services
     .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 var app = builder.Build();
+var throughput = ThroughputProperties.CreateAutoscaleThroughput(1000);
 await app
     .Services
     .GetRequiredService<CosmosClient>()
     .GetDatabase("platform")
-    .CreateContainerIfNotExistsAsync(new("mammon-orchestrator-state", "/partitionKey")); ;
+    .CreateContainerIfNotExistsAsync(new("mammon-orchestrator-state", "/partitionKey"), throughput); ;
 app.MapHealthChecks(healthUrl);
 CostCentreReportService.ValidateConfiguration(app.Configuration);
 
