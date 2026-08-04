@@ -3,20 +3,22 @@ kind: Component
 metadata:
   name: mammon-kv-store
 spec:
-  type: state.azure.cosmosdb
+  type: state.redis
   version: v1
   initTimeout: 5m
   metadata:
-    - name: url
-      value: https://uni-devops-${ENV}-cosmos.documents.azure.com:443
-    - name: masterKey
+    - name: redisHost
       secretKeyRef:
-        name: COSMOS--MASTERKEY
-        key: COSMOS--MASTERKEY
-    - name: database
-      value: platform
-    - name: collection
-      value: mammon-orchestrator-state
+        name: REDIS--CONNECTIONSTRING
+        key: REDIS--CONNECTIONSTRING
+    - name: redisPassword
+      secretKeyRef:
+        name: REDIS--KEY
+        key: REDIS--KEY
+    - name: enableTLS
+      value: "true"
+    - name: redisDB
+      value: "6"
     - name: actorStateStore
       value: "true"
 scopes:
