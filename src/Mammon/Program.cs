@@ -61,14 +61,12 @@ global using Mammon.Workflows.VDI;
 global using Mammon.Workflows.VisualStudioSubscriptions;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Mvc.Controllers;
-global using Microsoft.Azure.Cosmos;
 global using Microsoft.Extensions.Azure;
 global using Polly;
 global using Polly.Extensions.Http;
 global using Polly.Retry;
 global using Uniphar.Platform.Telemetry;
 global using Westwind.AspNetCore.Views;
-using Microsoft.Azure.Cosmos.Fluent;
 
 #if (DEBUG)
 Debugger.Launch();
@@ -104,32 +102,6 @@ builder
     .Build();
 
 
-// https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/best-practice-dotnet#best-practices-for-http-connections
-builder.Services.AddSingleton(new SocketsHttpHandler { PooledConnectionLifetime = TimeSpan.FromMinutes(5) });
-var cosmosMasterKey = builder.Configuration["Cosmos:MasterKey"] ?? throw new NoNullAllowedException("Cosmos:MasterKey configuration has to be set.");
-var cosmosAccountEndpoint = $"https://uni-devops-{environment}-cosmos.documents.azure.com:443/";
-#if LOCAL
-    cosmosAccountEndpoint = "https://localhost:8081/";
-#endif
-var cosmosConnectionString = $"AccountEndpoint={cosmosAccountEndpoint};AccountKey={cosmosMasterKey}";
-builder.Services.AddSingleton<CosmosClient>(serviceProvider =>
-{
-
-    return new CosmosClient(
-       cosmosConnectionString,
-        new CosmosClientOptions
-        {
-#if LOCAL
-            HttpClientFactory = () => new HttpClient(new HttpClientHandler()
-            {
-                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-            }),
-            ConnectionMode = ConnectionMode.Gateway,
-#else
-            HttpClientFactory = () => new HttpClient(serviceProvider.GetRequiredService<SocketsHttpHandler>(), false),
-#endif
-        });
-});
 builder.Services.AddRazorPages();
 
 builder.Services.AddControllers();
@@ -240,12 +212,7 @@ builder.Services
     .AddHttpMessageHandler<AzureDevOpsAuthHandler>();
 
 var app = builder.Build();
-var throughput = ThroughputProperties.CreateAutoscaleThroughput(1000);
-await app
-    .Services
-    .GetRequiredService<CosmosClient>()
-    .GetDatabase("platform")
-    .CreateContainerIfNotExistsAsync(new("mammon-orchestrator-state", "/partitionKey"), throughput);
+
 app.MapHealthChecks(healthUrl);
 CostCentreReportService.ValidateConfiguration(app.Configuration);
 
