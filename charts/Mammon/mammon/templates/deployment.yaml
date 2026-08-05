@@ -54,6 +54,6 @@ spec:
             value: ./Services/dummyVisualStudioSubscriptionCostApiResponse.json
 {{- end }}
           - name: "Mammon__StateStoreName"
-            value: mammon-kv-store
+            value: platform-mammon-kv-store
       nodeSelector:
         agentpool: platform
