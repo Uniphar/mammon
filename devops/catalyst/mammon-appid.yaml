@@ -7,7 +7,6 @@ spec:
     url: http://mammon-srv.platform-mammon.svc.cluster.local:80
   protocol: http
   maxBodySize: 16Mi
-  appConfig: platform-mammon-featureconfig
   healthCheck:
     path: /mammon/health
     probe:
