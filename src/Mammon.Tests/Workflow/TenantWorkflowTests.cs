@@ -93,7 +93,7 @@ public class TenantWorkflowTests
 
         _costCentreRuleEngine = new(_config);
 
-        var _adxHostAddress = _config["AzureDataExplorer:HostAddress"];
+        var _adxHostAddress = $"https://uni-devops-{environment}-adx.northeurope.kusto.windows.net";
 
         var kcsb = new KustoConnectionStringBuilder(_adxHostAddress, "devops")
             .WithAadTokenProviderAuthentication(async () =>
