@@ -3,7 +3,7 @@ kind: Subscription
 metadata:
   name: platform-mammon-report-requests
 spec:
-  pubsubname: mammon-pub-sub
+  pubsubname: platform-mammon-pub-sub
   topic: MammonReportRequests
   routes:
     default: /api/Mammon/Invoke
