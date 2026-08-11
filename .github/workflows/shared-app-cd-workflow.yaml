@@ -64,7 +64,7 @@ jobs:
     with:
       environment: dev
   app_deployment_dev_mocked:
-    needs: app_package
+    needs: [app_package, initialize_domain_dev]
     uses: ./.github/workflows/shared-app-deployment-workflow.yaml
     secrets:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
