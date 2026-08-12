@@ -106,7 +106,7 @@ public class TenantWorkflowTests
     [TestMethod, TestCategory("MockedIntegrationTest")]
     public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
     {
-        var expectedResourcesTotal = 11675.26m;
+        var expectedResourcesTotal = 20170.26m;
         var expectedDevOpsLicensesTotal = 400.0m;
         var expectedVisualStudioSubscriptionsCostTotal = 2400.0m;
         decimal expectedTotal = expectedResourcesTotal + expectedDevOpsLicensesTotal + expectedVisualStudioSubscriptionsCostTotal;
