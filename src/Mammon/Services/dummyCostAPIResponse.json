@@ -241,5 +241,92 @@
         ]
       ]
     }
+  },
+  "uniphar-new": {
+    "id": "subscriptions/subId/providers/Microsoft.CostManagement/query/f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "name": "f2ad0251-c950-47f2-8e1b-d5859e985be4",
+    "type": "Microsoft.CostManagement/query",
+    "location": null,
+    "sku": null,
+    "eTag": null,
+    "properties": {
+      "nextLink": null,
+      "columns": [
+        {
+          "name": "Cost",
+          "type": "Number"
+        },
+        {
+          "name": "CostUSD",
+          "type": "Number"
+        },
+        {
+          "name": "ResourceId",
+          "type": "String"
+        },
+        {
+          "name": "Tags",
+          "type": "Array"
+        },
+        {
+          "name": "Currency",
+          "type": "String"
+        }
+      ],
+      "rows": [
+        [
+          4602.88930901704,
+          4042.88930901704,
+          "/subscriptions/6de990ee-e922-483b-9f63-d8bec14bac30/resourcegroups/core-env-new/providers/microsoft.operationalinsights/workspaces/core-env-new-logs",
+          [
+            "\"environment\":\"new\"",
+            "\"logtype\":\"main\""
+          ],
+          "EUR"
+        ],
+        [
+          25.2447606976206,
+          22.95487587263,
+          "/subscriptions/6de990ee-e922-483b-9f63-d8bec14bac30/resourcegroups/wvd-ap-ne-new/providers/microsoft.compute/virtualmachines/vm-ap-ne-new1",
+          [
+            "\"mammonsplittablevdi\":\"true\""
+          ],
+          "EUR"
+        ],
+        [
+          2382.98599248377,
+          1865.98599248377,
+          "/subscriptions/6de990ee-e922-483b-9f63-d8bec14bac30/resourcegroups/datasql-new/providers/microsoft.sql/servers/uni-datasql-new-sql/elasticpools/datasql-new-sql-pool",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          269.242935754742,
+          19.232382732,
+          "/subscriptions/6de990ee-e922-483b-9f63-d8bec14bac30/resourcegroups/mc_compute-we-new_compute-aks-we-new-k8s_westeurope/providers/microsoft.compute/virtualmachinescalesets/aks-core-66019043-vmss",
+          [
+            "\"aks-managed-poolname\":\"core\""
+          ],
+          "EUR"
+        ],
+        [
+          31.1450557426874,
+          27.1450557426874,
+          "/subscriptions/6de990ee-e922-483b-9f63-d8bec14bac30/resourcegroups/dawn-new/providers/microsoft.storage/storageaccounts/unidawnnew",
+          [
+          ],
+          "EUR"
+        ],
+        [
+          383.587306115477,
+          383.587306115477,
+          "/subscriptions/6de990ee-e922-483b-9f63-d8bec14bac30/resourcegroups/data-mysql-new/providers/microsoft.dbformysql/flexibleservers/uni-data-mysql-new-mysql",
+          [
+          ],
+          "EUR"
+        ]
+      ]
+    }
   }
 }
