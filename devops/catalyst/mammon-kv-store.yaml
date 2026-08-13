@@ -1,27 +1,27 @@
-apiVersion: dapr.io/v1alpha1
-kind: Component
-metadata:
-  name: platform-mammon-kv-store
-spec:
-  type: state.redis
-  version: v1
-  initTimeout: 5m
-  metadata:
-    - name: redisHost
-      secretKeyRef:
-        name: REDIS--CONNECTIONSTRING
-        key: REDIS--CONNECTIONSTRING
-    - name: redisPassword
-      secretKeyRef:
-        name: REDIS--KEY
-        key: REDIS--KEY
-    - name: enableTLS
-      value: "true"
-    - name: redisDB
-      value: "6"
-    - name: actorStateStore
-      value: "true"
-scopes:
-  - platform-mammon
-auth:
-  secretStore: platform-mammon-azure-keyvault
+# apiVersion: dapr.io/v1alpha1
+# kind: Component
+# metadata:
+#   name: platform-mammon-kv-store
+# spec:
+#   type: state.redis
+#   version: v1
+#   initTimeout: 5m
+#   metadata:
+#     - name: redisHost
+#       secretKeyRef:
+#         name: REDIS--CONNECTIONSTRING
+#         key: REDIS--CONNECTIONSTRING
+#     - name: redisPassword
+#       secretKeyRef:
+#         name: REDIS--KEY
+#         key: REDIS--KEY
+#     - name: enableTLS
+#       value: "true"
+#     - name: redisDB
+#       value: "6"
+#     - name: actorStateStore
+#       value: "true"
+# scopes:
+#   - platform-mammon
+# auth:
+#   secretStore: platform-mammon-azure-keyvault

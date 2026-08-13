@@ -178,7 +178,7 @@ jobs:
           sudo mv ./diagrid /usr/local/bin
           Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
           $longRegionName=Resolve-UniRegionName -RegionShortCode ${{ inputs.regionCode }}
-          Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }}
+          Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }} -EnableManagedWorkflow
           diagrid apply -f ./devops/catalyst/ --project ${{ inputs.namespace }}
 
       - name: setup helm
