@@ -333,6 +333,13 @@ public class CostRetrievalService
             url = nextLink;
         } while (nextPageAvailable);
 
+        //each page request re-runs the full query and the cost API does not guarantee row ordering,
+        //sort deterministically so page boundaries remain stable across page requests
+        responseData = responseData
+            .OrderBy(x => x.ResourceId, StringComparer.Ordinal)
+            .ThenBy(x => x.Cost.Cost)
+            .ToList();
+
         //extract sub page
         int startIndex = request.PageIndex * PageSize;
         int endIndex = startIndex + PageSize;
