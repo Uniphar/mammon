@@ -153,7 +153,7 @@ jobs:
               }
             }
 
-            $files = @('mammon-azure-keyvault.yaml', 'mammon-pubsub.yaml')
+            $files = @('mammon-azure-keyvault.yaml', 'mammon-kv-store.yaml', 'mammon-pubsub.yaml')
             foreach ($file in $files) {
               $content = Get-Content -Path $file -Raw
               foreach ($placeholder in $replacements.Keys) {
