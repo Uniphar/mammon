@@ -31,6 +31,10 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		}
 		while (pageResponse.nextPageAvailable);
 
+		//the paged cost retrieval computes page boundaries per page request,
+		//so the same resource may come back on more than one page; process each resource exactly once
+		costs = costs.DistinctBy(x => x.ResourceId, StringComparer.OrdinalIgnoreCase).ToList();
+
 		//splittable resources are processed separately
 		var rgGroups = costs
 			.Where(x => !x.IsSplittableAsResource())
