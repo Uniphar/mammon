@@ -346,7 +346,7 @@ public class CostRetrievalService
 
         var records = responseData.GetRange(startIndex, responseData.Count < endIndex ? responseData.Count - startIndex : PageSize);
 
-        return new AzureCostResponse(records, request.PageIndex, responseData.Count > (endIndex + 1));
+        return new AzureCostResponse(records, request.PageIndex, responseData.Count > endIndex);
     }
 
     private (string? nextLink, List<ResourceCostResponse> costs) ParseRawJson(string content, string subId, GroupingMode groupingMode)
