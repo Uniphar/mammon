@@ -158,10 +158,11 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 	{
 		var workflowTypeName = typeof(T).Name;
 
+		//resource names are only unique within their resource group, include it in the instance id to avoid collisions
 		await context.CallChildWorkflowAsync<bool>(workflowTypeName, new SplittableResourceRequest
 		{
 			Resource = resourceToSplit,
 			ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId)
-		}, new ChildWorkflowTaskOptions { InstanceId = $"{workflowTypeName}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.Name}".ToSanitizedInstanceId() });
+		}, new ChildWorkflowTaskOptions { InstanceId = $"{workflowTypeName}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.ResourceGroupName}{resourceToSplit.ResourceIdentifier.Name}".ToSanitizedInstanceId() });
 	}
 }
