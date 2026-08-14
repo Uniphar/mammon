@@ -21,8 +21,8 @@ spec:
     #   value: "true"
     # - name: redisDB
     #   value: "6"
-    - name: actorStateStore
-      value: "true"
+    # - name: actorStateStore
+    #   value: "true"
 scopes:
   - platform-mammon
 auth:
