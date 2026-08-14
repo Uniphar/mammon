@@ -15,7 +15,6 @@ public class SQLPoolWorkflow : Workflow<SplittableResourceRequest, bool>
 					Request = request,
 					Data = usageData
 				});
-
 		}
 		else
 		{
@@ -23,7 +22,7 @@ public class SQLPoolWorkflow : Workflow<SplittableResourceRequest, bool>
 
 			await context.CallChildWorkflowAsync<bool>(nameof(GroupSubWorkflow),
 				new GroupSubWorkflowRequest { ReportId = request.ReportRequest.ReportId, Resources = [request.Resource], SubscriptionId = request.ReportRequest.SubscriptionId },
-				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SQLPoolWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}".ToSanitizedInstanceId() });
+				new ChildWorkflowTaskOptions { InstanceId = $"{nameof(SQLPoolWorkflow)}Group{request.ReportRequest.ReportId}{rId.SubscriptionId}{rId.Name}{Guid.NewGuid().ToString().Substring(0, 3)}".ToSanitizedInstanceId() });
 		}
 
 		return true;

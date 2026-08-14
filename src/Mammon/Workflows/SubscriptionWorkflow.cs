@@ -75,7 +75,7 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		}
 
 		//SQL Pool splitting
-		var sqlPools = costs.Where(x => x.IsSQLPool()).DistinctBy(t => new ResourceIdentifier(t.ResourceId).Name, StringComparer.OrdinalIgnoreCase);
+		var sqlPools = costs.Where(x => x.IsSQLPool());
 		foreach (var sqlPool in sqlPools)
 		{
 			await TriggerSplittableWorkflowAsync<SQLPoolWorkflow>(context, input, sqlPool);
