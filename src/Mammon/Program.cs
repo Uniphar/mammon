@@ -153,6 +153,15 @@ builder.Services
         {
             MaxReceiveMessageSize = 16 * 1024 * 1024,
             MaxSendMessageSize = 16 * 1024 * 1024,
+            // Keep the HTTP/2 connection to the Dapr sidecar alive so it isn't closed as idle,
+            // which otherwise surfaces as a noisy RpcException in the workflow gRPC stream.
+            HttpHandler = new SocketsHttpHandler
+            {
+                EnableMultipleHttp2Connections = true,
+                KeepAlivePingDelay = TimeSpan.FromSeconds(20),
+                KeepAlivePingTimeout = TimeSpan.FromSeconds(10),
+                KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests
+            }
         });
     })
     .AddActors(options =>
