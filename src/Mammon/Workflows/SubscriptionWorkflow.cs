@@ -100,6 +100,10 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
                 SubscriptionName = input.SubscriptionName,
 				CostFrom = input.ReportRequest.CostFrom,
 				CostTo = input.ReportRequest.CostTo
+			},
+			new ChildWorkflowTaskOptions
+			{
+				InstanceId = $"{nameof(ObtainVisualStudioSubscriptionsCostWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId()
 			});
 
 		if (visualStudioSubscriptionsCosts is not null)
