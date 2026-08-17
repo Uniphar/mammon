@@ -48,6 +48,11 @@ on:
         required: false
         description: "Region Code"
         default: "ne"
+      namespace:
+        type: string
+        required: false
+        description: "Namespace"
+        default: "platform-mammon"
 jobs:
   deploy_app:
     environment: ${{ inputs.environment }}
@@ -68,14 +73,6 @@ jobs:
         with:
           path: devops-azure
           repository: Uniphar/devops-azure
-          token: ${{ steps.gh-app.outputs.token }}
-
-      - name: checkout cost centre definition repo
-        uses: actions/checkout@v3
-        with:
-          path: costcentre-definitions
-          repository: Uniphar/costcentre-definitions
-          ref: main
           token: ${{ steps.gh-app.outputs.token }}
 
       - name: azure login
@@ -112,26 +109,12 @@ jobs:
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_ID=$AKSClusterSAID" >> $env:GITHUB_ENV
             echo "AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID=$AKSClusterServiceAccountClientId" >> $env:GITHUB_ENV
             echo "AZURE_KEY_VAULT_NAME=$AzureKeyVaultName" >> $env:GITHUB_ENV
+
             echo "SB_NAMESPACE=$SBNamespace" >> $env:GITHUB_ENV
             echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $env:GITHUB_ENV
             echo "APPLICATION_NAME=${{ inputs.applicationName }}" >> $env:GITHUB_ENV
             echo "APPLICATION_VERSION=${{ inputs.applicationVersion }}" >> $env:GITHUB_ENV
             echo "CRON_DAY_OF_MONTH=$cronDayOfMonth" >> $env:GITHUB_ENV
-          azPSVersion: "latest"
-          errorActionPreference: "stop"
-          failOnStandardError: true
-
-      - name: Powershell
-        uses: azure/powershell@v2
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
-        with:
-          inlineScript: |
-            Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
-            . ./devops/Initialize-SubscriptionsRBAC.ps1
-            . ./devops/Initialize-MammonWorkload.ps1
-            Initialize-MammonWorkload '${{ inputs.environment }}'
-            Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json ${{ env.AKS_CLUSTER_SERVICE_ACCOUNT_ID }}
           azPSVersion: "latest"
           errorActionPreference: "stop"
           failOnStandardError: true
@@ -151,8 +134,55 @@ jobs:
           use-kubelogin: "true"
         id: k8context
 
+      - name: Prepare Dapr catalyst components
+        working-directory: ./devops/catalyst
+        shell: pwsh
+        run: |
+          try {
+            $replacements = [ordered]@{
+              '${ENV}' = '${{ inputs.environment }}'
+              '${CLIENT_ID}' = $env:AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID
+              '${TENANT_ID}' = '${{ secrets.AZURE_TENANT_ID }}'
+              '${SB_NAMESPACE}' = $env:SB_NAMESPACE
+              '${CRON_DAY_OF_MONTH}' = $env:CRON_DAY_OF_MONTH
+            }
+
+            foreach ($placeholder in $replacements.Keys) {
+              if ([string]::IsNullOrWhiteSpace($replacements[$placeholder])) {
+                throw "No replacement value resolved for placeholder '$placeholder'."
+              }
+            }
+
+            $files = @('mammon-azure-keyvault.yaml', 'mammon-kv-store.yaml', 'mammon-pubsub.yaml')
+            foreach ($file in $files) {
+              $content = Get-Content -Path $file -Raw
+              foreach ($placeholder in $replacements.Keys) {
+                $content = $content.Replace($placeholder, $replacements[$placeholder])
+              }
+
+              if ($content.Contains('{') -or $content.Contains('}')) {
+                throw "Unresolved placeholder remains in '$file' after substitution."
+              }
+
+              Set-Content -Path $file -Value $content -NoNewline
+            }
+          }
+          catch {
+            Write-Error $_
+            exit 1
+          }
+      - name: Setup dapr catalyst project and apply components
+        shell: pwsh
+        run: |
+          curl -o- https://downloads.diagrid.io/cli/install.sh | bash
+          sudo mv ./diagrid /usr/local/bin
+          Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
+          $longRegionName=Resolve-UniRegionName -RegionShortCode ${{ inputs.regionCode }}
+          Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }} -EnableManagedWorkflow
+          diagrid apply -f ./devops/catalyst/ --project ${{ inputs.namespace }}
+
       - name: setup helm
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4
 
       - name: ACR login
         id: acrLogin
@@ -176,31 +206,8 @@ jobs:
           --set environment="$ENVIRONMENT"
           --set-string ACRName="$ACR_NAME"
           --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
-          --set-string AKSClusterServiceAccountClientId="$AKS_CLUSTER_SERVICE_ACCOUNT_CLIENT_ID"
-          --set-string AzureKeyVaultURL="https://$AZURE_KEY_VAULT_NAME.vault.azure.net"
-          --set-string SBNamespaceName="$SB_NAMESPACE"
-          --set-string cron.BillingPeriodStartDayInMonth=${{ env.CRON_DAY_OF_MONTH }}
           --set mockCostAndLogQueryApis=${{ inputs.mockCostAndLogQueryApis }}
-          -n platform-mammon
-          --atomic
-
-  notify:
-    needs: deploy_app
-    runs-on: ubuntu-latest
-    if: ${{ !cancelled() && contains(needs.*.result, 'failure') }}
-    steps:
-      - name: gh-app-install token
-        id: gh-app
-        uses: getsentry/action-github-app-token@v2
-        with:
-          app_id: ${{ secrets.ACTIONS_AUTH_APP_ID }}
-          private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
-
-      - uses: benc-uk/workflow-dispatch@v1
-        with:
-          workflow: "shared-failed-build-notification-workflow.yaml"
-          inputs: '{
-            "workflowId":"${{ github.run_id }}",
-            "repository":"${{ github.repository }}"
-            }'
-          token: ${{ steps.gh-app.outputs.token }}
+          -n ${{ inputs.namespace }}
+          --wait
+          --timeout 5m
+          --rollback-on-failure

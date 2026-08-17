@@ -1,0 +1,62 @@
+# Please see the documentation for all configuration options:
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  # .NET NuGet packages
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: daily
+      time: "03:00"
+      timezone: "Europe/Dublin"
+    target-branch: "main"
+    labels:
+      - "dependencies"
+      - "nuget"
+      - "auto-merge"
+
+  # .NET SDK version
+  - package-ecosystem: dotnet-sdk
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: "monday"
+      time: "03:00"
+      timezone: "Europe/Dublin"
+    target-branch: "main"
+    labels:
+      - "dependencies"
+      - "dotnet-sdk"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "Europe/Dublin"
+    target-branch: "main"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "auto-merge"
+
+  # Docker base images
+  - package-ecosystem: "docker"
+    directory: "/src/Mammon"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+      timezone: "Europe/Dublin"
+    target-branch: "main"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "auto-merge"

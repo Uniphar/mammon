@@ -1,13 +1,14 @@
 ﻿namespace Mammon.Actors;
 
 public class DevOpsCostActor(
-	ActorHost actorHost, ILogger<DevOpsCostActor> logger, 
-	CostCentreService costCentreService, 
-	CostCentreRuleEngine costCentreRuleEngine) 
+	ActorHost actorHost, ILogger<DevOpsCostActor> logger,
+	CostCentreService costCentreService,
+	CostCentreRuleEngine costCentreRuleEngine,
+	IActorProxyFactory actorProxyFactory)
 	: ActorBase<CoreResourceActorState>(actorHost), IDevOpsCostActor
 {
-    public async Task SplitCostAsync(DevopsResourceRequest request)
-    {
+	public async Task SplitCostAsync(DevopsResourceRequest request)
+	{
 		ArgumentNullException.ThrowIfNull(request);
 
 		if (request.DevOpsProjectCosts.ProjectCosts.Count == 0)
@@ -48,23 +49,23 @@ public class DevOpsCostActor(
 			foreach (var costCentreCost in costCentreCosts)
 			{
 				//send them to cost centre actors
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+				await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
 					CostCentreActor.GetActorId(request.ReportRequest.ReportId, costCentreCost.Key, request.ReportRequest.SubscriptionId),
 					nameof(CostCentreActor),
 					async (p) => await p.AddDevOpsLicenseCostAsync(costCentreCost.Value));
 			}
 
-            if (request.DevOpsProjectCosts.UnassignedCost is not null)
-            {
-                var defaultCostCentre = costCentreRuleEngine.DefaultDevOpsCostCentre;
+			if (request.DevOpsProjectCosts.UnassignedCost is not null)
+			{
+				var defaultCostCentre = costCentreRuleEngine.DefaultDevOpsCostCentre;
 
-                await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+				await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
 					CostCentreActor.GetActorId(request.ReportRequest.ReportId, defaultCostCentre, request.ReportRequest.SubscriptionId),
 					nameof(CostCentreActor),
 					async (p) => await p.AddDevOpsUnassignedCostAsync(request.DevOpsProjectCosts.UnassignedCost));
 
-            }
-        }
+			}
+		}
 		catch (Exception ex)
 		{
 			logger.LogError(ex, $"Failure in DevOpsCostActor.SplitCostAsync (ActorId:{Id})");

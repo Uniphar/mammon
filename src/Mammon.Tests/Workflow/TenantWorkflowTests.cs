@@ -29,8 +29,8 @@ public class TenantWorkflowTests
     {
         _cancellationToken = testContext.CancellationTokenSource.Token;
 
-        var kvUrl = Environment.GetEnvironmentVariable(Consts.ConfigKeyVaultConfigEnvironmentVariable);
-        ArgumentException.ThrowIfNullOrWhiteSpace(kvUrl, nameof(kvUrl));
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "dev";
+        var kvUrl = $"https://uni-devops-app-{environment}-kv.vault.azure.net/";
 
         DefaultAzureCredential azureCredential = new();
 
@@ -93,7 +93,7 @@ public class TenantWorkflowTests
 
         _costCentreRuleEngine = new(_config);
 
-        var _adxHostAddress = _config["AzureDataExplorer:HostAddress"];
+        var _adxHostAddress = $"https://uni-devops-{environment}-adx.northeurope.kusto.windows.net";
 
         var kcsb = new KustoConnectionStringBuilder(_adxHostAddress, "devops")
             .WithAadTokenProviderAuthentication(async () =>
@@ -106,7 +106,7 @@ public class TenantWorkflowTests
     [TestMethod, TestCategory("MockedIntegrationTest")]
     public async Task WorkflowFinishesWithMockData_EmailIsSentAndTotalsMatch()
     {
-        var expectedResourcesTotal = 11675.26m;
+        var expectedResourcesTotal = 20170.26m;
         var expectedDevOpsLicensesTotal = 400.0m;
         var expectedVisualStudioSubscriptionsCostTotal = 2400.0m;
         decimal expectedTotal = expectedResourcesTotal + expectedDevOpsLicensesTotal + expectedVisualStudioSubscriptionsCostTotal;

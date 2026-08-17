@@ -3,7 +3,8 @@
 public class VisualStudioSubscriptionCostActor(
     ActorHost actorHost, ILogger<VisualStudioSubscriptionCostActor> logger,
     CostCentreService costCentreService,
-    CostCentreRuleEngine costCentreRuleEngine)
+    CostCentreRuleEngine costCentreRuleEngine,
+    IActorProxyFactory actorProxyFactory)
     : ActorBase<CoreResourceActorState>(actorHost), IVisualStudioSubscriptionCostActor
 {
     private readonly IReadOnlyDictionary<string, Func<string, ResourceCost>> _unitCostResolvers =
@@ -78,11 +79,11 @@ public class VisualStudioSubscriptionCostActor(
                     AddCost(costCentreCosts, visualStudioSubscriptionCost.Product, costCentreRuleEngine.DefaultCostCentre, new ResourceCost(remainder, billedCurrency));
             }
 
-            foreach(var costCentreCost in costCentreCosts)
+            foreach (var costCentreCost in costCentreCosts)
             {
-                foreach(var subCostCentreCost in costCentreCost.Value)
+                foreach (var subCostCentreCost in costCentreCost.Value)
                 {
-                    await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+                    await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
                         CostCentreActor.GetActorId(request.ReportRequest.ReportId, costCentreCost.Key, request.ReportRequest.SubscriptionId),
                         nameof(CostCentreActor),
                         async (p) => await p.AddVisualStudioSubscriptionCostAsync(subCostCentreCost.Key, subCostCentreCost.Value));

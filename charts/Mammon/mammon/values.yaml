@@ -1,32 +1,5 @@
 replicaCount: 1
 revisionHistoryLimit: 2
+AKSClusterSAName: TBD by pipeline
 
-service:
-  type: ClusterIP
-  port: 80
-
-cron:
-  BillingPeriodStartDayInMonth: << passed from pipeline >>
-
-dapr:
-  port: 8082
-  stateStore:
-    cosmosUrl: "https://uni-devops-{env}-cosmos.documents.azure.com:443/"
-
-kvSecrets:
-  daprStateStoreKey:
-    kvNames:
-      - name: REDIS--KEY
-        k8sKey: REDIS--KEY
-    k8Name: mammon-statestoremasterkey
-  daprStateStoreConnectionString:
-    kvNames:
-      - name: REDIS--CONNECTIONSTRING
-        k8sKey: REDIS--CONNECTIONSTRING
-    k8Name: mammon-statestoreconnectionstring   
-
-tenantId: "8421dd92-337e-4405-8cfc-16118ffc5715"
-
-CSI:
-  VolumeName: "secrets-store-inline"
-  ProviderClassName: "devops-azure-kv-provider-mammon"
+port: 8080

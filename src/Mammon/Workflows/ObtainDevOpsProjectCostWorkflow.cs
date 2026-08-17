@@ -6,6 +6,7 @@ public class ObtainDevOpsProjectCostWorkflow : Workflow<ObtainDevOpsProjectCostR
     {
 	    var allUsers = new List<MemberEntitlementItem>();
 	    string? token = null;
+	    int pageIndex = 1;
 	    do
 	    {
 		    var page = await context.CallChildWorkflowAsync<PaginatedMemberEntitlementsResult>(
@@ -14,11 +15,15 @@ public class ObtainDevOpsProjectCostWorkflow : Workflow<ObtainDevOpsProjectCostR
 			    {
 				    DevOpsOrganization = input.DevOpsOrganization,
 				    ContinuationToken = token
+			    },
+			    new ChildWorkflowTaskOptions
+			    {
+				    InstanceId = $"{nameof(ObtainPagedDevOpsMembershipEntitlementsWorkflow)}{input.DevOpsOrganization}{input.ReportId}{pageIndex}".ToSanitizedInstanceId()
 			    });
 
 		    allUsers.AddRange(page.Users);
 		    token = page.ContinuationToken;
-
+		    pageIndex++;
 	    } while (token != null);
         
         return await context.CallActivityAsync<DevOpsProjectsCosts>(
@@ -29,6 +34,10 @@ public class ObtainDevOpsProjectCostWorkflow : Workflow<ObtainDevOpsProjectCostR
 		        LicenseCosts = input.LicenseCosts,
 		        ReportId =  input.ReportId,
 		        DevOpsOrganization =  input.DevOpsOrganization,
-	        });
+	        },
+			new ChildWorkflowTaskOptions
+			{
+				InstanceId = $"{nameof(DevOpsProjectCostsActivity)}{input.DevOpsOrganization}{input.ReportId}".ToSanitizedInstanceId()
+			});
     }
 }

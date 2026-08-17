@@ -7,7 +7,7 @@ public class VDIService(
 {
 	public async Task<(IEnumerable<VDIQueryUsageResponseItem> usageData, bool dataAvailable)> ObtainQueryUsage(string resourceGroupId, DateTime from, DateTime to)
 	{
-        Response<IReadOnlyList<VDIQueryUsageResponseItem>> response;
+        Azure.Response<IReadOnlyList<VDIQueryUsageResponseItem>> response;
 
         try
 		{

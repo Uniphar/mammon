@@ -72,23 +72,37 @@ global using Westwind.AspNetCore.Views;
 Debugger.Launch();
 #endif
 
+const string appPathPrefix = "mammon";
 DefaultAzureCredential defaultAzureCredentials = new();
 
 var builder = WebApplication.CreateBuilder(args);
 
-var configKVURL = builder.Configuration[Consts.ConfigKeyVaultConfigEnvironmentVariable]?.ToString();
-if (string.IsNullOrWhiteSpace(configKVURL))
-    throw new InvalidOperationException($"{Consts.ConfigKeyVaultConfigEnvironmentVariable} environment variable is not set");
+var environment = builder.Environment.EnvironmentName ?? throw new NoNullAllowedException("ASPNETCORE_ENVIRONMENT environment variable has to be set.");
 
 builder.Configuration.AddAzureKeyVault(
-    new Uri(configKVURL),
+    new($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
     defaultAzureCredentials);
 
+
+const string healthUrl = appPathPrefix + "/health";
 builder.Configuration.AddEnvironmentVariables();
+// The Dapr .NET SDK (ActorProxy, DaprClient) resolves its endpoint/token from actual process
+// environment variables via Environment.GetEnvironmentVariable, not from IConfiguration.
+// Adding these to IConfiguration alone (e.g. via AddInMemoryCollection) has no effect on the SDK
+// and silently falls back to its default http://localhost:3500 with no API token.
+// Trailing slashes are trimmed as the SDK appends its own leading-slash path (e.g. /v1.0/actors/...),
+// which otherwise results in a double slash in the request URL.
+Environment.SetEnvironmentVariable("DAPR_HTTP_ENDPOINT", (builder.Configuration["platform-mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException()).TrimEnd('/'));
+Environment.SetEnvironmentVariable("DAPR_GRPC_ENDPOINT", (builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException()).TrimEnd('/'));
+Environment.SetEnvironmentVariable("DAPR_API_TOKEN", builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException());
+
+
 builder
     .RegisterOpenTelemetry("mammon")
-        .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
+    .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
+    .WithFilterExclusion(["/" + healthUrl])
     .Build();
+
 
 builder.Services.AddRazorPages();
 
@@ -139,6 +153,15 @@ builder.Services
         {
             MaxReceiveMessageSize = 16 * 1024 * 1024,
             MaxSendMessageSize = 16 * 1024 * 1024,
+            // Keep the HTTP/2 connection to the Dapr sidecar alive so it isn't closed as idle,
+            // which otherwise surfaces as a noisy RpcException in the workflow gRPC stream.
+            HttpHandler = new SocketsHttpHandler
+            {
+                EnableMultipleHttp2Connections = true,
+                KeepAlivePingDelay = TimeSpan.FromSeconds(20),
+                KeepAlivePingTimeout = TimeSpan.FromSeconds(10),
+                KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests
+            }
         });
     })
     .AddActors(options =>
@@ -201,6 +224,7 @@ builder.Services
 
 var app = builder.Build();
 
+app.MapHealthChecks(healthUrl);
 CostCentreReportService.ValidateConfiguration(app.Configuration);
 
 app.UseRouting();

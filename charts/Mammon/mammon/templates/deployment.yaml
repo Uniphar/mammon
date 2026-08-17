@@ -4,26 +4,19 @@ metadata:
   name: mammon
   labels:
     app: mammon-app
-    service: mammon-service
+    service: mammon-srv
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   selector:
     matchLabels:
-      service: mammon-service
+      service: mammon-srv
   template:
     metadata:
       labels:
         app: mammon-app
-        service: mammon-service
+        service: mammon-srv
         azure.workload.identity/use: "true"
-      annotations:
-        dapr.io/enabled: "true"
-        dapr.io/app-id: {{ include "mammon.uniqueAppName" . }}
-        dapr.io/app-port: "{{ .Values.dapr.port }}"
-        dapr.io/enable-api-logging: "true"
-        dapr.io/config: {{ .Chart.Name }}-featureconfig
-        dapr.io/max-body-size: "16Mi"
     spec:
       serviceAccountName: {{ .Values.AKSClusterSAName }}
       containers:
@@ -37,13 +30,11 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - name: mammon-port
-              containerPort: {{ .Values.dapr.port }}
+              containerPort: {{ .Values.port }}
               protocol: TCP
           env:
           - name: "ASPNETCORE_ENVIRONMENT"
             value: {{ .Values.environment | quote }}
-          - name: "MAMMON_CONFIG_KEYVAULT_URL"
-            value: {{ .Values.AzureKeyVaultURL | quote }}
           - name: "Mammon__CostCentreRuleEngineFilePath"
             value: /app/costCentreRules.json
           - name: "Mammon__CostCentreRuleEngineDevOpsConfigFilePath"
@@ -57,17 +48,6 @@ spec:
             value: ./Services/dummyVisualStudioSubscriptionCostApiResponse.json
 {{- end }}
           - name: "Mammon__StateStoreName"
-            value: {{ .Chart.Name }}-actor-state-store
-          volumeMounts:
-          - name: {{ .Values.CSI.VolumeName }}
-            mountPath: "/mnt/secrets-store"
-            readOnly: true
-      volumes:
-      - name: {{ .Values.CSI.VolumeName }}
-        csi:
-          driver: secrets-store.csi.k8s.io
-          readOnly: true
-          volumeAttributes:
-            secretProviderClass: {{ .Values.CSI.ProviderClassName }}  
+            value: platform-mammon-kv-store
       nodeSelector:
         agentpool: platform

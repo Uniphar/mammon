@@ -31,6 +31,10 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 		}
 		while (pageResponse.nextPageAvailable);
 
+		//the paged cost retrieval computes page boundaries per page request,
+		//so the same resource may come back on more than one page; process each resource exactly once
+		costs = costs.DistinctBy(x => x.ResourceId, StringComparer.OrdinalIgnoreCase).ToList();
+
 		//splittable resources are processed separately
 		var rgGroups = costs
 			.Where(x => !x.IsSplittableAsResource())
@@ -96,6 +100,10 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
                 SubscriptionName = input.SubscriptionName,
 				CostFrom = input.ReportRequest.CostFrom,
 				CostTo = input.ReportRequest.CostTo
+			},
+			new ChildWorkflowTaskOptions
+			{
+				InstanceId = $"{nameof(ObtainVisualStudioSubscriptionsCostWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId()
 			});
 
 		if (visualStudioSubscriptionsCosts is not null)
@@ -124,7 +132,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 				CostFrom = input.ReportRequest.CostFrom,
 				CostTo = input.ReportRequest.CostTo,
 				DevOpsOrganization = input.DevOpsOrganization
-			});
+			},
+			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainDevOpsCostWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
 
 		// Get project costs from group contributions
 		var projectsCosts = await context.CallChildWorkflowAsync<DevOpsProjectsCosts>(
@@ -154,10 +163,11 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 	{
 		var workflowTypeName = typeof(T).Name;
 
+		//resource names are only unique within their resource group, include it in the instance id to avoid collisions
 		await context.CallChildWorkflowAsync<bool>(workflowTypeName, new SplittableResourceRequest
 		{
 			Resource = resourceToSplit,
 			ReportRequest = SubscriptionCostReportRequest.FromCostReportRequest(input.ReportRequest, input.SubscriptionId)
-		}, new ChildWorkflowTaskOptions { InstanceId = $"{workflowTypeName}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.Name}".ToSanitizedInstanceId() });
+		}, new ChildWorkflowTaskOptions { InstanceId = $"{workflowTypeName}{input.SubscriptionName}{input.ReportRequest.ReportId}{resourceToSplit.ResourceIdentifier.ResourceGroupName}{resourceToSplit.ResourceIdentifier.Name}".ToSanitizedInstanceId() });
 	}
 }

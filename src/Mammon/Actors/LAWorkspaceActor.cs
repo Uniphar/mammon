@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine) : ActorBase<CoreResourceActorState>(actorHost), ILAWorkspaceActor
+public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> logger, CostCentreService costCentreService, CostCentreRuleEngine costCentreRuleEngine, IActorProxyFactory actorProxyFactory) : ActorBase<CoreResourceActorState>(actorHost), ILAWorkspaceActor
 {
 	private static readonly string CostStateName = "LAWorkspaceActorState";
 
@@ -16,7 +16,7 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 		var costCentreStates = await costCentreService.RetrieveCostCentreStatesAsync(reportId, request.ReportRequest.SubscriptionId);
 
 		try
-		{			
+		{
 			var totalSize = data.Sum(x => x.SizeSum);
 			if (totalSize > 0)
 			{
@@ -52,16 +52,16 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 				foreach (var costCentreCost in costCentreCosts)
 				{
 					//send them to cost centre actors
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
-						CostCentreActor.GetActorId(reportId, costCentreCost.Key, request.ReportRequest.SubscriptionId), 
-						nameof(CostCentreActor), 
+					await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+						CostCentreActor.GetActorId(reportId, costCentreCost.Key, request.ReportRequest.SubscriptionId),
+						nameof(CostCentreActor),
 						async (p) => await p.AddCostAsync(resourceId, costCentreCost.Value));
 				}
 			}
 			else
 			{
 				//no usage, assign to LA workspace cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+				await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
 					CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags), request.ReportRequest.SubscriptionId),
 					nameof(CostCentreActor),
 					async (p) => await p.AddCostAsync(resourceId, totalCost));
@@ -79,5 +79,5 @@ public class LAWorkspaceActor(ActorHost actorHost, ILogger<LAWorkspaceActor> log
 			logger.LogError(ex, $"Failure in LAWorkspaceActor.SplitCost (ActorId:{Id})");
 			throw;
 		}
-	}	
+	}
 }

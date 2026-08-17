@@ -13,7 +13,7 @@ public class SQLPoolService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(poolResourceId);
 
-        Response<IReadOnlyList<SQLDatabaseUsageResponseItem>>? result;
+        Azure.Response<IReadOnlyList<SQLDatabaseUsageResponseItem>>? result;
 
         try
         {
@@ -24,7 +24,7 @@ public class SQLPoolService(
                 poolResourceId);
 
 #else
-            async Task<Response<IReadOnlyList<SQLDatabaseUsageResponseItem>>?> RunQuery(string targetPoolId)
+            async Task<Azure.Response<IReadOnlyList<SQLDatabaseUsageResponseItem>>?> RunQuery(string targetPoolId)
             {
                 var rID = new ResourceIdentifier(targetPoolId);
 

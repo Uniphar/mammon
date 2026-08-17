@@ -1,6 +1,6 @@
 ﻿namespace Mammon.Actors;
 
-public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<SQLPoolActor> logger) : ActorBase<CoreResourceActorState>(actorHost), ISQLPoolActor
+public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRuleEngine, ILogger<SQLPoolActor> logger, IActorProxyFactory actorProxyFactory) : ActorBase<CoreResourceActorState>(actorHost), ISQLPoolActor
 {
 	private const string CostStateName = "sqlPoolActorState";
 
@@ -19,7 +19,7 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 			state.TotalCost = totalCost;
 			await SaveStateAsync(CostStateName, state);
 
-			var totalDTU = data.Sum(x => x.DTUAverage);			
+			var totalDTU = data.Sum(x => x.DTUAverage);
 
 			if (totalDTU > 0)
 			{
@@ -28,7 +28,7 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 				foreach (var db in data)
 				{
 					var cost = new ResourceCost((decimal)(db.DTUAverage / totalDTU) * totalCost.Cost, totalCost.Currency);
-			
+
 					ResourceIdentifier dbRID = new(db.ResourceId);
 
 					var costCentre = costCentreRuleEngine.GetCostCentreForSQLDatabase(dbRID.Name);
@@ -41,12 +41,12 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 						value = cost;
 
 						nsMetrics.Add(costCentre, value);
-					}															
+					}
 				}
 
 				foreach (var nsMetric in nsMetrics)
 				{
-					await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+					await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
 						CostCentreActor.GetActorId(reportId, nsMetric.Key, request.ReportRequest.SubscriptionId),
 						nameof(CostCentreActor),
 						async (p) => await p.AddCostAsync(resourceId, nsMetric.Value));
@@ -55,14 +55,14 @@ public class SQLPoolActor(ActorHost actorHost, CostCentreRuleEngine costCentreRu
 			else
 			{
 				//no usage, assign to sql pool cost centre - likely a default one
-				await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
+				await actorProxyFactory.CallActorWithNoTimeout<ICostCentreActor>(
 					CostCentreActor.GetActorId(reportId, costCentreRuleEngine.FindCostCentre(resourceId, tags), request.ReportRequest.SubscriptionId),
 					nameof(CostCentreActor),
 					async (p) => await p.AddCostAsync(resourceId, totalCost));
 			}
 
 		}
-		catch (Exception ex) 
+		catch (Exception ex)
 		{
 			logger.LogError(ex, $"Failure in SQLPoolActor.SplitCost (ActorId:{Id})");
 			throw;

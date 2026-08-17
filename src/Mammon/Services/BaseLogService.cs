@@ -4,7 +4,7 @@ namespace Mammon.Services;
 
 public abstract class BaseLogService
 {
-    protected async Task<Response<IReadOnlyList<T>>> ParseMockFileAsync<T>(
+    protected async Task<Azure.Response<IReadOnlyList<T>>> ParseMockFileAsync<T>(
         string mockFilePath,
         string resourceIdKey)
     {

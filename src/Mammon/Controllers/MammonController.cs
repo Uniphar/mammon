@@ -6,6 +6,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
 {
     [HttpGet()]
     [HttpPost()]
+    //useless now in catalyst, but for now keep it here, especially for running locally since it will work then
     [Topic(Consts.MammonPubSubCRDName, Consts.MammonServiceBusTopicName)]
     public async Task<StatusCodeResult> Invoke(CloudEvent<CostReportRequest> @event)
     {
@@ -63,7 +64,7 @@ public class MammonController(DaprWorkflowClient workflowClient, CostCentreRuleE
 
 #if DEBUG
 
-	[HttpGet]
+    [HttpGet]
     public async Task<object> GetReport([FromQuery] string reportId)
     {
         (string attachmentUri, string reportBody) = await costCentreReportService.GenerateReportAsync(new CostReportRequest { ReportId = reportId, CostFrom = DateTime.Now, CostTo = DateTime.Now });

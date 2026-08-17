@@ -38,10 +38,10 @@ public class CostCentreReportServiceTests
 		};
 
 		var testRuleEngine = GetCostCentreRuleEngineInstance();
-		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), testRuleEngine, new(testRuleEngine), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System, Mock.Of<BlobServiceClient>());
+		var sut = new CostCentreReportService(Mock.Of<IConfiguration>(), testRuleEngine, new(testRuleEngine, Mock.Of<IActorProxyFactory>()), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), TimeProvider.System, Mock.Of<BlobServiceClient>());
 
 		//act
-		var modelBuilt= sut.BuildViewModel(ReportRequest, costCentreStates);
+		var modelBuilt = sut.BuildViewModel(ReportRequest, costCentreStates);
 
 		//assert
 		modelBuilt.Should().NotBeNull();
@@ -68,13 +68,13 @@ public class CostCentreReportServiceTests
 	[DataRow("2024-03-01 01:00:00", 7, "2024-02-07 00:00:00", "2024-03-06 23:59:59")] //leap year -cycle of 7th
 	[DataRow("2023-03-01 01:00:00", 7, "2023-02-07 00:00:00", "2023-03-06 23:59:59")] //non leap year -cycle of 7th
 	[DataRow("2024-01-01 01:00:00", 7, "2023-12-07 00:00:00", "2024-01-06 23:59:59")] //new year's -cycle of 7th
-	public void GenerateDefaultReportRequestTest(string dtNow, int billingPeriodStart,  string expectedFromDT, string expectedToDT)
+	public void GenerateDefaultReportRequestTest(string dtNow, int billingPeriodStart, string expectedFromDT, string expectedToDT)
 	{
 		const string expectedDTFormat = "yyyy-MM-dd HH:mm:ss";
 
 		//arrange
 		var testTimeProvider = new FakeTimeProvider();
-		
+
 		testTimeProvider.SetUtcNow(new(DateTime.ParseExact(dtNow, expectedDTFormat, CultureInfo.InvariantCulture)));
 
 		var inMemorySettings = new List<KeyValuePair<string, string>> {
@@ -86,7 +86,7 @@ public class CostCentreReportServiceTests
 			.Build();
 
 		var ruleEngine = GetCostCentreRuleEngineInstance();
-		var sut = new CostCentreReportService(configuration, ruleEngine, new(ruleEngine), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
+		var sut = new CostCentreReportService(configuration, ruleEngine, new(ruleEngine, Mock.Of<IActorProxyFactory>()), Mock.Of<ServiceBusClient>(), Mock.Of<IServiceProvider>(), testTimeProvider, Mock.Of<BlobServiceClient>());
 
 		//act
 		var result = sut.GenerateDefaultReportRequest();
@@ -94,7 +94,7 @@ public class CostCentreReportServiceTests
 		//assert
 		result.CostFrom.Should().Be(DateTime.ParseExact(expectedFromDT, expectedDTFormat, CultureInfo.InvariantCulture));
 		result.CostTo.Should().Be(DateTime.ParseExact(expectedToDT, expectedDTFormat, CultureInfo.InvariantCulture));
-	}	
+	}
 
 	private static CostCentreRuleEngine GetCostCentreRuleEngineInstance()
 	{
@@ -110,7 +110,7 @@ public class CostCentreReportServiceTests
 		return new CostCentreRuleEngine(configuration);
 	}
 
-	private static CostReportRequest ReportRequest => new ()
+	private static CostReportRequest ReportRequest => new()
 	{
 		ReportId = "testReportId",
 		CostFrom = DateTime.Now,

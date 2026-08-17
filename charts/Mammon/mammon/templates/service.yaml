@@ -1,15 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "mammon.fullname" . }}
+  name: mammon-srv
   labels:
-    {{- include "mammon.labels" . | nindent 4 }}
+    app: mammon-app
+    service: mammon-srv
 spec:
-  type: {{ .Values.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+    - name: http
+      port: 80
+      targetPort: {{ .Values.port }}
   selector:
-    {{- include "mammon.selectorLabels" . | nindent 4 }}
+    service: mammon-srv

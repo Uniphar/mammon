@@ -9,7 +9,7 @@ public class LogAnalyticsService(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(laResourceId);
 
-        Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
+        Azure.Response<IReadOnlyList<LAWorkspaceQueryResponseItem>> response;
 
         try
         {
@@ -19,7 +19,7 @@ public class LogAnalyticsService(
 #else
             LogsQueryClient client = new(azureCredential);
 
-            Response<OperationalInsightsWorkspaceResource>? workspace;
+            Azure.Response<OperationalInsightsWorkspaceResource>? workspace;
 
             workspace = await armClient.GetOperationalInsightsWorkspaceResource(new ResourceIdentifier(laResourceId)).GetAsync();
 

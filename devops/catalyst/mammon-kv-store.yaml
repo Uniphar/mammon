@@ -1,0 +1,12 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: platform-mammon-kv-store
+scopes:
+  - platform-mammon
+spec:
+  type: state.diagrid
+  version: v1
+  metadata:
+    - name: state
+      value: platform-mammon-kv-store

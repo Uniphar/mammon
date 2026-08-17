@@ -1,11 +1,12 @@
 ﻿namespace Mammon.Workflows.Activities;
 
 public class CallResourceActorActivity(
-    DaprClient client, 
+    DaprClient client,
     IConfiguration configuration,
-    ILogger<CallResourceActorActivity> logger) : WorkflowActivity<CallResourceActorActivityRequest, CallResourceActorActivityResponse>
+    ILogger<CallResourceActorActivity> logger,
+    IActorProxyFactory actorProxyFactory) : WorkflowActivity<CallResourceActorActivityRequest, CallResourceActorActivityResponse>
 {
-	public override async Task<CallResourceActorActivityResponse> RunAsync(WorkflowActivityContext context, CallResourceActorActivityRequest request)
+    public override async Task<CallResourceActorActivityResponse> RunAsync(WorkflowActivityContext context, CallResourceActorActivityRequest request)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -47,7 +48,7 @@ public class CallResourceActorActivity(
 
         var actorId = $"ResourceActor{actorGuid}";
 
-        await ActorProxy.DefaultProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, nameof(ResourceActor), async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
+        await actorProxyFactory.CallActorWithNoTimeout<IResourceActor>(actorId, nameof(ResourceActor), async (p) => await p.AddCostAsync(request.Cost!.ResourceId, request.Cost.Cost, parentResourceId, request.Cost.Tags));
 
         return new CallResourceActorActivityResponse { ResourceActorId = actorId, ResourceId = parentResourceId };
     }
