@@ -132,7 +132,8 @@ public class SubscriptionWorkflow : Workflow<CostReportSubscriptionRequest, bool
 				CostFrom = input.ReportRequest.CostFrom,
 				CostTo = input.ReportRequest.CostTo,
 				DevOpsOrganization = input.DevOpsOrganization
-			});
+			},
+			new ChildWorkflowTaskOptions { InstanceId = $"{nameof(ObtainDevOpsCostWorkflow)}{input.SubscriptionName}{input.ReportRequest.ReportId}".ToSanitizedInstanceId() });
 
 		// Get project costs from group contributions
 		var projectsCosts = await context.CallChildWorkflowAsync<DevOpsProjectsCosts>(
