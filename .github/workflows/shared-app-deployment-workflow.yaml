@@ -179,7 +179,7 @@ jobs:
           Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
           $longRegionName=Resolve-UniRegionName -RegionShortCode ${{ inputs.regionCode }}
           Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }} -EnableManagedWorkflow
-          diagrid apply -f ./devops/catalyst/ --project ${{ inputs.namespace }}
+          diagrid apply -f ./devops/catalyst/ --project ${{ inputs.namespace }}-${{ inputs.regionCode }}-${{ inputs.environment }}
 
       - name: setup helm
         uses: azure/setup-helm@v4
