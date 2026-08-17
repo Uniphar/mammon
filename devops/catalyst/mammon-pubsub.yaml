@@ -14,5 +14,3 @@ spec:
       value: "${SB_NAMESPACE}.servicebus.windows.net"
     - name: consumerID
       value: mammon
-scopes:
-  - platform-mammon

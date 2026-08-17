@@ -12,5 +12,3 @@ spec:
       value: ${TENANT_ID}
     - name: azureClientId
       value: ${CLIENT_ID}
-scopes:
-  - platform-mammon
