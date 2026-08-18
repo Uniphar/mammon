@@ -35,6 +35,8 @@ spec:
           env:
           - name: "ASPNETCORE_ENVIRONMENT"
             value: {{ .Values.environment | quote }}
+          - name: "REGION_CODE"
+            value: {{ .Values.regionCode | quote }}
           - name: "Mammon__CostCentreRuleEngineFilePath"
             value: /app/costCentreRules.json
           - name: "Mammon__CostCentreRuleEngineDevOpsConfigFilePath"
