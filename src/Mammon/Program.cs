@@ -199,6 +199,7 @@ builder.Services
     .AddSingleton<VDIService>()
     .AddSingleton<SqlFailoverService>()
     .AddSingleton((sp) => TimeProvider.System)
+    .AddHostedService<CostReportCronBackgroundService>()
     .AddAzureClients(clientBuilder =>
     {
         var blobServiceConnectionString = builder.Configuration[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]
