@@ -50,14 +50,13 @@ public class CostReportCronBackgroundService(
         // for the rest of the same due day (e.g. 01:00 and 01:30 must not both publish).
         if (isDue && lastTriggeredDate != today)
         {
-            lastTriggeredDate = today;
-
             await daprClient.PublishEventAsync(
                 Consts.MammonPubSubCRDName,
                 Consts.MammonServiceBusTopicName,
                 costCentreReportService.GenerateDefaultReportRequest(),
                 cancellationToken);
 
+            lastTriggeredDate = today;
             logger.LogInformation("Published scheduled cost report request for {Date}.", today);
         }
     }
