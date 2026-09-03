@@ -78,6 +78,7 @@ DefaultAzureCredential defaultAzureCredentials = new();
 var builder = WebApplication.CreateBuilder(args);
 
 var environment = builder.Environment.EnvironmentName ?? throw new NoNullAllowedException("ASPNETCORE_ENVIRONMENT environment variable has to be set.");
+var regionCode = Environment.GetEnvironmentVariable("REGION_CODE") ?? throw new NoNullAllowedException("REGION_CODE environment variable has to be set.");
 
 builder.Configuration.AddAzureKeyVault(
     new($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
@@ -92,9 +93,11 @@ builder.Configuration.AddEnvironmentVariables();
 // and silently falls back to its default http://localhost:3500 with no API token.
 // Trailing slashes are trimmed as the SDK appends its own leading-slash path (e.g. /v1.0/actors/...),
 // which otherwise results in a double slash in the request URL.
-Environment.SetEnvironmentVariable("DAPR_HTTP_ENDPOINT", (builder.Configuration["platform-mammon:dapr-http-endpoint"] ?? throw new NoNullAllowedException()).TrimEnd('/'));
-Environment.SetEnvironmentVariable("DAPR_GRPC_ENDPOINT", (builder.Configuration["platform-mammon:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException()).TrimEnd('/'));
-Environment.SetEnvironmentVariable("DAPR_API_TOKEN", builder.Configuration["platform-mammon:dapr-api-token"] ?? throw new NoNullAllowedException());
+// Secret names are keyed off the diagrid catalyst project name, which now includes region and environment (e.g. platform-mammon-ne-dev).
+var daprCatalystProjectName = $"platform-mammon-{regionCode}-{environment}";
+Environment.SetEnvironmentVariable("DAPR_HTTP_ENDPOINT", (builder.Configuration[$"{daprCatalystProjectName}:dapr-http-endpoint"] ?? throw new NoNullAllowedException()).TrimEnd('/'));
+Environment.SetEnvironmentVariable("DAPR_GRPC_ENDPOINT", (builder.Configuration[$"{daprCatalystProjectName}:dapr-grpc-endpoint"] ?? throw new NoNullAllowedException()).TrimEnd('/'));
+Environment.SetEnvironmentVariable("DAPR_API_TOKEN", builder.Configuration[$"{daprCatalystProjectName}:dapr-api-token"] ?? throw new NoNullAllowedException());
 
 
 builder
@@ -196,6 +199,7 @@ builder.Services
     .AddSingleton<VDIService>()
     .AddSingleton<SqlFailoverService>()
     .AddSingleton((sp) => TimeProvider.System)
+    .AddHostedService<CostReportCronBackgroundService>()
     .AddAzureClients(clientBuilder =>
     {
         var blobServiceConnectionString = builder.Configuration[Consts.DotFlyerAttachmentsBlobStorageConnectionStringConfigKey]

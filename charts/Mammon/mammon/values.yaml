@@ -1,5 +1,6 @@
 replicaCount: 1
 revisionHistoryLimit: 2
 AKSClusterSAName: TBD by pipeline
+regionCode: TBD by pipeline
 
 port: 8080

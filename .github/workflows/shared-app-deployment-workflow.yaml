@@ -179,7 +179,7 @@ jobs:
           Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
           $longRegionName=Resolve-UniRegionName -RegionShortCode ${{ inputs.regionCode }}
           Initialize-UniAKSDiagridCatalystProject -Environment ${{ inputs.environment }} -Region $longRegionName -WorkloadName ${{ inputs.namespace }} -EnableManagedWorkflow
-          diagrid apply -f ./devops/catalyst/ --project ${{ inputs.namespace }}
+          diagrid apply -f ./devops/catalyst/ --project ${{ inputs.namespace }}-${{ inputs.regionCode }}-${{ inputs.environment }}
 
       - name: setup helm
         uses: azure/setup-helm@v4
@@ -204,6 +204,7 @@ jobs:
           -i
           --set reason="Upgrade to $APPLICATION_VERSION"
           --set environment="$ENVIRONMENT"
+          --set-string regionCode="${{ inputs.regionCode }}"
           --set-string ACRName="$ACR_NAME"
           --set-string AKSClusterSAName="$AKS_CLUSTER_SERVICE_ACCOUNT_NAME"
           --set mockCostAndLogQueryApis=${{ inputs.mockCostAndLogQueryApis }}

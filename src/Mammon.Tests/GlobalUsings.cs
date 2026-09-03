@@ -11,6 +11,7 @@ global using Azure.Storage.Blobs;
 global using CsvHelper;
 global using CsvHelper.Configuration;
 global using Dapr.Actors.Client;
+global using Dapr.Client;
 global using DotFlyer.Common.Payload;
 global using Kusto.Cloud.Platform.Data;
 global using Kusto.Data;
