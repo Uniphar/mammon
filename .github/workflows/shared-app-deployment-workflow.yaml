@@ -69,9 +69,10 @@ jobs:
           private_key: ${{ secrets.ACTIONS_AUTH_APP_PRIVATE_KEY }}
 
       - name: checkout devops-azure repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
         with:
           path: devops-azure
+          ref: feature/catalyst-workflow-signing
           repository: Uniphar/devops-azure
           token: ${{ steps.gh-app.outputs.token }}
 
