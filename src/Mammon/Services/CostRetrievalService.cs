@@ -370,7 +370,22 @@ public class CostRetrievalService
         foreach (var row in intermediateData.Properties!.Rows!)
         {
             Dictionary<string, string> tags = [];
-
+            
+            var rID = (string)row[resourceIdIndex];
+            ///handle edge case of missing resource id (often external marketplace)
+            ///assign virtual one
+            if (string.IsNullOrWhiteSpace(rID))
+                rID = $"{subId}/resourceGroups/unknown/providers/unknown/unknown/{Guid.NewGuid()}";
+            
+            try
+            {
+                var resourceType = new ResourceIdentifier(rID).ResourceType;
+            }
+            catch (FormatException)
+            {
+                continue;
+            }
+            
             foreach (var item in ((JsonElement)row[tagsId]).EnumerateArray())
             {
                 string value = item.ToString();
