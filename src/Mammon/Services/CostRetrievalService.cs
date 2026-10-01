@@ -396,23 +396,6 @@ public class CostRetrievalService
                 }
             }
 
-            var rID = (string)row[resourceIdIndex];
-
-            try
-            {
-                var resourceType = new ResourceIdentifier(rID).ResourceType;
-            }
-            catch (FormatException)
-            {
-                continue;
-            }
-            
-
-            ///handle edge case of missing resource id (often external marketplace)
-            ///assign virtual one
-            if (string.IsNullOrWhiteSpace(rID))
-                rID = $"{subId}/resourceGroups/unknown/providers/unknown/unknown/{Guid.NewGuid()}";
-
             costs.Add(new ResourceCostResponse
             {
                 Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
