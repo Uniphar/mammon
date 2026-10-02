@@ -379,11 +379,12 @@ public class CostRetrievalService
             
             try
             {
-                var resourceType = new ResourceIdentifier(rID).ResourceType;
+                _ = new ResourceIdentifier(rID).ResourceType;
             }
             catch (FormatException)
             {
-                continue;
+                rID = FixResourceIdentifier(rID);
+                if (rID is null) continue;
             }
             
             foreach (var item in ((JsonElement)row[tagsId]).EnumerateArray())
@@ -405,6 +406,14 @@ public class CostRetrievalService
         }
 
         return (intermediateData.Properties?.NextLink, costs);
+    }
+    
+    private static string? FixResourceIdentifier(string resourceId)
+    {
+        return resourceId.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase) ||
+               resourceId.StartsWith("providers/", StringComparison.OrdinalIgnoreCase)
+            ? $"/{resourceId}"
+            : null;
     }
 
     public static KeyValuePair<string, string>? ParseOutTag(string? value)
