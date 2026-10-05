@@ -384,7 +384,21 @@ public class CostRetrievalService
             catch (FormatException)
             {
                 rID = FixResourceIdentifier(rID);
-                if (rID is null) continue;
+                if (rID is not null)
+                {
+                    try
+                    {
+                        _ = new ResourceIdentifier(rID).ResourceType;
+                    }
+                    catch (FormatException)
+                    {
+                        rID = GetResourceIdentifierFallback(subId);
+                    }
+                }
+                else
+                {
+                    rID = GetResourceIdentifierFallback(subId);
+                }
             }
             
             foreach (var item in ((JsonElement)row[tagsId]).EnumerateArray())
@@ -511,6 +525,9 @@ public class CostRetrievalService
 
         return (result.Properties!.NextLink, costs);
     }
+    
+    private static string GetResourceIdentifierFallback(string subId)
+        => $"/subscriptions/{subId}/resourcegroups/default-rg/providers/default-type/default-sub-type/default";
 
     public sealed class DevOpsCostResponse
     {
