@@ -13,14 +13,14 @@
           { "name": "Cost", "type": "Number" },
           { "name": "ResourceId", "type": "String" },
           { "name": "Tags", "type": "Array" },
-          { "name": "Currency", "type": "String" },
+          { "name": "Currency", "type": "String" }
         ],
       "rows":
         [
           [3.0, "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-preprod", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
           [4.0, "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-prod", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
           [5.0, "subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-sup-prod", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
-          [6.0, "some-unparsable", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"]
+          [6.0, "unparsable-resource-identifier-id", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"]
         ]
     }
 }
