@@ -17,8 +17,8 @@
         ],
       "rows":
         [
-          [1.0, "resource1", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
-          [2.0, "resource2", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"]
+          [1.0, "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-dev", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"],
+          [2.0, "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-qa", ["\"tag1\":\"value1\"","\"tag2\":\""], "EUR"]
         ]
     }
 }

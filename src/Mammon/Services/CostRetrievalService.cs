@@ -370,7 +370,37 @@ public class CostRetrievalService
         foreach (var row in intermediateData.Properties!.Rows!)
         {
             Dictionary<string, string> tags = [];
-
+            
+            var rID = (string)row[resourceIdIndex];
+            ///handle edge case of missing resource id (often external marketplace)
+            ///assign virtual one
+            if (string.IsNullOrWhiteSpace(rID))
+                rID = $"{subId}/resourceGroups/unknown/providers/unknown/unknown/{Guid.NewGuid()}";
+            
+            try
+            {
+                _ = new ResourceIdentifier(rID).ResourceType;
+            }
+            catch (FormatException)
+            {
+                rID = FixResourceIdentifier(rID);
+                if (rID is not null)
+                {
+                    try
+                    {
+                        _ = new ResourceIdentifier(rID).ResourceType;
+                    }
+                    catch (FormatException)
+                    {
+                        rID = GetResourceIdentifierFallback(subId);
+                    }
+                }
+                else
+                {
+                    rID = GetResourceIdentifierFallback(subId);
+                }
+            }
+            
             foreach (var item in ((JsonElement)row[tagsId]).EnumerateArray())
             {
                 string value = item.ToString();
@@ -381,13 +411,6 @@ public class CostRetrievalService
                 }
             }
 
-            var rID = (string)row[resourceIdIndex];
-
-            ///handle edge case of missing resource id (often external marketplace)
-            ///assign virtual one
-            if (string.IsNullOrWhiteSpace(rID))
-                rID = $"{subId}/resourceGroups/unknown/providers/unknown/unknown/{Guid.NewGuid()}";
-
             costs.Add(new ResourceCostResponse
             {
                 Cost = new ResourceCost((decimal)row[costIndex], (string)row[currencyIndex]),
@@ -397,6 +420,14 @@ public class CostRetrievalService
         }
 
         return (intermediateData.Properties?.NextLink, costs);
+    }
+    
+    private static string? FixResourceIdentifier(string resourceId)
+    {
+        return resourceId.StartsWith("subscriptions/", StringComparison.OrdinalIgnoreCase) ||
+               resourceId.StartsWith("providers/", StringComparison.OrdinalIgnoreCase)
+            ? $"/{resourceId}"
+            : null;
     }
 
     public static KeyValuePair<string, string>? ParseOutTag(string? value)
@@ -494,6 +525,9 @@ public class CostRetrievalService
 
         return (result.Properties!.NextLink, costs);
     }
+    
+    private static string GetResourceIdentifierFallback(string subId)
+        => $"/subscriptions/{subId}/resourcegroups/default-rg/providers/default-type/default-sub-type/default";
 
     public sealed class DevOpsCostResponse
     {

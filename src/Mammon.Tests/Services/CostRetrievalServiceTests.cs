@@ -39,21 +39,29 @@ public class CostRetrievalServiceTests
 
         //assert
         result.Should().NotBeNull();
-        result.Should().HaveCount(4);
+        result.Should().HaveCount(6);
 
-        result.Should().Contain((r) => r.Cost.Cost == 1 && r.ResourceId == "resource1" && r.Cost.Currency=="EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 1 && r.ResourceId == "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-dev" && r.Cost.Currency=="EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
-        result.Should().Contain((r) => r.Cost.Cost == 2 && r.ResourceId == "resource2" && r.Cost.Currency == "EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 2 && r.ResourceId == "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-qa" && r.Cost.Currency == "EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
-        result.Should().Contain((r) => r.Cost.Cost == 3 && r.ResourceId == "resource3" && r.Cost.Currency == "EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 3 && r.ResourceId == "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-preprod" && r.Cost.Currency == "EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
-        result.Should().Contain((r) => r.Cost.Cost == 4 && r.ResourceId == "resource4" && r.Cost.Currency == "EUR"
+        result.Should().Contain((r) => r.Cost.Cost == 4 && r.ResourceId == "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-prod" && r.Cost.Currency == "EUR"
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
+
+        result.Should().Contain((r) => r.Cost.Cost == 5 && r.ResourceId == "/subscriptions/06204e3d-5023-44cb-9fc0-d714ece18c29/resourcegroups/rg-group/providers/microsoft.operationalinsights/workspaces/logs-sup-prod" && r.Cost.Currency == "EUR"
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
+            && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
+
+        result.Should().Contain((r) => r.Cost.Cost == 6 && r.ResourceId == "/subscriptions//subscriptions/subId/resourcegroups/default-rg/providers/default-type/default-sub-type/default" && r.Cost.Currency == "EUR"
             && r.Tags.Contains(new KeyValuePair<string, string>("tag1", "value1"))
             && r.Tags.Contains(new KeyValuePair<string, string>("tag2", "")));
 
