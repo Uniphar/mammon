@@ -30,7 +30,6 @@ public class TenantWorkflowTests
         _cancellationToken = testContext.CancellationTokenSource.Token;
 
         var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "dev";
-        var kvUrl = $"https://uni-devops-app-{environment}-kv.vault.azure.net/";
 
         DefaultAzureCredential azureCredential = new();
 
@@ -67,7 +66,7 @@ public class TenantWorkflowTests
         _host = builder.Build();
 
         ConfigurationBuilder configurationBuilder = new();
-        configurationBuilder.AddAzureKeyVault(new Uri(kvUrl), azureCredential);
+        configurationBuilder.AddIntegrationTestOldUniKeyvault(environment, azureCredential);
         configurationBuilder.AddInMemoryCollection(inMemorySettings!);
         _config = configurationBuilder.Build();
 

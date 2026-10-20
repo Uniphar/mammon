@@ -60,4 +60,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Uniphar.Platform.Common" Version="*" />
+    <Using Include="Uniphar.Platform.Common.Extensions" />
+  </ItemGroup>
 </Project>

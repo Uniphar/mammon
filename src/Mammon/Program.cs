@@ -80,9 +80,7 @@ var builder = WebApplication.CreateBuilder(args);
 var environment = builder.Environment.EnvironmentName ?? throw new NoNullAllowedException("ASPNETCORE_ENVIRONMENT environment variable has to be set.");
 var regionCode = Environment.GetEnvironmentVariable("REGION_CODE") ?? throw new NoNullAllowedException("REGION_CODE environment variable has to be set.");
 
-builder.Configuration.AddAzureKeyVault(
-    new($"https://uni-devops-app-{environment}-kv.vault.azure.net/"),
-    defaultAzureCredentials);
+builder.Configuration.AddUniOldKeyvault(environment, defaultAzureCredentials);
 
 
 const string healthUrl = appPathPrefix + "/health";

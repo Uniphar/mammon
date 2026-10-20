@@ -74,23 +74,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: compute environment variables
-        uses: azure/powershell@v1
-        with:
-          azPSVersion: "latest"
-          failOnStandardError: true
-          inlineScript: |
-            try{
-              Import-Module ./devops-azure/src/Uniphar.DevOps.psd1 -ErrorAction Stop -Force
-
-              $AzureKeyVaultName = Resolve-UniResourceName 'keyvault' "$p_devopsDomain-app" -Environment '${{ inputs.environment }}'
-
-              echo "MAMMON_CONFIG_KEYVAULT_URL=https://$AzureKeyVaultName.vault.azure.net" >> $env:GITHUB_ENV
-            }
-            catch {
-              Write-Error $_
-              exit 1
-            }
       - name: Run integration tests
         id: integration_tests
         working-directory: ./mammon/src/${{ inputs.applicationFolder }}.Tests
