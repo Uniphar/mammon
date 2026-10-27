@@ -164,7 +164,8 @@ builder.Services
                 KeepAlivePingPolicy = HttpKeepAlivePingPolicy.WithActiveRequests
             }
         });
-    })
+    });
+builder.Services
     .AddActors(options =>
     {
         options.Actors.RegisterActor<ResourceActor>();
