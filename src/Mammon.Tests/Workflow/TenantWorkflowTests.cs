@@ -66,7 +66,7 @@ public class TenantWorkflowTests
         _host = builder.Build();
 
         ConfigurationBuilder configurationBuilder = new();
-        configurationBuilder.AddIntegrationTestOldUniKeyvault(environment, azureCredential);
+        configurationBuilder.AddIntegrationTestOldUniKeyvault("mammon", "platform", environment, azureCredential);
         configurationBuilder.AddInMemoryCollection(inMemorySettings!);
         _config = configurationBuilder.Build();
 
