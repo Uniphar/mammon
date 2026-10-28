@@ -22,7 +22,7 @@
     <PackageReference Include="Azure.ResourceManager.OperationalInsights" Version="*" />
     <PackageReference Include="Azure.ResourceManager.Sql" Version="*" />
     <PackageReference Include="Azure.Storage.Blobs" Version="*" />
-    <PackageReference Include="CsvHelper" Version="*" />
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Dapr.AspNetCore" Version="*" />
     <PackageReference Include="DotFlyer.Common" Version="*" />
     <PackageReference Include="FluentValidation" Version="*" />
@@ -60,4 +60,8 @@
     </Content>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Uniphar.Platform.Common" Version="*" />
+    <Using Include="Uniphar.Platform.Common.Extensions" />
+  </ItemGroup>
 </Project>
