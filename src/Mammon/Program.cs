@@ -102,7 +102,6 @@ Environment.SetEnvironmentVariable("DAPR_API_TOKEN", builder.Configuration[$"{da
 
 builder
     .RegisterOpenTelemetry("mammon")
-    .WithAppInsightsConnectionString(builder.Configuration["APPLICATIONINSIGHTS:CONNECTIONSTRING"] ?? throw new InvalidOperationException("Application Insights connection string is required"))
     .WithFilterExclusion(["/" + healthUrl])
     .Build();
 
