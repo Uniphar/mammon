@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="*" />
     <PackageReference Include="System.Formats.Asn1" Version="*" />
     <PackageReference Include="System.Text.Json" Version="*" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="*" />
   </ItemGroup>
 
   <ItemGroup>
