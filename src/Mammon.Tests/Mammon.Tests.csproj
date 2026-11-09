@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="AwesomeAssertions" Version="*" />
-	<PackageReference Include="coverlet.collector" Version="*" />
+    <PackageReference Include="AwesomeAssertions" Version="*" />
+    <PackageReference Include="coverlet.collector" Version="*" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
     <PackageReference Include="Moq" Version="*" />
@@ -57,4 +57,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Uniphar.Platform.Common" Version="*" />
+    <Using Include="Uniphar.Platform.Common.Extensions" />
+  </ItemGroup>
 </Project>
