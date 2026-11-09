@@ -11,8 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<PackageReference Include="AwesomeAssertions" Version="*" />
-	<PackageReference Include="coverlet.collector" Version="*" />
+    <PackageReference Include="AwesomeAssertions" Version="*" />
+    <PackageReference Include="coverlet.collector" Version="*" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="*" />
     <PackageReference Include="Moq" Version="*" />
@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="*" />
     <PackageReference Include="System.Formats.Asn1" Version="*" />
     <PackageReference Include="System.Text.Json" Version="*" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="*" />
   </ItemGroup>
 
   <ItemGroup>

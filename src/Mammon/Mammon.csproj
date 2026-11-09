@@ -34,6 +34,7 @@
     <PackageReference Include="Dapr.Actors.AspNetCore" Version="*" />
     <PackageReference Include="Uniphar.Platform.Telemetry" Version="*" />
     <PackageReference Include="Westwind.AspNetCore" Version="*" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="*" />
   </ItemGroup>
 
   <ItemGroup>
