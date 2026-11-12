@@ -9,32 +9,32 @@ on:
     secrets:
       AZURE_TENANT_ID:
         required: true
-        description: 'Azure Tenant ID'
+        description: "Azure Tenant ID"
       AZURE_CLIENT_ID:
         required: true
-        description: 'Azure Client ID'
+        description: "Azure Client ID"
       AZURE_SUBSCRIPTION_ID:
         required: true
-        description: 'Azure Subscription ID'
+        description: "Azure Subscription ID"
       ACTIONS_AUTH_APP_ID:
         required: true
-        description: 'GitHub App ID'
+        description: "GitHub App ID"
       ACTIONS_AUTH_APP_PRIVATE_KEY:
         required: true
-        description: 'GitHub App Private Key'
+        description: "GitHub App Private Key"
     inputs:
       applicationFolder:
         type: string
         required: true
         description: Application Folder
-      
+
 jobs:
   app_ci:
     runs-on: ubuntu-latest
     steps:
       - name: checkout repo
         uses: actions/checkout@v3
-      
+
       - name: gh-app-install token
         id: gh-app
         uses: getsentry/action-github-app-token@v2
@@ -59,12 +59,12 @@ jobs:
 
       - uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '10'
+          dotnet-version: "11.x"
 
       - name: expose app name into env
         run: |
           echo "APPLICATION_FOLDER=${{ inputs.applicationFolder }}" >> $GITHUB_ENV
-          
+
       - name: run unit tests
         working-directory: ./src/${{ env.APPLICATION_FOLDER }}.Tests
         run: |
@@ -85,15 +85,15 @@ jobs:
         working-directory: ./src/
         run: |
           docker build . -f ./$APPLICATION_FOLDER/Dockerfile --build-arg BUILD_CONFIGURATION=INTTEST
-      
+
       - name: check for NuGet vulnerabilites
         working-directory: ./src/
         shell: pwsh
         run: |
-            dotnet restore
-            dotnet list package --vulnerable --include-transitive 2>&1 | tee build.log
-            echo "Analyze dotnet list package command log output..."
-            exit (Select-String -Path "build.log" -Pattern "has the following vulnerable packages" -AllMatches).Matches.Count -gt 0 ? 1 : 0
+          dotnet restore
+          dotnet list package --vulnerable --include-transitive 2>&1 | tee build.log
+          echo "Analyze dotnet list package command log output..."
+          exit (Select-String -Path "build.log" -Pattern "has the following vulnerable packages" -AllMatches).Matches.Count -gt 0 ? 1 : 0
 
       - name: azure login
         uses: azure/login@v2
@@ -102,12 +102,12 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           enable-AzPSSession: true
-    
+
       - name: Powershell WhatIf
         uses: azure/powershell@v2
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }} #required for gh cli to determine "current PR"
-        with: 
+        with:
           inlineScript: |
             Import-Module .\devops-azure\src\Uniphar.DevOps.psd1 -ErrorAction Stop -Force
             . ./devops/Initialize-SubscriptionsRBAC.ps1
@@ -115,9 +115,9 @@ jobs:
             Initialize-MammonWorkload 'dev' -WhatIf
             Initialize-SubscriptionsRBAC ./costcentre-definitions/costCentreRules.json test -WhatIf
           azPSVersion: "latest"
-          errorActionPreference: 'stop'
+          errorActionPreference: "stop"
           failOnStandardError: true
-          
+
   notify:
     needs: app_ci
     runs-on: ubuntu-latest
@@ -132,9 +132,9 @@ jobs:
 
       - uses: benc-uk/workflow-dispatch@v1
         with:
-          workflow: 'shared-failed-build-notification-workflow.yaml'
+          workflow: "shared-failed-build-notification-workflow.yaml"
           inputs: '{
-              "workflowId":"${{ github.run_id }}", 
-              "repository":"${{ github.repository }}"
+            "workflowId":"${{ github.run_id }}",
+            "repository":"${{ github.repository }}"
             }'
           token: ${{ steps.gh-app.outputs.token }}
